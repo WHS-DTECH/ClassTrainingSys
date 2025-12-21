@@ -1,4 +1,5 @@
-# TEMPORARY DEBUG ROUTE
+
+# TEMPORARY DEBUG ROUTE (must be after Blueprint definition)
 @bp.route('/admin-debug')
 def admin_debug():
     from app.models import User
