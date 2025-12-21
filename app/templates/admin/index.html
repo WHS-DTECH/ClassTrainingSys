@@ -13,7 +13,6 @@
 {% if upload_message %}
   <div class="alert alert-info">{{ upload_message }}</div>
 {% endif %}
-{% if users %}
 <h2>Users and Enrollments</h2>
 <div style="overflow-x:auto;">
 <table class="table" style="width:100%; border-collapse:collapse;">
@@ -26,34 +25,39 @@
     </tr>
   </thead>
   <tbody>
-    {% for user in users %}
-      {% set user_courses = user_enrollments[user.id] if user.id in user_enrollments else [] %}
-      {% for course in courses %}
-        <tr>
-          {% if loop.first %}
-            <td style="padding:8px; border:1px solid #dee2e6;" rowspan="{{ courses|length }}">{{ user.username }}</td>
-            <td style="padding:8px; border:1px solid #dee2e6;" rowspan="{{ courses|length }}">{{ user.role }}</td>
-          {% endif %}
-          <td style="padding:8px; border:1px solid #dee2e6;">{{ course.title }}</td>
-          <td style="padding:8px; border:1px solid #dee2e6;">
-            <form method="POST" action="{{ url_for('admin.index') }}" style="display:inline;">
-              <input type="hidden" name="user_id" value="{{ user.id }}">
-              <input type="hidden" name="course_id" value="{{ course.id }}">
-              {% set enrolled = course in user_courses %}
-              {% if enrolled %}
-                <button type="submit" name="action" value="unenrol" class="btn btn-danger btn-sm">Unenrol</button>
-              {% else %}
-                <button type="submit" name="action" value="enrol" class="btn btn-success btn-sm">Enroll</button>
-              {% endif %}
-            </form>
-          </td>
-        </tr>
+    {% if users and courses %}
+      {% for user in users %}
+        {% set user_courses = user_enrollments[user.id] if user.id in user_enrollments else [] %}
+        {% for course in courses %}
+          <tr>
+            {% if loop.first %}
+              <td style="padding:8px; border:1px solid #dee2e6;" rowspan="{{ courses|length }}">{{ user.username }}</td>
+              <td style="padding:8px; border:1px solid #dee2e6;" rowspan="{{ courses|length }}">{{ user.role }}</td>
+            {% endif %}
+            <td style="padding:8px; border:1px solid #dee2e6;">{{ course.title }}</td>
+            <td style="padding:8px; border:1px solid #dee2e6;">
+              <form method="POST" action="{{ url_for('admin.index') }}" style="display:inline;">
+                <input type="hidden" name="user_id" value="{{ user.id }}">
+                <input type="hidden" name="course_id" value="{{ course.id }}">
+                {% set enrolled = course in user_courses %}
+                {% if enrolled %}
+                  <button type="submit" name="action" value="unenrol" class="btn btn-danger btn-sm">Unenrol</button>
+                {% else %}
+                  <button type="submit" name="action" value="enrol" class="btn btn-success btn-sm">Enroll</button>
+                {% endif %}
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
       {% endfor %}
-    {% endfor %}
+    {% else %}
+      <tr>
+        <td colspan="4" style="text-align:center; padding:16px; color:#888;">No users or courses found in the system.</td>
+      </tr>
+    {% endif %}
   </tbody>
 </table>
 </div>
-{% endif %}
 {% if courses %}
 <h2>Courses</h2>
 <ul>
