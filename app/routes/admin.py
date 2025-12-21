@@ -1,3 +1,12 @@
+# TEMPORARY DEBUG ROUTE
+@bp.route('/admin-debug')
+def admin_debug():
+    from app.models import User
+    admin_email = "vanessapringle@westlandhigh.school.nz"
+    user = User.query.filter_by(email=admin_email).first()
+    if not user:
+        return "Admin user not found."
+    return f"Admin user: {user.email}<br>Username: {user.username}<br>Role: {user.role}<br>Password hash: {user.password_hash}"
 
 # All imports at the top
 import csv
