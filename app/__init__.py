@@ -44,6 +44,7 @@ def create_app():
         admin_password = "Staff123!"  # Change as needed
         user = User.query.filter_by(email=admin_email).first()
         if not user:
+            print("[ADMIN BOOTSTRAP] Creating admin user...")
             user = User(
                 username=admin_username,
                 email=admin_email,
@@ -52,10 +53,13 @@ def create_app():
                 role="teacher"
             )
             db.session.add(user)
+        else:
+            print("[ADMIN BOOTSTRAP] Admin user exists. Resetting password and role...")
         # Always set password and role for admin user
         user.set_password(admin_password)
         user.role = "teacher"
         db.session.commit()
+        print(f"[ADMIN BOOTSTRAP] Admin user {admin_email} ensured with password {admin_password} and role teacher.")
         # --- End permanent admin bootstrap ---
     
     return app
