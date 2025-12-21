@@ -27,6 +27,7 @@
   </thead>
   <tbody>
     {% for user in users %}
+      {% set user_courses = user_enrollments[user.id] if user.id in user_enrollments else [] %}
       {% for course in courses %}
         <tr>
           {% if loop.first %}
@@ -38,7 +39,7 @@
             <form method="POST" action="{{ url_for('admin.index') }}" style="display:inline;">
               <input type="hidden" name="user_id" value="{{ user.id }}">
               <input type="hidden" name="course_id" value="{{ course.id }}">
-              {% set enrolled = course in user_enrollments[user.id] %}
+              {% set enrolled = course in user_courses %}
               {% if enrolled %}
                 <button type="submit" name="action" value="unenrol" class="btn btn-danger btn-sm">Unenrol</button>
               {% else %}
