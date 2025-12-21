@@ -1,3 +1,23 @@
+# All imports at the top
+import csv
+import json
+from werkzeug.utils import secure_filename
+from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask_login import login_required, current_user
+from app import db
+from app.models import User, Course, Enrollment, Lesson
+from functools import wraps
+
+# Blueprint definition
+bp = Blueprint('admin', __name__, url_prefix='/admin')
+# TEMPORARY DEBUG ROUTE (must be after Blueprint definition)
+@bp.route('/admin-debug')
+def admin_debug():
+    admin_email = "vanessapringle@westlandhigh.school.nz"
+    user = User.query.filter_by(email=admin_email).first()
+    if not user:
+        return "Admin user not found."
+    return f"Admin user: {user.email}<br>Username: {user.username}<br>Role: {user.role}<br>Password hash: {user.password_hash}"
 
 # TEMPORARY DEBUG ROUTE (must be after Blueprint definition)
 @bp.route('/admin-debug')
