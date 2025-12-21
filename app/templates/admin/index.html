@@ -3,6 +3,16 @@
 <h1>Admin Dashboard</h1>
 <div style="color: #0074D9; font-weight: bold;">Class Training System v1.0.0</div>
 <p>Welcome to the admin dashboard.</p>
+<hr>
+<h2>Bulk Upload Modules & Lessons</h2>
+<form method="POST" action="{{ url_for('admin.bulk_upload') }}" enctype="multipart/form-data" style="margin-bottom: 2em;">
+  <label for="bulkfile">Select CSV or JSON file:</label>
+  <input type="file" name="bulkfile" id="bulkfile" accept=".csv,.json" required>
+  <button type="submit" class="btn btn-primary btn-sm">Upload</button>
+</form>
+{% if upload_message %}
+  <div class="alert alert-info">{{ upload_message }}</div>
+{% endif %}
 {% if users %}
 <h2>Users and Enrollments</h2>
 <div style="overflow-x:auto;">

@@ -1,3 +1,74 @@
+import csv
+import json
+from werkzeug.utils import secure_filename
+@bp.route('/bulk_upload', methods=['POST'])
+@login_required
+@teacher_required
+def bulk_upload():
+    upload_message = None
+    file = request.files.get('bulkfile')
+    if not file:
+        upload_message = 'No file uploaded.'
+        return redirect(url_for('admin.index', upload_message=upload_message))
+    filename = secure_filename(file.filename)
+    ext = filename.rsplit('.', 1)[-1].lower()
+    try:
+        if ext == 'csv':
+            # Expecting: course_title, course_description, lesson_title, lesson_content, lesson_order, lesson_template_path, lesson_video_url
+            reader = csv.DictReader(file.read().decode('utf-8').splitlines())
+            for row in reader:
+                # Find or create course
+                course = Course.query.filter_by(title=row['course_title']).first()
+                if not course:
+                    course = Course(title=row['course_title'], description=row.get('course_description', ''), teacher_id=current_user.id)
+                    db.session.add(course)
+                    db.session.commit()
+                # Add lesson
+                lesson = Lesson(
+                    course_id=course.id,
+                    title=row['lesson_title'],
+                    content=row.get('lesson_content', ''),
+                    order=int(row.get('lesson_order', 0)),
+                    template_path=row.get('lesson_template_path', ''),
+                    video_url=row.get('lesson_video_url', '')
+                )
+                db.session.add(lesson)
+            db.session.commit()
+            upload_message = 'CSV upload successful.'
+        elif ext == 'json':
+            # Expecting: list of {course: {...}, lessons: [...]}
+            data = json.load(file)
+            for entry in data:
+                c = entry['course']
+                course = Course.query.filter_by(title=c['title']).first()
+                if not course:
+                    course = Course(title=c['title'], description=c.get('description', ''), teacher_id=current_user.id)
+                    db.session.add(course)
+                    db.session.commit()
+                for l in entry['lessons']:
+                    lesson = Lesson(
+                        course_id=course.id,
+                        title=l['title'],
+                        content=l.get('content', ''),
+                        order=int(l.get('order', 0)),
+                        template_path=l.get('template_path', ''),
+                        video_url=l.get('video_url', '')
+                    )
+                    db.session.add(lesson)
+            db.session.commit()
+            upload_message = 'JSON upload successful.'
+        else:
+            upload_message = 'Unsupported file type.'
+    except Exception as e:
+        upload_message = f'Error: {str(e)}'
+    # Show message on admin dashboard
+    users = User.query.all()
+    courses = Course.query.filter_by(teacher_id=current_user.id).all()
+    user_enrollments = {}
+    for user in users:
+        enrolled_courses = [enrollment.course for enrollment in user.enrollments]
+        user_enrollments[user.id] = enrolled_courses
+    return render_template('admin/index.html', users=users, courses=courses, user_enrollments=user_enrollments, upload_message=upload_message)
 from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app import db
