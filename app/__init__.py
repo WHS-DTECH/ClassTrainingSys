@@ -37,27 +37,6 @@ def create_app():
     # Create database tables
     with app.app_context():
         db.create_all()
-        # --- TEMPORARY: Ensure admin user exists, set password and role ---
-        from app.models import User
-        admin_email = "vanessapringle@westlandhigh.school.nz"
-        admin_username = "vanessapringle"
-        user = User.query.filter_by(email=admin_email).first()
-        if not user:
-            user = User(
-                username=admin_username,
-                email=admin_email,
-                first_name="Vanessa",
-                last_name="Pringle",
-                role="teacher"
-            )
-            user.set_password("Staff123!")
-            db.session.add(user)
-            db.session.commit()
-        else:
-            user.role = "teacher"
-            user.set_password("Staff123!")
-            db.session.commit()
-        # --- END TEMPORARY ---
     
     return app
 
