@@ -1,0 +1,14 @@
+[
+  {
+    "course": {
+      "title": "Module 2: Debugging and Problem Solving",
+      "description": "Module 2 covers debugging techniques and problem solving."
+    },
+    "lessons": [
+      {"title": "Lesson 1: Introduction", "content": "", "order": 1, "template_path": "modules/module2/m2lesson_intro.html", "video_url": ""},
+      {"title": "Lesson 2: Lesson 1", "content": "", "order": 2, "template_path": "modules/module2/m2lesson1.html", "video_url": ""},
+      {"title": "Lesson 3: Debugging Intro", "content": "", "order": 3, "template_path": "modules/module2/debugging_intro.html", "video_url": ""},
+      {"title": "Lesson 4: Contents", "content": "", "order": 4, "template_path": "modules/module2/m2_contents.html", "video_url": ""}
+    ]
+  }
+]

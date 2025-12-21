@@ -37,6 +37,27 @@ def create_app():
     # Create database tables
     with app.app_context():
         db.create_all()
+        # --- Permanent admin bootstrap ---
+        from app.models import User
+        admin_email = "vanessapringle@westlandhigh.school.nz"
+        admin_username = "vanessapringle"
+        admin_password = "Staff123!"  # Change as needed
+        user = User.query.filter_by(email=admin_email).first()
+        if not user:
+            user = User(
+                username=admin_username,
+                email=admin_email,
+                first_name="Vanessa",
+                last_name="Pringle",
+                role="teacher"
+            )
+            user.set_password(admin_password)
+            db.session.add(user)
+            db.session.commit()
+        elif user.role != "teacher":
+            user.role = "teacher"
+            db.session.commit()
+        # --- End permanent admin bootstrap ---
     
     return app
 
