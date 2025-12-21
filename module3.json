@@ -1,8 +1,8 @@
 [
   {
     "course": {
-      "title": "Module 3: Advanced Programming Concepts",
-      "description": "Module 3 covers advanced programming concepts and practices."
+      "title": "Module 3: Assessment Checking",
+      "description": "Module 3 covers assessment checking concepts and practices, including how to review, check, and provide feedback on programming assessments."
     },
     "lessons": [
       {"title": "Lesson 0: Overview", "content": "", "order": 0, "template_path": "modules/module3/m3lesson0.html", "video_url": ""},
