@@ -38,7 +38,7 @@ def create_app():
     with app.app_context():
         db.create_all()
         # --- TEMPORARY: Make user admin if email matches ---
-        from app.models import User, db
+        from app.models import User
         admin_email = "vanessapringle@westlandhigh.school.nz"
         user = User.query.filter_by(email=admin_email).first()
         if user and user.role != "teacher":
