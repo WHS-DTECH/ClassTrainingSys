@@ -1,3 +1,86 @@
+/* Course List Improvements */
+.course-list {
+    margin-top: 1.5em;
+}
+.course-card {
+    padding: 1.2em 1.5em;
+    margin-bottom: 0.5em;
+    background: #fff;
+    border-radius: 0.7em;
+    box-shadow: 0 2px 8px rgba(92,14,42,0.07);
+}
+.course-desc {
+    font-size: 0.98em;
+    color: #555;
+    margin-bottom: 0.7em;
+    font-weight: 400;
+}
+.course-meta {
+    font-size: 0.95em;
+    color: #7a1d3e;
+    margin-bottom: 0.7em;
+    display: flex;
+    gap: 1.2em;
+}
+.course-actions {
+    margin-bottom: 0.2em;
+}
+.course-action-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 1em;
+}
+.course-action-list li {
+    display: inline-block;
+}
+.course-divider {
+    border: none;
+    border-top: 1.5px solid #e0e0e0;
+    margin: 1.2em 0;
+}
+/* Dashboard Cards Styling */
+.dashboard-cards {
+    display: flex;
+    gap: 2em;
+    margin-bottom: 2em;
+}
+.dashboard-card {
+    background: #5c0e2a;
+    color: #fff;
+    border-radius: 1em;
+    box-shadow: 0 2px 12px rgba(92,14,42,0.10);
+    padding: 1.5em 2.2em;
+    min-width: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15em;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.dashboard-card.card-green {
+    background: #7a1d3e;
+}
+.dashboard-card:hover {
+    box-shadow: 0 4px 18px rgba(92,14,42,0.18);
+    transform: translateY(-2px) scale(1.03);
+}
+.dashboard-card .card-icon {
+    font-size: 2.5em;
+    margin-bottom: 0.5em;
+    color: #fff;
+}
+.dashboard-card .card-value {
+    font-size: 2.2em;
+    font-weight: bold;
+    margin-bottom: 0.2em;
+}
+.dashboard-card .card-label {
+    font-size: 1.08em;
+    opacity: 0.85;
+}
 /* Feedback Boxes Flex Row for Python/Javascript */
 .feedback-flex-row {
     display: flex;
@@ -45,19 +128,39 @@
     justify-content: center;
     margin-bottom: 2em;
 }
-/* Debugging Lesson Flexbox Styles */
-.debug-flex-container {
+/* Sidebar improvements */
+.w3-sidebar {
+    width: 200px !important;
+    background: #5c0e2a !important;
+    color: #fff !important;
+    box-shadow: 2px 0 8px rgba(92,14,42,0.08);
+}
+.sidebar-link {
     display: flex;
-    flex-wrap: wrap;
-    gap: 2em;
-    justify-content: center;
-    margin: 2em 0 2.5em 0;
-.feedback-box pre {
-     background: #ededed;
-     border-radius: 0.4em;
-     padding: 0.7em 1em;
-     font-size: 0.98em;
-     margin: 0.5em 0 1em 0;
+    align-items: center;
+    gap: 0.7em;
+    padding: 12px 18px !important;
+    font-size: 1.08em;
+    transition: background 0.2s, color 0.2s;
+}
+.sidebar-link i {
+    font-size: 1.1em;
+    min-width: 22px;
+    text-align: center;
+}
+.sidebar-link:hover, .sidebar-link:focus {
+    background: #7a1d3e !important;
+    color: #fff !important;
+    text-decoration: none;
+}
+.w3-sidebar .w3-bar-item {
+    margin-bottom: 2px;
+    border-radius: 6px;
+}
+.w3-sidebar hr {
+    border-color: #fff2;
+}
+/* ...existing code... */
      color: #222;
      overflow-x: auto;
      white-space: pre-wrap;

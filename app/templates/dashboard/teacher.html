@@ -29,18 +29,21 @@
                         {% for course in courses %}
                             <div class="course-card">
                                 <h3><a href="{{ url_for('courses.view_course', course_id=course.id) }}">{{ 'Introduction to Programming Documentation' if course.title == 'Introduction to Python Programming' else course.title }}</a></h3>
-                                <p>{% if course.title == 'Introduction to Python Programming' %}Learn the fundamentals of programming documentation, including variables, loops, functions, and object-oriented programming documentation.{% else %}{{ course.description[:150] }}{% if course.description|length > 150 %}...{% endif %}{% endif %}</p>
+                                <p class="course-desc">{% if course.title == 'Introduction to Python Programming' %}Learn the fundamentals of programming documentation, including variables, loops, functions, and object-oriented programming documentation.{% else %}{{ course.description[:150] }}{% if course.description|length > 150 %}...{% endif %}{% endif %}</p>
                                 <div class="course-meta">
                                     <span>{{ course.lessons|length }} lessons</span>
                                     <span>{{ course.enrollments|length }} students</span>
                                     <span>Created: {{ course.created_at.strftime('%Y-%m-%d') }}</span>
                                 </div>
                                 <div class="course-actions">
-                                    <a href="{{ url_for('courses.create_lesson', course_id=course.id) }}" class="btn btn-sm btn-secondary">Add Lesson</a>
-                                    <a href="{{ url_for('assignments.create_assignment', course_id=course.id) }}" class="btn btn-sm btn-secondary">Create Assignment</a>
-                                    <a href="{{ url_for('quizzes.create_quiz', course_id=course.id) }}" class="btn btn-sm btn-secondary">Create Quiz</a>
+                                    <ul class="course-action-list">
+                                        <li><a href="{{ url_for('courses.create_lesson', course_id=course.id) }}" class="btn btn-sm btn-secondary">Add Lesson</a></li>
+                                        <li><a href="{{ url_for('assignments.create_assignment', course_id=course.id) }}" class="btn btn-sm btn-secondary">Create Assignment</a></li>
+                                        <li><a href="{{ url_for('quizzes.create_quiz', course_id=course.id) }}" class="btn btn-sm btn-secondary">Create Quiz</a></li>
+                                    </ul>
                                 </div>
                             </div>
+                            <hr class="course-divider">
                         {% endfor %}
                     </div>
                 {% else %}

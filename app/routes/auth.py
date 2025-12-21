@@ -13,7 +13,9 @@ def login():
     
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+        # Allow login with either username or email
+        login_id = form.username.data
+        user = User.query.filter((User.username == login_id) | (User.email == login_id)).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             next_page = request.args.get('next')
