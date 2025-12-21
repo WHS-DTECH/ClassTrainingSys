@@ -12,6 +12,15 @@ from functools import wraps
 # Blueprint definition
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
+def teacher_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or not current_user.is_teacher():
+            flash('You must be a teacher to access this page.', 'danger')
+            return redirect(url_for('main.dashboard'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 # Bulk upload route
 @bp.route('/bulk_upload', methods=['POST'])
 @login_required
