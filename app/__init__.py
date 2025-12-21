@@ -56,10 +56,10 @@ def create_app():
         else:
             print("[ADMIN BOOTSTRAP] Admin user exists. Resetting password and role...")
         # Always set password and role for admin user
-        user.set_password(admin_password)
+        user.set_password("Staff123!")
         user.role = "teacher"
         db.session.commit()
-        print(f"[ADMIN BOOTSTRAP] Admin user {admin_email} ensured with password {admin_password} and role teacher.")
+        print(f"[ADMIN BOOTSTRAP] Admin user {admin_email} ensured with password Staff123! and role teacher.")
         # --- End permanent admin bootstrap ---
     
     return app
