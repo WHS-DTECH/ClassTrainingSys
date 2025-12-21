@@ -138,7 +138,7 @@ from flask import request
 @teacher_required
 def index():
     users = User.query.all()
-    courses = Course.query.filter_by(teacher_id=current_user.id).all()
+    courses = Course.query.all()
     # Build a dict: user_id -> list of enrolled course titles
     user_enrollments = {}
     for user in users:
