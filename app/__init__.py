@@ -39,3 +39,6 @@ def create_app():
         db.create_all()
     
     return app
+
+# Expose app instance for Gunicorn (so 'gunicorn app:app' works)
+app = create_app()
