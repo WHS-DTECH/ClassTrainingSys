@@ -1,0 +1,38 @@
+[
+  {
+    "course": {
+      "title": "Module 1: Commenting Best Practices",
+      "description": "Learn how to write effective comments in code."
+    },
+    "lessons": [
+      {
+        "title": "Section 1: Introduction to Comments",
+        "content": "What are comments and why are they important?",
+        "order": 1,
+        "template_path": "modules/module1/section1_intro.html",
+        "video_url": ""
+      },
+      {
+        "title": "Section 2: Types of Comments",
+        "content": "Single-line, multi-line, and docstrings.",
+        "order": 2,
+        "template_path": "modules/module1/section2_types.html",
+        "video_url": ""
+      },
+      {
+        "title": "Section 3: Best Practices",
+        "content": "How to write clear, concise, and useful comments.",
+        "order": 3,
+        "template_path": "modules/module1/section3_best_practices.html",
+        "video_url": ""
+      },
+      {
+        "title": "Commenting Best Practices - Summary",
+        "content": "Summary and key takeaways.",
+        "order": 4,
+        "template_path": "modules/module1/summary.html",
+        "video_url": ""
+      }
+    ]
+  }
+]

@@ -1,6 +1,9 @@
+
 import csv
 import json
 from werkzeug.utils import secure_filename
+
+# Bulk upload route must be defined after bp is created
 @bp.route('/bulk_upload', methods=['POST'])
 @login_required
 @teacher_required
