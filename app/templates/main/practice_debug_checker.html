@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Practice: Debug Checker{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: row; gap: 2em; align-items: flex-start;">
+  <div style="flex: 1 1 0; min-width: 0;">
+    <div class="practice-debug-container" style="max-width:700px;margin:auto;">
+        <h1>Practice: Debug Checker</h1>
+
+        <form method="post" enctype="multipart/form-data" id="uploadDebugForm" style="margin-bottom:1em;">
+            <div class="form-group">
+                <label for="debug_file">Upload a Python file for Debug Checking:</label>
+                <input type="file" name="file" id="debug_file" accept=".py" class="form-control-file">
+                <button type="submit" class="btn" style="background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%); color: #fff; font-weight: bold; border: none; border-radius: 0.5em; padding: 0.5em 1.2em; margin-top:0.5em;">Upload File</button>
+                {% if uploaded_filename %}<span style="margin-left:1em; color:#888;">Uploaded: {{ uploaded_filename }}</span>{% endif %}
+                {% if username %}<span style="margin-left:1em; color:#888;">User: {{ username }}</span>{% endif %}
+            </div>
+        </form>
+        {% if upload_status %}
+            <div style="margin-bottom:1em; color: {% if can_extract %}green{% else %}red{% endif %}; font-weight:bold;">{{ upload_status }}</div>
+        {% endif %}
+        {% if can_extract and uploaded_filename and not already_checked %}
+            <form method="post" id="extractDebugForm">
+                <input type="hidden" name="uploaded_filename" value="{{ uploaded_filename }}">
+                <input type="hidden" name="uploaded_code" value="{{ code|e }}">
+                <button type="submit" name="extract_file" value="1" class="btn btn-success" style="font-weight:bold; border-radius:0.5em; padding:0.5em 1.2em;">Extract Debug Blocks from File</button>
+            </form>
+        {% endif %}
+
+        <form method="post" id="debugCodeForm">
+            <div class="form-group">
+                <label for="code">Paste your Python code below for Debug Checking:</label>
+                <div style="margin-bottom: 0.5em;">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="button" class="btn btn-secondary ml-2" id="clearBtn">Clear</button>
+                </div>
+                <textarea name="code" id="code" class="form-control" rows="12" required style="width:100%; min-width:100%; max-width:100%; box-sizing:border-box;">{{ code or '' }}</textarea>
+            </div>
+        </form>
+
+        {% if debug_message %}
+            <div style="margin:2em 0; padding:1.2em; background:#fff3cd; border:2px solid #ffb300; border-radius:0.5em; color:#a05a00; font-size:1.13em; font-weight:bold;">
+                {{ debug_message|safe }}
+            </div>
+        {% endif %}
+        {% if debug_blocks %}
+          <div id="extracted-debug-blocks" class="debug-blocks-feedback" style="margin-top:2em;">
+            <h3>Your Extracted Debug Blocks:</h3>
+                <ul>
+                {% for block in debug_blocks %}
+                    <li><pre>{{ block }}</pre></li>
+                {% endfor %}
+                </ul>
+                <form action="{{ url_for('courses.view_lesson', lesson_id=47) }}" method="get" style="margin-top:1.5em;">
+                    <button type="submit" class="btn btn-info" style="font-weight:bold; border-radius:0.5em; padding:0.7em 1.5em; font-size:1.1em; background: linear-gradient(90deg,#0099cc 60%,#00c6ff 100%); color: #fff; border: none;">Go to Lesson 2: Debug Checker</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+  </div>
+  <div style="flex: 0 0 320px; min-width: 220px; max-width: 350px;">
+    <div style="background:#f8fafd; border:2px solid #b3d1e6; border-radius:0.5em; padding:1.2em; margin-top:0.5em;">
+      <h3 style="margin-top:0; color:#007bff; font-size:1.1em;">Your Checked Files</h3>
+      <table style="width:100%; border-collapse:collapse; font-size:1em;">
+        <thead>
+          <tr style="background:#e3f2fd;">
+            <th style="padding:0.4em 0.5em; border-bottom:1px solid #b3d1e6; text-align:left;">Filename</th>
+            <th style="padding:0.4em 0.5em; border-bottom:1px solid #b3d1e6;">Comments Checker</th>
+            <th style="padding:0.4em 0.5em; border-bottom:1px solid #b3d1e6;">Debug Checker</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for row in checked_files_grid %}
+          <tr>
+            <td style="padding:0.3em 0.5em; border-bottom:1px solid #e3f2fd;">{{ row.filename }}</td>
+            <td style="text-align:center;">{{ row.comment }}</td>
+            <td style="text-align:center;">{{ row.debug }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="3" style="text-align:center; color:#aaa;">No files checked yet.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

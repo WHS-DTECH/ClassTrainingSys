@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Module 1: Commenting{% endblock %}
+{% block content %}
+<div style="background: #ffeb3b; color: #b71c1c; font-weight: bold; padding: 1em; border: 2px solid #b71c1c; margin-bottom: 1.5em;">DEBUG MARKER: m1_contents.html is being rendered</div>
+<div class="lesson-view">
+    <h1>Module 1: Commenting</h1>
+    <div style="font-size:1.15em; margin-bottom:1.2em; color:#222; max-width:700px;">
+        Learn best practices for writing effective comments in your code. This module covers general commenting principles and specific conventions for Python and JavaScript.
+    </div>
+    <div style="font-size:1.08em; margin-bottom:2em; color:#444;">
+        <b>Instructor:</b> Vanessa Pringle (HOLA Technology)
+    </div>
+    <h2>Course Content</h2>
+    <ol style="font-size:1.13em; color:#1a237e; margin-bottom:2em;">
+        <li><a href="{{ url_for('courses.view_lesson', lesson_id=34) }}">Introduction to Code Comments</a></li>
+        <li><a href="{{ url_for('courses.view_lesson', lesson_id=35) }}">Section 1: Python Comments - Best Practices</a></li>
+        <li><a href="{{ url_for('courses.view_lesson', lesson_id=36) }}">Section 2: JavaScript Comments - Best Practices</a></li>
+        <li><a href="{{ url_for('courses.view_lesson', lesson_id=37) }}">Section 3: HTML and CSS Comments - Best Practices</a></li>
+    </ol>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Admin Dashboard</h1>
+<div style="color: #0074D9; font-weight: bold;">Class Training System v1.0.0</div>
+<p>Welcome to the admin dashboard.</p>
+{% if users %}
+<h2>Users and Enrollments</h2>
+<div style="overflow-x:auto;">
+<table class="table" style="width:100%; border-collapse:collapse;">
+  <thead>
+    <tr style="background:#f8f9fa;">
+      <th style="padding:8px; border:1px solid #dee2e6;">Username</th>
+      <th style="padding:8px; border:1px solid #dee2e6;">Role</th>
+      <th style="padding:8px; border:1px solid #dee2e6;">Course</th>
+      <th style="padding:8px; border:1px solid #dee2e6;">Enrollment</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in users %}
+      {% for course in courses %}
+        <tr>
+          {% if loop.first %}
+            <td style="padding:8px; border:1px solid #dee2e6;" rowspan="{{ courses|length }}">{{ user.username }}</td>
+            <td style="padding:8px; border:1px solid #dee2e6;" rowspan="{{ courses|length }}">{{ user.role }}</td>
+          {% endif %}
+          <td style="padding:8px; border:1px solid #dee2e6;">{{ course.title }}</td>
+          <td style="padding:8px; border:1px solid #dee2e6;">
+            <form method="POST" action="{{ url_for('admin.index') }}" style="display:inline;">
+              <input type="hidden" name="user_id" value="{{ user.id }}">
+              <input type="hidden" name="course_id" value="{{ course.id }}">
+              {% set enrolled = course in user_enrollments[user.id] %}
+              {% if enrolled %}
+                <button type="submit" name="action" value="unenrol" class="btn btn-danger btn-sm">Unenrol</button>
+              {% else %}
+                <button type="submit" name="action" value="enrol" class="btn btn-success btn-sm">Enroll</button>
+              {% endif %}
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endif %}
+{% if courses %}
+<h2>Courses</h2>
+<ul>
+  {% for course in courses %}
+    <li>{{ course.title }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+<hr>
+{% if message %}
+<div class="alert alert-info">{{ message }}</div>
+{% endif %}
+{% endblock %}

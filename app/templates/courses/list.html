@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Courses{% endblock %}
+
+{% block content %}
+<div class="courses-list">
+    <div class="section-header">
+        <h1>{% if current_user.is_teacher() %}My Courses{% else %}All Courses{% endif %}</h1>
+        {% if current_user.is_teacher() %}
+            <a href="{{ url_for('courses.create_course') }}" class="btn btn-primary">Create Course</a>
+        {% endif %}
+    </div>
+    
+    {% if courses %}
+        <div class="course-grid">
+            {% for course in courses %}
+                <div class="course-card">
+                    <h3><a href="{{ url_for('courses.view_course', course_id=course.id) }}">{{ course.title }}</a></h3>
+                    <p>{{ course.description[:120] }}{% if course.description|length > 120 %}...{% endif %}</p>
+                    <div class="course-meta">
+                        <span>Instructor: {{ course.teacher.first_name }} {{ course.teacher.last_name }}</span>
+                        <span>{{ course.lessons|length }} lessons</span>
+                    </div>
+                    {% if not current_user.is_teacher() %}
+                        <div class="course-actions" style="margin-top: 1rem;">
+                            {% if course.id in enrolled_course_ids %}
+                                <span class="badge badge-success">✓ Enrolled</span>
+                            {% else %}
+                                <form method="POST" action="{{ url_for('courses.enroll', course_id=course.id) }}" style="display: inline;">
+                                    <button type="submit" class="btn btn-sm btn-primary">Enroll Now</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">No courses available.</p>
+    {% endif %}
+</div>
+{% endblock %}

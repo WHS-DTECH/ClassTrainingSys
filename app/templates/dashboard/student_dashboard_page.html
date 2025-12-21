@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+    {% import "dashboard/student.html" as student_dashboard_macros %}
+    {{ student_dashboard_macros.student_dashboard(preview_user, preview_enrollments, preview_pending_assignments) }}
+{% endblock %}

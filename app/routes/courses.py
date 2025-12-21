@@ -1,0 +1,249 @@
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session
+from flask_login import login_required, current_user
+from app import db
+from app.models import Course, Lesson, Enrollment, LessonProgress
+from app.forms import CourseForm, LessonForm
+from datetime import datetime
+
+bp = Blueprint('courses', __name__, url_prefix='/courses')
+
+@bp.route('/')
+@login_required
+def list_courses():
+    if current_user.is_teacher():
+        courses = Course.query.filter_by(teacher_id=current_user.id).all()
+    else:
+        # Students can see all available courses
+        courses = Course.query.filter_by(is_active=True).all()
+    
+    # Get enrollment status for students
+    enrolled_course_ids = set()
+    if not current_user.is_teacher():
+        enrollments = Enrollment.query.filter_by(student_id=current_user.id).all()
+        enrolled_course_ids = {e.course_id for e in enrollments}
+    
+    return render_template('courses/list.html', courses=courses, enrolled_course_ids=enrolled_course_ids)
+
+@bp.route('/create', methods=['GET', 'POST'])
+@login_required
+def create_course():
+    if not current_user.is_teacher():
+        flash('Only teachers can create courses.', 'danger')
+        return redirect(url_for('courses.list_courses'))
+    
+    form = CourseForm()
+    if form.validate_on_submit():
+        course = Course(
+            title=form.title.data,
+            description=form.description.data,
+            teacher_id=current_user.id
+        )
+        db.session.add(course)
+        db.session.commit()
+        flash('Course created successfully!', 'success')
+        return redirect(url_for('courses.view_course', course_id=course.id))
+    
+    return render_template('courses/create.html', form=form)
+
+@bp.route('/<int:course_id>')
+@login_required
+def view_course(course_id):
+    course = Course.query.get_or_404(course_id)
+    
+    # Check access
+    if not current_user.is_teacher():
+        enrollment = Enrollment.query.filter_by(
+            student_id=current_user.id, 
+            course_id=course_id
+        ).first()
+        if not enrollment:
+            flash('You are not enrolled in this course.', 'danger')
+            return redirect(url_for('courses.list_courses'))
+    
+    lessons = Lesson.query.filter_by(course_id=course_id).order_by(Lesson.order).all()
+
+    # Find the lesson id for 'Introduction to Code Debugging' (case-insensitive)
+    debug_intro_lesson_id = None
+    for lesson in lessons:
+        if lesson.title.strip().lower() == 'introduction to code debugging':
+            debug_intro_lesson_id = lesson.id
+            break
+
+    # Get progress for students
+    progress = {}
+    if not current_user.is_teacher():
+        for lesson in lessons:
+            prog = LessonProgress.query.filter_by(
+                student_id=current_user.id,
+                lesson_id=lesson.id
+            ).first()
+            progress[lesson.id] = prog.completed if prog else False
+
+    return render_template('courses/view.html', course=course, lessons=lessons, progress=progress, debug_intro_lesson_id=debug_intro_lesson_id)
+
+@bp.route('/<int:course_id>/enroll', methods=['POST'])
+@login_required
+def enroll(course_id):
+    if current_user.is_teacher():
+        flash('Teachers cannot enroll in courses.', 'danger')
+        return redirect(url_for('courses.list_courses'))
+    
+    existing = Enrollment.query.filter_by(
+        student_id=current_user.id,
+        course_id=course_id
+    ).first()
+    
+    if existing:
+        flash('You are already enrolled in this course.', 'info')
+    else:
+        enrollment = Enrollment(student_id=current_user.id, course_id=course_id)
+        db.session.add(enrollment)
+        db.session.commit()
+        flash('Successfully enrolled in the course!', 'success')
+    
+    return redirect(url_for('courses.view_course', course_id=course_id))
+
+@bp.route('/<int:course_id>/lessons/create', methods=['GET', 'POST'])
+@login_required
+def create_lesson(course_id):
+    course = Course.query.get_or_404(course_id)
+    
+    if course.teacher_id != current_user.id:
+        flash('You do not have permission to add lessons to this course.', 'danger')
+        return redirect(url_for('courses.view_course', course_id=course_id))
+    
+    form = LessonForm()
+    if form.validate_on_submit():
+        # Get max order for new lesson
+        max_order = db.session.query(func.max(Lesson.order)).filter_by(course_id=course_id).scalar() or 0
+        
+        lesson = Lesson(
+            course_id=course_id,
+            title=form.title.data,
+            content=form.content.data,
+            video_url=form.video_url.data,
+            order=max_order + 1
+        )
+        db.session.add(lesson)
+        db.session.commit()
+        flash('Lesson created successfully!', 'success')
+        return redirect(url_for('courses.view_course', course_id=course_id))
+    
+    return render_template('courses/create_lesson.html', form=form, course=course)
+
+@bp.route('/lessons/<int:lesson_id>')
+@login_required
+def view_lesson(lesson_id):
+    debug_summary = None
+    lesson = Lesson.query.get_or_404(lesson_id)
+    course = lesson.course
+
+    # Check access
+    if not current_user.is_teacher():
+        enrollment = Enrollment.query.filter_by(
+            student_id=current_user.id,
+            course_id=course.id
+        ).first()
+        if not enrollment:
+            flash('You are not enrolled in this course.', 'danger')
+            return redirect(url_for('courses.list_courses'))
+
+    # Render custom template if specified, otherwise use default
+    # For Lesson 1: Comment Checker, fetch feedback from DB
+    extracted_comments = None
+    extracted_debug_blocks = None
+    if lesson.id == 46 and current_user.is_authenticated:
+        # Prefer most recent extracted comments from session if available
+        if 'extracted_comments' in session:
+            extracted_comments = session['extracted_comments']
+            # Ensure all entries are (line_num, comment, feedback)
+            if extracted_comments and len(extracted_comments) > 0 and len(extracted_comments[0]) == 2:
+                extracted_comments = [(ln, c, '') for ln, c in extracted_comments]
+            # Do NOT clear session here; let PDF route clear it after download
+        else:
+            from app.models import CommentFeedback
+            feedback_entries = CommentFeedback.query.filter_by(user_id=current_user.id, lesson_id=lesson.id).order_by(CommentFeedback.line_num.asc()).all()
+            if feedback_entries:
+                extracted_comments = [(entry.line_num, entry.comment, entry.feedback) for entry in feedback_entries]
+    # For Lesson 2: Debug Checker, fetch debug blocks from session (or DB if implemented)
+    feedback_debug_blocks = None
+    if lesson.id == 47 and current_user.is_authenticated:
+        extracted_debug_blocks = None
+        feedback_debug_blocks = None
+        # Try to get from session (if set by debug checker)
+        if 'extracted_debug_blocks' in session:
+            extracted_debug_blocks = session['extracted_debug_blocks']
+            # Generate feedback for each block
+            feedback_debug_blocks = []
+            for block in extracted_debug_blocks:
+                feedback = []
+                if '# Test:' in block or '# DEBUG TEST:' in block:
+                    feedback.append('✅ Test description found.')
+                else:
+                    feedback.append('❌ Add a clear test description (what you tried).')
+                if '# Issue:' in block or '# DEBUG ISSUE:' in block:
+                    feedback.append('✅ Issue description found.')
+                else:
+                    feedback.append('❌ Add a clear issue description (what went wrong).')
+                if '# Fix:' in block or '# DEBUG FIX:' in block:
+                    feedback.append('✅ Fix description found.')
+                else:
+                    feedback.append('❌ Add a clear fix description (how you fixed it).')
+                # Encourage detail
+                if len(block.splitlines()) < 3:
+                    feedback.append('ℹ️ Try to provide more detail in each debug block.')
+                feedback_debug_blocks.append(feedback)
+            # Count and summary
+            debug_block_count = len(extracted_debug_blocks)
+            if debug_block_count >= 3:
+                debug_summary = f'✅ You have {debug_block_count} debug blocks. Great job!'
+            else:
+                # Suggest possible places for more blocks
+                code = session.get('uploaded_code') or ''
+                suggestions = []
+                if code:
+                    lines = code.splitlines()
+                    for idx, line in enumerate(lines):
+                        if line.strip().startswith('def '):
+                            func_name = line.strip().split()[1].split('(')[0]
+                            suggestions.append(f'Add a debug block in the function: {func_name} (line {idx+1})')
+                        if 'main' in line and 'if' in line and '__name__' in line:
+                            suggestions.append(f'Add a debug block in the main program section (line {idx+1})')
+                if not suggestions:
+                    suggestions = ['Consider adding debug blocks where you fixed bugs or handled errors.']
+                debug_summary = f'❌ Only {debug_block_count} debug block(s) found. Try to add at least 3 for Achieved.\nSuggestions: ' + '; '.join(suggestions)
+    extracted_debug_feedback_pairs = None
+    if extracted_debug_blocks and feedback_debug_blocks:
+        extracted_debug_feedback_pairs = list(zip(extracted_debug_blocks, feedback_debug_blocks))
+    if lesson.template_path:
+        return render_template(lesson.template_path, lesson=lesson, course=course, extracted_comments=extracted_comments, extracted_debug_blocks=extracted_debug_blocks, feedback_debug_blocks=feedback_debug_blocks, extracted_debug_feedback_pairs=extracted_debug_feedback_pairs, debug_summary=debug_summary)
+    else:
+        return render_template('courses/lesson.html', lesson=lesson, course=course, extracted_comments=extracted_comments, extracted_debug_blocks=extracted_debug_blocks, feedback_debug_blocks=feedback_debug_blocks, extracted_debug_feedback_pairs=extracted_debug_feedback_pairs, debug_summary=debug_summary)
+
+@bp.route('/lessons/<int:lesson_id>/complete', methods=['POST'])
+@login_required
+def complete_lesson(lesson_id):
+    lesson = Lesson.query.get_or_404(lesson_id)
+    
+    progress = LessonProgress.query.filter_by(
+        student_id=current_user.id,
+        lesson_id=lesson_id
+    ).first()
+    
+    if not progress:
+        progress = LessonProgress(
+            student_id=current_user.id,
+            lesson_id=lesson_id,
+            completed=True,
+            completed_at=datetime.utcnow()
+        )
+        db.session.add(progress)
+    else:
+        progress.completed = True
+        progress.completed_at = datetime.utcnow()
+    
+    db.session.commit()
+    flash('Lesson marked as complete!', 'success')
+    return redirect(url_for('courses.view_course', course_id=lesson.course_id))
+
+from sqlalchemy import func

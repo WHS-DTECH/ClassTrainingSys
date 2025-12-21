@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}{{ lesson.title }}{% endblock %}
+
+{% block content %}
+<div class="lesson-view">
+    <div class="breadcrumb">
+        <a href="{{ url_for('courses.view_course', course_id=course.id) }}">{{ course.title }}</a> / {{ lesson.title }}
+    </div>
+    
+    {% if lesson.title == 'Assessment Checking Overview' %}
+        <h1>Section 1: Python Debugging - Best Practices</h1>
+        <div class="debugging-best-practices-info" style="margin-bottom:2em;">
+            <h2>Python Debugging - Best Practices</h2>
+            <ul>
+                <li><strong>Use print statements</strong> to check variable values and program flow at key points in your code.</li>
+                <li><strong>Leverage Python's built-in <code>pdb</code> debugger</strong> to set breakpoints, step through code, and inspect variables interactively.</li>
+                <li><strong>Read error messages carefully</strong> and use the information provided to locate and fix issues.</li>
+                <li><strong>Test code in small sections</strong> to isolate problems and verify logic incrementally.</li>
+                <li><strong>Use logging</strong> for more advanced debugging and to keep a record of program execution, especially in larger projects.</li>
+                <li><strong>Document your debugging process</strong> by noting what you tried, what worked, and what didn’t. This helps you and others in the future.</li>
+            </ul>
+            <h3>Relevant Python Conventions</h3>
+            <ul>
+                <li>Follow <strong>PEP 8</strong> for code style and formatting to make your code easier to read and debug.</li>
+                <li>Use <strong>meaningful variable and function names</strong> to clarify your code’s intent.</li>
+                <li>Write <strong>clear comments</strong> explaining complex logic or important debugging steps.</li>
+                <li>Keep functions short and focused on a single task to simplify debugging.</li>
+                <li>Remove or comment out debugging code (like print statements) before final submission.</li>
+            </ul>
+            <p>By following these best practices and conventions, you will become more effective at finding and fixing bugs in your Python programs.</p>
+        </div>
+    {% else %}
+        <h1>{{ lesson.title }}</h1>
+    {% endif %}
+    
+    {% if lesson.video_url %}
+        <div class="video-container">
+            <iframe src="{{ lesson.video_url }}" allowfullscreen></iframe>
+        </div>
+    {% endif %}
+    
+
+    <div class="lesson-content">
+        {% if lesson.title == 'Assessment Checking Overview' %}
+            <div class="debugging-best-practices-info" style="margin-bottom:2em;">
+                <h2>Python Debugging - Best Practices</h2>
+                <ul>
+                    <li><strong>Use print statements</strong> to check variable values and program flow at key points in your code.</li>
+                    <li><strong>Leverage Python's built-in <code>pdb</code> debugger</strong> to set breakpoints, step through code, and inspect variables interactively.</li>
+                    <li><strong>Read error messages carefully</strong> and use the information provided to locate and fix issues.</li>
+                    <li><strong>Test code in small sections</strong> to isolate problems and verify logic incrementally.</li>
+                    <li><strong>Use logging</strong> for more advanced debugging and to keep a record of program execution, especially in larger projects.</li>
+                    <li><strong>Document your debugging process</strong> by noting what you tried, what worked, and what didn’t. This helps you and others in the future.</li>
+                </ul>
+                <h3>Relevant Python Conventions</h3>
+                <ul>
+                    <li>Follow <strong>PEP 8</strong> for code style and formatting to make your code easier to read and debug.</li>
+                    <li>Use <strong>meaningful variable and function names</strong> to clarify your code’s intent.</li>
+                    <li>Write <strong>clear comments</strong> explaining complex logic or important debugging steps.</li>
+                    <li>Keep functions short and focused on a single task to simplify debugging.</li>
+                    <li>Remove or comment out debugging code (like print statements) before final submission.</li>
+                </ul>
+                <p>By following these best practices and conventions, you will become more effective at finding and fixing bugs in your Python programs.</p>
+            </div>
+        {% endif %}
+        {% if lesson.title == 'Assessment Checking Overview' or 'module3_checking_assessment.html' in lesson.content %}
+            {# Load the padded two-column Flexibox template for Module 3 #}
+            {% include "includes/module3_checking_assessment.html" %}
+            <hr style="margin:2em 0;">
+            {% include "includes/practice_debug_block.html" %}
+        {% else %}
+            {{ lesson.content|safe }}
+            {% if 'PYTHON_CONVENTIONS' in lesson.content %}
+                {% include "includes/conventions_python.html" %}
+            {% elif 'JS_CONVENTIONS' in lesson.content %}
+                {% include "includes/conventions_js.html" %}
+            {% elif 'HTML_CSS_CONVENTIONS' in lesson.content %}
+                {% include "includes/conventions_html_css.html" %}
+            {% elif 'SUMMARY_CONVENTIONS' in lesson.content %}
+                {% include "includes/conventions_summary.html" %}
+            {% endif %}
+        {% endif %}
+    </div>
+    
+    {% if not current_user.is_teacher() %}
+        <div class="lesson-actions">
+            <form method="POST" action="{{ url_for('courses.complete_lesson', lesson_id=lesson.id) }}">
+                <button type="submit" class="btn btn-success">Mark as Complete</button>
+            </form>
+        </div>
+    {% endif %}
+    
+    <div class="lesson-navigation">
+        <a href="{{ url_for('courses.view_course', course_id=course.id) }}" class="btn btn-secondary">Back to Course</a>
+    </div>
+    </div>
+<script src="{{ url_for('static', filename='js/comment_activities.js') }}"></script>
+<script src="{{ url_for('static', filename='js/debug_activities.js') }}"></script>
+<script src="{{ url_for('static', filename='js/practice_debug_activities.js') }}"></script>
+{% endblock %}

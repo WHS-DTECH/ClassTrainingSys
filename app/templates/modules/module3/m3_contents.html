@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Module 3: Checking for Assessment Purposes{% endblock %}
+{% block content %}
+<div style="background: #ffeb3b; color: #b71c1c; font-weight: bold; padding: 1em; border: 2px solid #b71c1c; margin-bottom: 1.5em;">DEBUG MARKER: m3_contents.html is being rendered</div>
+<div class="lesson-view">
+  <h1>Module 3: Checking for Assessment Purposes</h1>
+  <div style="font-size:1.15em; margin-bottom:1.2em; color:#222; max-width:700px;">
+    This module covers techniques and strategies for checking student work for assessment purposes, including automated and manual review processes.
+  </div>
+  <h2>Course Content</h2>
+  <ol style="font-size:1.13em; color:#1a237e; margin-bottom:2em;">
+    {% for lesson in lessons %}
+      <li><a href="{{ url_for('courses.view_lesson', lesson_id=lesson.id) }}">{{ lesson.title }}</a></li>
+    {% endfor %}
+  </ol>
+  <p>Return to <a href="{{ url_for('main.index') }}">Home</a></p>
+</div>
+{% endblock %}
