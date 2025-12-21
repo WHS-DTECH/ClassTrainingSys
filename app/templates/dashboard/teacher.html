@@ -53,10 +53,12 @@
         </div>
     </div>
     <div class="student-col">
-        <div class="dashboard">
-            <h1 style="font-size:1.5em; color:#007bff;">Student View Preview</h1>
+        <div class="student-preview-card">
+            <h1 class="student-preview-title">Student View Preview</h1>
             {% import "dashboard/student.html" as student_dashboard_macros %}
-            {{ student_dashboard_macros.student_dashboard(preview_user, preview_enrollments, preview_pending_assignments) }}
+            <div class="student-preview-content">
+                {{ student_dashboard_macros.student_dashboard(preview_user, preview_enrollments, preview_pending_assignments) }}
+            </div>
         </div>
     </div>
 </div>

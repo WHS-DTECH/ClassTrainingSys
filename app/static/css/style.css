@@ -1,3 +1,37 @@
+/* General UI Improvements: Padding and Whitespace */
+.w3-main, .dashboard, .split-dashboard {
+    padding: 2.5em 2em 2em 2em;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.dashboard-section {
+    margin-bottom: 2.5em;
+}
+.course-list {
+    margin-bottom: 2em;
+}
+/* Student View Preview Card */
+.student-preview-card {
+    background: #faf7fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 1em;
+    box-shadow: 0 2px 10px rgba(92,14,42,0.07);
+    padding: 2em 2em 1.5em 2em;
+    margin: 2em 0;
+    max-width: 420px;
+}
+.student-preview-title {
+    font-size: 1.3em;
+    color: #7a1d3e;
+    font-weight: 600;
+    margin-bottom: 1em;
+    letter-spacing: 0.5px;
+}
+.student-preview-content {
+    font-size: 1em;
+    color: #555;
+    font-weight: 400;
+}
 /* Course List Improvements */
 .course-list {
     margin-top: 1.5em;
