@@ -1,9 +1,18 @@
 
+# All imports at the top
 import csv
 import json
 from werkzeug.utils import secure_filename
+from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask_login import login_required, current_user
+from app import db
+from app.models import User, Course, Enrollment, Lesson
+from functools import wraps
 
-# Bulk upload route must be defined after bp is created
+# Blueprint definition
+bp = Blueprint('admin', __name__, url_prefix='/admin')
+
+# Bulk upload route
 @bp.route('/bulk_upload', methods=['POST'])
 @login_required
 @teacher_required
@@ -72,13 +81,6 @@ def bulk_upload():
         enrolled_courses = [enrollment.course for enrollment in user.enrollments]
         user_enrollments[user.id] = enrolled_courses
     return render_template('admin/index.html', users=users, courses=courses, user_enrollments=user_enrollments, upload_message=upload_message)
-from flask import Blueprint, render_template, redirect, url_for, flash
-from flask_login import login_required, current_user
-from app import db
-from app.models import User, Course, Enrollment
-from functools import wraps
-
-bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 def teacher_required(f):
     @wraps(f)
