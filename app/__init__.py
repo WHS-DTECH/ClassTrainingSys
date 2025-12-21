@@ -51,12 +51,11 @@ def create_app():
                 last_name="Pringle",
                 role="teacher"
             )
-            user.set_password(admin_password)
             db.session.add(user)
-            db.session.commit()
-        elif user.role != "teacher":
-            user.role = "teacher"
-            db.session.commit()
+        # Always set password and role for admin user
+        user.set_password(admin_password)
+        user.role = "teacher"
+        db.session.commit()
         # --- End permanent admin bootstrap ---
     
     return app
