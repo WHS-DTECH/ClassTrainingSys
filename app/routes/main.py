@@ -17,11 +17,12 @@ bp = Blueprint('main', __name__)
 def download_comments_pdf():
     from flask import make_response
     code = request.form.get('code', '')
+    code_str = code if code is not None else ""
     uploaded_filename = request.form.get('uploaded_filename', 'Extracted_Comments')
     today_str = datetime.now().strftime('%Y-%m-%d')
     pdf_filename = f"{uploaded_filename}_comments_{today_str}.pdf"
     # Compute code hash for strict filtering
-    code_hash = hashlib.sha256(code.encode('utf-8')).hexdigest()
+    code_hash = hashlib.sha256(code_str.encode('utf-8')).hexdigest()
     # Unified logic: match web view
     comment_lines = []
     feedback_dict = {}
