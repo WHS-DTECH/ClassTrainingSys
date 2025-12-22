@@ -451,30 +451,37 @@ def download_lesson1_feedback():
     if not lesson:
         return "Lesson for comment checker not found.", 404
     lesson_id = lesson.id
-    # Use session comments if available, else DB
-    extracted_comments = None
-    feedback_entries = []
-    if 'extracted_comments' in session:
-        extracted_comments = session['extracted_comments']
-        # Ensure all entries are (line_num, comment, feedback)
-        if extracted_comments and len(extracted_comments) > 0 and len(extracted_comments[0]) == 2:
-            extracted_comments = [(ln, c, '') for ln, c in extracted_comments]
-        session.pop('extracted_comments')  # Clear after PDF is generated
-    else:
-        feedback_entries = CommentFeedback.query.filter_by(user_id=current_user.id, lesson_id=lesson_id).order_by(CommentFeedback.timestamp.desc()).all()
+    
+    # Get filename from form
+    filename = request.form.get('uploaded_filename', 'Comment_Feedback')
+    
+    # Extract comments from form data
+    extracted_comments = []
+    line_nums = request.form.getlist('line_num')
+    comments = request.form.getlist('comment')
+    feedbacks = request.form.getlist('feedback')
+    
+    # Build extracted_comments list from form data
+    for line_num, comment, feedback in zip(line_nums, comments, feedbacks):
+        try:
+            line_num = int(line_num)
+            extracted_comments.append((line_num, comment, feedback))
+        except (ValueError, TypeError):
+            pass
+    
+    # If no form data, fall back to database
+    if not extracted_comments:
+        feedback_entries = CommentFeedback.query.filter_by(
+            user_id=current_user.id, 
+            lesson_id=lesson_id,
+            filename=filename
+        ).order_by(CommentFeedback.line_num).all()
         if feedback_entries:
             extracted_comments = [(entry.line_num, entry.comment, entry.feedback) for entry in feedback_entries]
+    
     if not extracted_comments:
         return "No extracted comments found for this lesson.", 404
 
-    # Get filename from first entry (all entries have same filename)
-    filename = "unknown"
-    # Try to get filename from session comments if available
-    if 'extracted_comments' in session and extracted_comments and len(extracted_comments) > 0:
-        # If session comments, try to get filename from uploaded_filename in session
-        filename = session.get('uploaded_filename', 'unknown')
-    elif not 'extracted_comments' in session and feedback_entries:
-        filename = feedback_entries[0].filename if feedback_entries else "Comment Feedback"
     today = datetime.now().strftime('%Y-%m-%d')
 
     buffer = io.BytesIO()
