@@ -7,6 +7,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from sqlalchemy import func
 from datetime import datetime
+import hashlib
 
 bp = Blueprint('main', __name__)
 
@@ -19,6 +20,8 @@ def download_comments_pdf():
     uploaded_filename = request.form.get('uploaded_filename', 'Extracted_Comments')
     today_str = datetime.now().strftime('%Y-%m-%d')
     pdf_filename = f"{uploaded_filename}_comments_{today_str}.pdf"
+    # Compute code hash for strict filtering
+    code_hash = hashlib.sha256(code.encode('utf-8')).hexdigest()
     # Unified logic: match web view
     comment_lines = []
     feedback_dict = {}
@@ -31,7 +34,8 @@ def download_comments_pdf():
         feedback_entries = CommentFeedback.query.filter_by(
             user_id=current_user.id,
             lesson_id=lesson_id,
-            filename=uploaded_filename
+            filename=uploaded_filename,
+            code_hash=code_hash
         ).order_by(CommentFeedback.line_num).all()
         if feedback_entries:
             already_checked = True
