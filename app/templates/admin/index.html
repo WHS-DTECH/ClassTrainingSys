@@ -23,6 +23,7 @@
       <th style="padding:8px; border:1px solid #dee2e6;">Role</th>
       <th style="padding:8px; border:1px solid #dee2e6;">Course</th>
       <th style="padding:8px; border:1px solid #dee2e6;">Enrollment</th>
+      <th style="padding:8px; border:1px solid #dee2e6;">Details</th>
     </tr>
   </thead>
   <tbody>
@@ -48,12 +49,17 @@
                 {% endif %}
               </form>
             </td>
+            {% if loop.first %}
+              <td style="padding:8px; border:1px solid #dee2e6;" rowspan="{{ courses|length }}">
+                <a href="{{ url_for('admin.student_detail', student_id=user.id) }}" class="btn btn-info btn-sm">View</a>
+              </td>
+            {% endif %}
           </tr>
         {% endfor %}
       {% endfor %}
     {% else %}
       <tr>
-        <td colspan="4" style="text-align:center; padding:16px; color:#888;">No users or courses found in the system.</td>
+        <td colspan="5" style="text-align:center; padding:16px; color:#888;">No users or courses found in the system.</td>
       </tr>
     {% endif %}
   </tbody>
