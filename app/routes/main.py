@@ -941,25 +941,128 @@ def settings():
 @bp.route('/search')
 @login_required
 def search():
-    """Global search for courses and lessons"""
+    """Advanced search with filters, sorting, and history"""
+    from sqlalchemy import or_, and_
+    
     query = request.args.get('q', '').strip()
-    results = {'courses': [], 'lessons': []}
+    search_type = request.args.get('type', 'all')  # all, courses, lessons, assignments
+    sort_by = request.args.get('sort', 'relevance')  # relevance, title, created, difficulty
+    difficulty = request.args.get('difficulty', '')  # beginner, intermediate, advanced
+    instructor = request.args.get('instructor', '')  # Filter by instructor
+    
+    results = {
+        'courses': [],
+        'lessons': [],
+        'assignments': [],
+        'total': 0
+    }
+    
+    search_history = []
+    
+    # Get search history from session (limit to 10)
+    if 'search_history' not in session:
+        session['search_history'] = []
+    
+    # Add current query to history if valid
+    if query and len(query) >= 2:
+        if query not in session['search_history']:
+            session['search_history'].insert(0, query)
+            session['search_history'] = session['search_history'][:10]
+            session.modified = True
+    
+    search_history = session.get('search_history', [])
     
     if query and len(query) >= 2:
+        # Build search conditions
+        search_condition = or_(
+            Course.title.ilike(f'%{query}%'),
+            Course.description.ilike(f'%{query}%')
+        )
+        
         # Search courses
-        courses = Course.query.filter(
-            Course.title.ilike(f'%{query}%') | Course.description.ilike(f'%{query}%')
-        ).all()
+        if search_type in ['all', 'courses']:
+            courses_query = Course.query.filter(search_condition)
+            
+            # Apply difficulty filter
+            if difficulty:
+                courses_query = courses_query.filter_by(difficulty=difficulty)
+            
+            # Apply instructor filter
+            if instructor:
+                courses_query = courses_query.join(User).filter(User.username.ilike(f'%{instructor}%'))
+            
+            # Apply sorting
+            if sort_by == 'title':
+                courses_query = courses_query.order_by(Course.title.asc())
+            elif sort_by == 'created':
+                courses_query = courses_query.order_by(Course.created_at.desc())
+            elif sort_by == 'difficulty':
+                courses_query = courses_query.order_by(Course.difficulty.asc())
+            else:  # relevance
+                courses_query = courses_query.order_by(Course.title.asc())
+            
+            results['courses'] = courses_query.all()
         
         # Search lessons
-        lessons = Lesson.query.filter(
-            Lesson.title.ilike(f'%{query}%') | Lesson.content.ilike(f'%{query}%')
-        ).all()
+        if search_type in ['all', 'lessons']:
+            lessons_query = Lesson.query.filter(
+                or_(
+                    Lesson.title.ilike(f'%{query}%'),
+                    Lesson.content.ilike(f'%{query}%')
+                )
+            )
+            
+            # Apply difficulty filter
+            if difficulty:
+                lessons_query = lessons_query.join(Course).filter(Course.difficulty == difficulty)
+            
+            # Apply sorting
+            if sort_by == 'title':
+                lessons_query = lessons_query.order_by(Lesson.title.asc())
+            elif sort_by == 'created':
+                lessons_query = lessons_query.order_by(Lesson.created_at.desc())
+            else:  # relevance
+                lessons_query = lessons_query.order_by(Lesson.title.asc())
+            
+            results['lessons'] = lessons_query.all()
         
-        results['courses'] = courses
-        results['lessons'] = lessons
+        # Search assignments
+        if search_type in ['all', 'assignments']:
+            assignments_query = Assignment.query.filter(
+                or_(
+                    Assignment.title.ilike(f'%{query}%'),
+                    Assignment.description.ilike(f'%{query}%')
+                )
+            )
+            
+            # Apply sorting
+            if sort_by == 'title':
+                assignments_query = assignments_query.order_by(Assignment.title.asc())
+            elif sort_by == 'created':
+                assignments_query = assignments_query.order_by(Assignment.created_at.desc())
+            else:  # relevance
+                assignments_query = assignments_query.order_by(Assignment.title.asc())
+            
+            results['assignments'] = assignments_query.all()
+        
+        results['total'] = len(results['courses']) + len(results['lessons']) + len(results['assignments'])
     
-    return render_template('main/search_results.html', query=query, results=results)
+    # Get unique instructors for filter dropdown
+    instructors = db.session.query(User.username).join(Course).filter(
+        User.is_teacher == True
+    ).distinct().all()
+    instructors = [inst[0] for inst in instructors]
+    
+    return render_template('main/advanced_search.html',
+                         query=query,
+                         results=results,
+                         search_type=search_type,
+                         sort_by=sort_by,
+                         difficulty=difficulty,
+                         instructor=instructor,
+                         search_history=search_history,
+                         instructors=instructors)
+
 
 @bp.route('/progress')
 @login_required
