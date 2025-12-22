@@ -1,4 +1,3 @@
-
 from flask import Blueprint, render_template, request, session, redirect, url_for
 from flask import send_file, flash
 from flask_login import login_required, current_user
@@ -648,13 +647,11 @@ def practice_code_comments():
                     new_check = CommentCheck(user_id=current_user.id, filename=filename)
                     db.session.add(new_check)
                     db.session.commit()
-            # If user clicked Go to Lesson 1, store comments and feedback in session and redirect
-            if 'go_to_lesson' in request.form and not already_checked:
+            # If user clicked Extract Comments, show results on this page
+            if 'extract_file' in request.form and not already_checked:
                 extracted_comments_for_session = []
                 for idx, comment in comment_lines:
-                    # Find feedback for this line
                     feedback = ""
-                    # Try to match feedback logic as above
                     if 'http' in comment or 'www.' in comment:
                         feedback = "This comment appears to be a pasted URL. Comments should explain your code, not just link to resources."
                     elif 'print(' in comment:
@@ -665,7 +662,9 @@ def practice_code_comments():
                         feedback = "This comment is clear and descriptive. Well done!"
                     extracted_comments_for_session.append((idx, comment, feedback))
                 session['extracted_comments'] = extracted_comments_for_session
-                return redirect(url_for('courses.view_lesson', lesson_id=46))
+                # Build feedback dict for template
+                feedback_dict = {idx: feedback for idx, _, feedback in extracted_comments_for_session}
+                return render_template('main/practice_code_comments.html', code=code, comment_lines=comment_lines, already_checked=already_checked, uploaded_filename=uploaded_filename, upload_status=upload_status, can_extract=can_extract, username=username, checked_files_grid=checked_files_grid, is_teacher=is_teacher, feedback_dict=feedback_dict)
     # If already checked, do not show code or comments
     if already_checked:
         code = None
