@@ -392,7 +392,7 @@
 
             <!-- Filter Actions -->
             <div class="filter-actions">
-                <button type="submit" class="btn-filter">
+                <button type="submit" class="btn-filter" id="applyFiltersBtn">
                     <i class="fas fa-check"></i> Apply Filters
                 </button>
                 <a href="{{ url_for('courses.list_courses') }}" class="btn-reset">
@@ -491,4 +491,11 @@
         </div>
     {% endif %}
 </div>
+
+<script>
+// Add loading state to filter form
+document.getElementById('filterForm').addEventListener('submit', function(e) {
+    LoadingManager.showButtonLoading('#applyFiltersBtn', 'Applying...');
+});
+</script>
 {% endblock %}

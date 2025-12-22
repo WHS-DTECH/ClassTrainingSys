@@ -1020,3 +1020,243 @@ body {
         align-items: center;
     }
 }
+
+/* ========== Loading States & Spinners ========== */
+
+/* Spinner Base Styles */
+.spinner {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid #e0e0e0;
+    border-top-color: #7a1d3e;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.spinner-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 2px;
+}
+
+.spinner-lg {
+    width: 3rem;
+    height: 3rem;
+    border-width: 4px;
+}
+
+.spinner-primary {
+    border-color: rgba(122, 29, 62, 0.2);
+    border-top-color: #7a1d3e;
+}
+
+.spinner-secondary {
+    border-color: rgba(52, 152, 219, 0.2);
+    border-top-color: #3498db;
+}
+
+.spinner-danger {
+    border-color: rgba(231, 76, 60, 0.2);
+    border-top-color: #e74c3c;
+}
+
+.spinner-success {
+    border-color: rgba(46, 204, 113, 0.2);
+    border-top-color: #2ecc71;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Pulse Animation */
+.pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Skeleton Loading */
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    );
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-text {
+    height: 1.2rem;
+    margin-bottom: 0.8rem;
+    border-radius: 0.4rem;
+}
+
+.skeleton-title {
+    height: 1.8rem;
+    margin-bottom: 1rem;
+    border-radius: 0.4rem;
+}
+
+.skeleton-avatar {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.loading-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.loading-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 0.8rem;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.loading-content h3 {
+    margin-top: 1rem;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+/* Loading Button States */
+.btn.loading {
+    position: relative;
+    color: transparent;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    top: 50%;
+    left: 50%;
+    margin: -0.5rem 0 0 -0.5rem;
+    border: 2px solid #f0f0f0;
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 0.8s linear infinite;
+}
+
+/* Loading Input States */
+.form-group.loading input,
+.form-group.loading textarea,
+.form-group.loading select {
+    background-color: #f9f9f9;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.form-group.loading input::placeholder {
+    color: #ccc;
+}
+
+/* Fade In/Out Transitions */
+.fade-enter {
+    opacity: 0;
+}
+
+.fade-enter-active {
+    animation: fadeIn 0.3s ease-in;
+}
+
+.fade-exit {
+    opacity: 1;
+}
+
+.fade-exit-active {
+    animation: fadeOut 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* Slide Down Animation for Modals */
+.slide-down-enter {
+    transform: translateY(-2rem);
+    opacity: 0;
+}
+
+.slide-down-enter-active {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-2rem);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Progress Bar Loading */
+.progress-bar-loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}

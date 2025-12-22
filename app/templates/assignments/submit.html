@@ -446,6 +446,12 @@
 </div>
 
 <script>
+// Add loading state to form submission
+document.getElementById('submissionForm').addEventListener('submit', function(e) {
+    LoadingManager.showButtonLoading('#submitBtn', 'Submitting...');
+    LoadingManager.showFormLoading('#submissionForm');
+});
+
 // Character counter
 const contentTextarea = document.getElementById('submissionContent');
 const charCount = document.getElementById('charCount');
