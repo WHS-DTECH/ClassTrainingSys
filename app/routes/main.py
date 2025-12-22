@@ -881,7 +881,7 @@ def profile():
     """User profile page showing account info and activity"""
     try:
         # Get enrollments safely
-        enrollments = Enrollment.query.filter_by(user_id=current_user.id).all() or []
+        enrollments = Enrollment.query.filter_by(student_id=current_user.id).all() or []
         
         # Calculate stats safely
         total_courses = len(enrollments) if enrollments else 0
