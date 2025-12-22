@@ -19,21 +19,9 @@ def download_comments_pdf():
     uploaded_filename = request.form.get('uploaded_filename', 'Extracted_Comments')
     today_str = datetime.now().strftime('%Y-%m-%d')
     pdf_filename = f"{uploaded_filename}_comments_{today_str}.pdf"
-    # Fetch comments and feedback from DB for the current file
-    from app.models import CommentFeedback, Lesson
-    template_path = "modules/module3/m3lesson1.html"
-    lesson = Lesson.query.filter_by(template_path=template_path).first()
-    extracted_comments = []
-    if lesson:
-        lesson_id = lesson.id
-        # Strictly filter by user, lesson, and exact filename
-        feedback_entries = CommentFeedback.query.filter_by(
-            user_id=current_user.id,
-            lesson_id=lesson_id,
-            filename=uploaded_filename
-        ).order_by(CommentFeedback.line_num).all()
-        for entry in feedback_entries:
-            extracted_comments.append((entry.line_num, entry.comment, entry.feedback))
+    # Get extracted comments and feedback from session (not DB)
+    extracted_comments = session.get('extracted_comments')
+    feedback_list = session.get('extracted_feedback')
     # Generate PDF
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
@@ -61,13 +49,13 @@ def download_comments_pdf():
     p.drawString(40, y, "Extracted Comments and Feedback:")
     y -= 18
     p.setFont("Helvetica", 10)
-    if extracted_comments:
-        for idx, (line_num, comment, feedback) in enumerate(extracted_comments):
+    if extracted_comments and feedback_list:
+        for idx, (comment, feedback) in enumerate(zip(extracted_comments, feedback_list)):
             if y < 60:
                 p.showPage()
                 y = height - 40
                 p.setFont("Helvetica", 10)
-            p.drawString(50, y, f"Line {line_num}: {comment}")
+            p.drawString(50, y, f"Line {comment[0]}: {comment[1]}")
             y -= 12
             p.setFont("Helvetica-Oblique", 9)
             p.drawString(70, y, f"Feedback: {feedback}")
