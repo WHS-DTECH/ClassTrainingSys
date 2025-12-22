@@ -78,15 +78,18 @@ def create_app():
         print(f"[ADMIN BOOTSTRAP] Admin user {admin_email} ensured with password (hidden) and role teacher.")
         # --- End permanent admin bootstrap ---
     
-    @app.route("/login/google")
-    def login_google():
+
+    @app.route("/login/google/authorized")
+    def google_authorized():
         if not google.authorized:
             return redirect(url_for("google.login"))
         resp = google.get("/oauth2/v2/userinfo")
-        assert resp.ok, resp.text
+        if not resp.ok:
+            return "Failed to fetch user info from Google.", 400
         user_info = resp.json()
-        user_email = user_info["email"]
-        # Fetch or create user in DB
+        user_email = user_info.get("email")
+        if not user_email:
+            return "No email found in Google account.", 400
         from app.models import User, db
         user = User.query.filter_by(email=user_email).first()
         if not user:
@@ -98,7 +101,7 @@ def create_app():
             db.session.add(user)
             db.session.commit()
         login_user(user)
-        return redirect(url_for("main.dashboard"))  # Redirect to your dashboard or home page
+        return redirect(url_for("main.dashboard"))
     
     return app
 
