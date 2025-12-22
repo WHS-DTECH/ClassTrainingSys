@@ -26,7 +26,12 @@ def download_comments_pdf():
     extracted_comments = []
     if lesson:
         lesson_id = lesson.id
-        feedback_entries = CommentFeedback.query.filter_by(user_id=current_user.id, lesson_id=lesson_id, filename=uploaded_filename).order_by(CommentFeedback.line_num).all()
+        # Strictly filter by user, lesson, and exact filename
+        feedback_entries = CommentFeedback.query.filter_by(
+            user_id=current_user.id,
+            lesson_id=lesson_id,
+            filename=uploaded_filename
+        ).order_by(CommentFeedback.line_num).all()
         for entry in feedback_entries:
             extracted_comments.append((entry.line_num, entry.comment, entry.feedback))
     # Generate PDF
