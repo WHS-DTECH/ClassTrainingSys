@@ -600,6 +600,8 @@ def practice_code_comments():
                 lesson_id = lesson.id
                 save_filename = uploaded_filename or filename or "unknown"
                 extracted_comments_for_session.clear()
+                # Compute code hash for deduplication
+                code_hash = hashlib.sha256(code.encode('utf-8')).hexdigest()
                 for idx, line in enumerate(code.splitlines(), start=1):
                     if '#' in line:
                         comment_index = line.find('#')
@@ -627,7 +629,8 @@ def practice_code_comments():
                                         filename=save_filename,
                                         line_num=idx,
                                         comment=comment,
-                                        feedback=feedback
+                                        feedback=feedback,
+                                        code_hash=code_hash
                                     ))
                 db.session.commit()
                 # Always fetch feedback for this file from DB for display
@@ -646,6 +649,8 @@ def practice_code_comments():
                     return "Lesson for comment checker not found.", 404
                 lesson_id = lesson.id
                 save_filename = filename or "unknown"
+                # Compute code hash for deduplication
+                code_hash = hashlib.sha256(code.encode('utf-8')).hexdigest()
                 for idx, line in enumerate(code.splitlines(), start=1):
                     if '#' in line:
                         comment_index = line.find('#')
@@ -671,7 +676,8 @@ def practice_code_comments():
                                         filename=save_filename,
                                         line_num=idx,
                                         comment=comment,
-                                        feedback=feedback
+                                        feedback=feedback,
+                                        code_hash=code_hash
                                     ))
                 db.session.commit()
                 # Always fetch feedback for this file from DB for display
