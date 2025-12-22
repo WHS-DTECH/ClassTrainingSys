@@ -4,8 +4,17 @@ from app import db
 from app.models import Assignment, Submission, Course, Enrollment
 from app.forms import AssignmentForm, SubmissionForm
 from datetime import datetime
+import os
+from werkzeug.utils import secure_filename
 
 bp = Blueprint('assignments', __name__, url_prefix='/assignments')
+
+# Allowed file extensions
+ALLOWED_EXTENSIONS = {'py', 'java', 'js', 'cpp', 'txt', 'pdf', 'java', 'c', 'h'}
+MAX_FILE_SIZE = 16 * 1024 * 1024  # 16MB
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @bp.route('/course/<int:course_id>')
 @login_required
@@ -97,15 +106,43 @@ def submit_assignment(assignment_id):
     ).first()
     
     form = SubmissionForm()
-    if form.validate_on_submit():
+    if form.validate_on_submit() or request.method == 'POST':
+        content = form.content.data if form.content.data else None
+        file_path = None
+        
+        # Handle file upload
+        if 'file' in request.files:
+            files = request.files.getlist('file')
+            for file in files:
+                if file and file.filename and allowed_file(file.filename):
+                    # Create uploads directory if it doesn't exist
+                    upload_folder = os.path.join('uploads', 'assignments', str(current_user.id))
+                    os.makedirs(upload_folder, exist_ok=True)
+                    
+                    # Secure filename and save
+                    filename = secure_filename(file.filename)
+                    timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S_')
+                    filename = timestamp + filename
+                    file_path = os.path.join(upload_folder, filename)
+                    
+                    file.save(file_path)
+                    break  # Save first file for now
+        
+        # Validate that either content or file is provided
+        if not content and not file_path:
+            flash('Please provide either text content or upload a file.', 'warning')
+            return render_template('assignments/submit.html', form=form, assignment=assignment)
+        
         if existing:
-            existing.content = form.content.data
+            existing.content = content
+            existing.file_path = file_path if file_path else existing.file_path
             existing.submitted_at = datetime.utcnow()
         else:
             submission = Submission(
                 assignment_id=assignment_id,
                 student_id=current_user.id,
-                content=form.content.data
+                content=content,
+                file_path=file_path
             )
             db.session.add(submission)
         

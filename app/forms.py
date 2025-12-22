@@ -50,8 +50,8 @@ class AssignmentForm(FlaskForm):
     submit = SubmitField('Create Assignment')
 
 class SubmissionForm(FlaskForm):
-    content = TextAreaField('Your Submission', validators=[DataRequired()], 
-                          render_kw={"rows": 10, "placeholder": "Enter your code or answer here..."})
+    content = TextAreaField('Your Submission', validators=[Optional()], 
+                          render_kw={"rows": 10, "placeholder": "Enter your code or answer here...", "id": "submission-content"})
     submit = SubmitField('Submit Assignment')
 
 # Quiz Forms
