@@ -36,6 +36,30 @@ def create_app():
     app.register_blueprint(admin.bp)
     
     # Google OAuth blueprint
+
+    def google_login_handler():
+        if not google.authorized:
+            return redirect(url_for("google.login"))
+        resp = google.get("/oauth2/v2/userinfo")
+        if not resp.ok:
+            return "Failed to fetch user info from Google.", 400
+        user_info = resp.json()
+        user_email = user_info.get("email")
+        if not user_email:
+            return "No email found in Google account.", 400
+        from app.models import User
+        user = User.query.filter_by(email=user_email).first()
+        if not user:
+            user = User(
+                username=user_email.split("@")[0],
+                email=user_email,
+                role="student"  # Default role, adjust as needed
+            )
+            db.session.add(user)
+            db.session.commit()
+        login_user(user)
+        return redirect(url_for("main.dashboard"))
+
     google_bp = make_google_blueprint(
         client_id=os.environ.get("GOOGLE_OAUTH_CLIENT_ID"),
         client_secret=os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET"),
@@ -44,7 +68,7 @@ def create_app():
             "https://www.googleapis.com/auth/userinfo.profile",
             "openid"
         ],
-        redirect_url="/login/google/authorized"
+        authorized_url=google_login_handler
     )
     app.register_blueprint(google_bp, url_prefix="/login")
     
@@ -81,29 +105,7 @@ def create_app():
 
 
 
-    @app.route("/login/google/authorized")
-    def google_authorized():
-        if not google.authorized:
-            return redirect(url_for("google.login"))
-        resp = google.get("/oauth2/v2/userinfo")
-        if not resp.ok:
-            return "Failed to fetch user info from Google.", 400
-        user_info = resp.json()
-        user_email = user_info.get("email")
-        if not user_email:
-            return "No email found in Google account.", 400
-        from app.models import User
-        user = User.query.filter_by(email=user_email).first()
-        if not user:
-            user = User(
-                username=user_email.split("@")[0],
-                email=user_email,
-                role="student"  # Default role, adjust as needed
-            )
-            db.session.add(user)
-            db.session.commit()
-        login_user(user)
-        return redirect(url_for("main.dashboard"))
+
     
     return app
 
