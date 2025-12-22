@@ -879,23 +879,31 @@ from werkzeug.security import check_password_hash, generate_password_hash
 @login_required
 def profile():
     """User profile page showing account info and activity"""
-    enrollments = Enrollment.query.filter_by(user_id=current_user.id).all()
-    
-    # Calculate stats
-    total_courses = len(enrollments)
-    completed_courses = sum(1 for e in enrollments if e.completed)
-    
-    # Get recent submissions
-    recent_submissions = Submission.query.filter_by(
-        student_id=current_user.id
-    ).order_by(Submission.submitted_at.desc()).limit(5).all()
-    
-    return render_template('auth/profile.html',
-        enrollments=enrollments,
-        total_courses=total_courses,
-        completed_courses=completed_courses,
-        recent_submissions=recent_submissions
-    )
+    try:
+        # Get enrollments safely
+        enrollments = Enrollment.query.filter_by(user_id=current_user.id).all() or []
+        
+        # Calculate stats safely
+        total_courses = len(enrollments) if enrollments else 0
+        completed_courses = sum(1 for e in enrollments if e and hasattr(e, 'completed') and e.completed) if enrollments else 0
+        
+        # Get recent submissions safely
+        recent_submissions = Submission.query.filter_by(
+            student_id=current_user.id
+        ).order_by(Submission.submitted_at.desc()).limit(5).all() or []
+        
+        return render_template('auth/profile.html',
+            enrollments=enrollments,
+            total_courses=total_courses,
+            completed_courses=completed_courses,
+            recent_submissions=recent_submissions
+        )
+    except Exception as e:
+        # Log the error for debugging
+        import sys
+        print(f"Profile page error: {str(e)}", file=sys.stderr)
+        flash('An error occurred loading your profile. Please try again.', 'danger')
+        return redirect(url_for('main.dashboard'))
 
 @bp.route('/settings', methods=['GET', 'POST'])
 @login_required
