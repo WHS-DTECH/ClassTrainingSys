@@ -273,6 +273,22 @@ def practice_debug_checker():
             code = None
             debug_blocks = []
             can_extract = False
+    # If already checked, fetch comments and feedback from DB for display
+    if already_checked:
+        # Don't clear code/comments; fetch from DB
+        comment_lines = []
+        feedback_entries = []
+        if current_user.is_authenticated and (uploaded_filename or filename):
+            from app.models import CommentFeedback, Lesson
+            template_path = "modules/module3/m3lesson1.html"
+            lesson = Lesson.query.filter_by(template_path=template_path).first()
+            if lesson:
+                lesson_id = lesson.id
+                file_to_check = uploaded_filename or filename or "unknown"
+                feedback_entries = CommentFeedback.query.filter_by(user_id=current_user.id, lesson_id=lesson_id, filename=file_to_check).order_by(CommentFeedback.line_num).all()
+                for entry in feedback_entries:
+                    comment_lines.append((entry.line_num, entry.comment))
+        can_extract = False
 
     # Only set debug_blocks from session if not just extracted (i.e., not POST with extraction)
     if request.method != 'POST' and 'extracted_debug_blocks' in session:
@@ -665,10 +681,21 @@ def practice_code_comments():
                 # Build feedback dict for template
                 feedback_dict = {idx: feedback for idx, _, feedback in extracted_comments_for_session}
                 return render_template('main/practice_code_comments.html', code=code, comment_lines=comment_lines, already_checked=already_checked, uploaded_filename=uploaded_filename, upload_status=upload_status, can_extract=can_extract, username=username, checked_files_grid=checked_files_grid, is_teacher=is_teacher, feedback_dict=feedback_dict)
-    # If already checked, do not show code or comments
+    # If already checked, fetch comments and feedback from DB for display
     if already_checked:
-        code = None
+        # Don't clear code/comments; fetch from DB
         comment_lines = []
+        feedback_entries = []
+        if current_user.is_authenticated and (uploaded_filename or filename):
+            from app.models import CommentFeedback, Lesson
+            template_path = "modules/module3/m3lesson1.html"
+            lesson = Lesson.query.filter_by(template_path=template_path).first()
+            if lesson:
+                lesson_id = lesson.id
+                file_to_check = uploaded_filename or filename or "unknown"
+                feedback_entries = CommentFeedback.query.filter_by(user_id=current_user.id, lesson_id=lesson_id, filename=file_to_check).order_by(CommentFeedback.line_num).all()
+                for entry in feedback_entries:
+                    comment_lines.append((entry.line_num, entry.comment))
         can_extract = False
     # Gather checked files for this user (student or teacher)
     checked_files_grid = []
