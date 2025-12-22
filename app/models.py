@@ -1,4 +1,3 @@
-
 # ...existing code...
 
 from datetime import datetime
@@ -123,6 +122,7 @@ class CommentFeedback(db.Model):
     line_num = db.Column(db.Integer, nullable=False)
     comment = db.Column(db.Text, nullable=False)
     feedback = db.Column(db.Text, nullable=False)
+    code_hash = db.Column(db.String(64), nullable=False)  # SHA256 hash of code
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Enrollment(db.Model):
