@@ -62,8 +62,32 @@
 {% if courses %}
 <h2>Courses</h2>
 <ul>
-  {% for course in courses %}
-    <li>{{ course.title }}</li>
+  {% for course in courses|sort(attribute='order') %}
+    <li>
+      <strong>{{ course.title }}</strong>
+      <form method="POST" action="{{ url_for('admin.delete_course', course_id=course.id) }}" style="display:inline; margin-left: 0.5em;" onsubmit="return confirm('Are you sure you want to delete this course and all its data?');">
+        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+      </form>
+      <form method="POST" action="{{ url_for('admin.change_course_order') }}" style="display:inline; margin-left: 0.5em;">
+        <input type="hidden" name="course_id" value="{{ course.id }}">
+        <button type="submit" name="direction" value="up" class="btn btn-secondary btn-sm">&#8593;</button>
+        <button type="submit" name="direction" value="down" class="btn btn-secondary btn-sm">&#8595;</button>
+      </form>
+      {% if course.lessons %}
+      <ul>
+        {% for lesson in course.lessons %}
+        <li>
+          {{ lesson.title }}
+          <form method="POST" action="{{ url_for('admin.delete_lesson', lesson_id=lesson.id) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this lesson?');">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+          </form>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+        <span style="color:#888;">No lessons</span>
+      {% endif %}
+    </li>
   {% endfor %}
 </ul>
 {% endif %}

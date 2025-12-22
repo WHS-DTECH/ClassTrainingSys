@@ -7,6 +7,11 @@ print("1 kayaking & pancakes 3 moderate 400")
 print("2 mountain biking 4 difficult 900")
 name = input("what is your name?")
 print("your name is: " + name) 
+
+# DEBUG:
+# Test: Test if its updating code --- User entered letters instead of a number
+# Issue: Program crashed with ValueError
+# Fix: Wrapped input in try/except block
 age = input("enter age:")
 print("your age is: " + age)
 #https://www.w3schools.com/python/showpython.asp?filename=demo_user_input3

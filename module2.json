@@ -1,14 +1,15 @@
 [
   {
     "course": {
-      "title": "Module 2: Debugging and Problem Solving",
-      "description": "Module 2 covers debugging techniques and problem solving."
+      "title": "Module 2: Debugging",
+      "description": "Learn what debugging is, why it is a critical skill for programmers, and how to approach finding and fixing errors in your code. This module covers the debugging mindset, common techniques, and the importance of persistence and problem-solving."
     },
     "lessons": [
-      {"title": "Lesson 1: Introduction", "content": "", "order": 1, "template_path": "modules/module2/m2lesson_intro.html", "video_url": ""},
-      {"title": "Lesson 2: Lesson 1", "content": "", "order": 2, "template_path": "modules/module2/m2lesson1.html", "video_url": ""},
-      {"title": "Lesson 3: Debugging Intro", "content": "", "order": 3, "template_path": "modules/module2/debugging_intro.html", "video_url": ""},
-      {"title": "Lesson 4: Contents", "content": "", "order": 4, "template_path": "modules/module2/m2_contents.html", "video_url": ""}
+      {"title": "Introduction to Code Debugging", "content": "", "order": 1, "template_path": "modules/module2/m2lesson_intro.html", "video_url": ""},
+      {"title": "Section 1: Python Debugging - Best Practices", "content": "", "order": 2, "template_path": "modules/module2/m2lesson1.html", "video_url": ""},
+      {"title": "Section 2: JavaScript Debugging - Best Practices", "content": "", "order": 3, "template_path": "modules/module2/m2lesson2.html", "video_url": ""},
+      {"title": "Section 3: HTML and CSS Debugging - Best Practices", "content": "", "order": 4, "template_path": "modules/module2/m2lesson3.html", "video_url": ""},
+      {"title": "99. Debugging Best Practices - Summary", "content": "", "order": 99, "template_path": "modules/module2/m2_contents.html", "video_url": ""}
     ]
   }
 ]

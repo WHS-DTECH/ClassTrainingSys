@@ -8,6 +8,8 @@
         <h1>
             {% if course.title == 'Introduction to Python Programming' or course.title == 'Introduction to Programming Documentation' %}
                 Module 1: Comments
+            {% elif course.title.startswith('Module 3') %}
+                Module 3: Assessment Checking
             {% else %}
                 {{ course.title }}
             {% endif %}

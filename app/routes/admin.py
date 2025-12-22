@@ -1,4 +1,4 @@
-# All imports at the top
+
 import csv
 import json
 from werkzeug.utils import secure_filename
@@ -8,39 +8,8 @@ from app import db
 from app.models import User, Course, Enrollment, Lesson
 from functools import wraps
 
-# Blueprint definition
 bp = Blueprint('admin', __name__, url_prefix='/admin')
-# TEMPORARY DEBUG ROUTE (must be after Blueprint definition)
-@bp.route('/admin-debug')
-def admin_debug():
-    admin_email = "vanessapringle@westlandhigh.school.nz"
-    user = User.query.filter_by(email=admin_email).first()
-    if not user:
-        return "Admin user not found."
-    return f"Admin user: {user.email}<br>Username: {user.username}<br>Role: {user.role}<br>Password hash: {user.password_hash}"
 
-# TEMPORARY DEBUG ROUTE (must be after Blueprint definition)
-@bp.route('/admin-debug')
-def admin_debug():
-    from app.models import User
-    admin_email = "vanessapringle@westlandhigh.school.nz"
-    user = User.query.filter_by(email=admin_email).first()
-    if not user:
-        return "Admin user not found."
-    return f"Admin user: {user.email}<br>Username: {user.username}<br>Role: {user.role}<br>Password hash: {user.password_hash}"
-
-# All imports at the top
-import csv
-import json
-from werkzeug.utils import secure_filename
-from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import login_required, current_user
-from app import db
-from app.models import User, Course, Enrollment, Lesson
-from functools import wraps
-
-# Blueprint definition
-bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 def teacher_required(f):
     @wraps(f)
@@ -50,6 +19,62 @@ def teacher_required(f):
             return redirect(url_for('main.dashboard'))
         return f(*args, **kwargs)
     return decorated_function
+
+
+
+
+# --- CHANGE COURSE ORDER ROUTE ---
+@bp.route('/change_course_order', methods=['POST'])
+@login_required
+@teacher_required
+def change_course_order():
+    course_id = int(request.form['course_id'])
+    direction = request.form['direction']
+    course = Course.query.get_or_404(course_id)
+    # Get all courses ordered by 'order'
+    courses = Course.query.order_by(Course.order).all()
+    idx = [c.id for c in courses].index(course_id)
+    if direction == 'up' and idx > 0:
+        other = courses[idx - 1]
+        course.order, other.order = other.order, course.order
+        db.session.commit()
+    elif direction == 'down' and idx < len(courses) - 1:
+        other = courses[idx + 1]
+        course.order, other.order = other.order, course.order
+        db.session.commit()
+    return redirect(url_for('admin.index'))
+
+# --- DELETE COURSE ROUTE ---
+@bp.route('/delete_course/<int:course_id>', methods=['POST'])
+@login_required
+@teacher_required
+def delete_course(course_id):
+    course = Course.query.get_or_404(course_id)
+    db.session.delete(course)
+    db.session.commit()
+    flash(f'Course "{course.title}" and all its lessons/assignments/quizzes have been deleted.', 'success')
+    return redirect(url_for('admin.index'))
+
+
+
+# --- DELETE LESSON ROUTE ---
+@bp.route('/delete_lesson/<int:lesson_id>', methods=['POST'])
+@login_required
+@teacher_required
+def delete_lesson(lesson_id):
+    lesson = Lesson.query.get_or_404(lesson_id)
+    db.session.delete(lesson)
+    db.session.commit()
+    flash(f'Lesson "{lesson.title}" deleted.', 'success')
+    return redirect(url_for('admin.index'))
+
+@bp.route('/admin-debug')
+def admin_debug():
+    admin_email = "vanessapringle@westlandhigh.school.nz"
+    user = User.query.filter_by(email=admin_email).first()
+    if not user:
+        return "Admin user not found."
+    return f"Admin user: {user.email}<br>Username: {user.username}<br>Role: {user.role}<br>Password hash: {user.password_hash}"
 
 # Bulk upload route
 @bp.route('/bulk_upload', methods=['POST'])
@@ -121,17 +146,6 @@ def bulk_upload():
         user_enrollments[user.id] = enrolled_courses
     return render_template('admin/index.html', users=users, courses=courses, user_enrollments=user_enrollments, upload_message=upload_message)
 
-def teacher_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated or not current_user.is_teacher():
-            flash('You must be a teacher to access this page.', 'danger')
-            return redirect(url_for('main.dashboard'))
-        return f(*args, **kwargs)
-    return decorated_function
-
-
-from flask import request
 
 @bp.route('/', methods=['GET', 'POST'])
 @login_required

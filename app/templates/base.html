@@ -79,7 +79,13 @@
                             {% endif %}
                         {% endfor %}
                         {% for course in my_courses %}
-                            <a href="{{ url_for('courses.view_course', course_id=course.id) }}" class="w3-bar-item w3-button sidebar-link">{{ course.title }}</a>
+                            {% if course.title != 'Introduction to Python Programming' and course.title != 'Introduction to Programming Documentation' %}
+                                {% if course.title.startswith('Module 3') %}
+                                    <a href="{{ url_for('courses.view_course', course_id=course.id) }}" class="w3-bar-item w3-button sidebar-link">Module 3: Assessment Checking</a>
+                                {% else %}
+                                    <a href="{{ url_for('courses.view_course', course_id=course.id) }}" class="w3-bar-item w3-button sidebar-link">{{ course.title }}</a>
+                                {% endif %}
+                            {% endif %}
                         {% endfor %}
                     {% endif %}
                     {% if current_user.is_teacher() %}

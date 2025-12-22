@@ -12,9 +12,9 @@ def create_app():
     app = Flask(__name__)
     
     # Configuration
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///class_training.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    from config import config
+    config_name = os.environ.get('FLASK_CONFIG', 'default')
+    app.config.from_object(config[config_name])
     
     # Initialize extensions
     db.init_app(app)

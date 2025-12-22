@@ -1,14 +1,14 @@
 [
   {
     "course": {
-      "title": "Module 1: Comments",
-      "description": "Module 1 covers the essentials of writing clear, helpful comments in code, including inline comments, block comments, and docstrings."
+      "title": "Module 1: Commenting",
+      "description": "Learn best practices for writing effective comments in your code. This module covers general commenting principles and specific conventions for Python and JavaScript."
     },
     "lessons": [
-      {"title": "Lesson 1: Introduction", "content": "", "order": 1, "template_path": "modules/module1/m1lesson_intro.html", "video_url": ""},
-      {"title": "Lesson 2: Lesson 1", "content": "", "order": 2, "template_path": "modules/module1/m1lesson1.html", "video_url": ""},
-      {"title": "Lesson 3: Lesson 2", "content": "", "order": 3, "template_path": "modules/module1/m1lesson2.html", "video_url": ""},
-      {"title": "Lesson 4: Lesson 3", "content": "", "order": 4, "template_path": "modules/module1/m1lesson3.html", "video_url": ""}
+      {"title": "Introduction to Code Comments", "content": "", "order": 1, "template_path": "modules/module1/m1lesson_intro.html", "video_url": ""},
+      {"title": "Section 1: Python Comments - Best Practices", "content": "", "order": 2, "template_path": "modules/module1/m1lesson1.html", "video_url": ""},
+      {"title": "Section 2: JavaScript Comments - Best Practices", "content": "", "order": 3, "template_path": "modules/module1/m1lesson2.html", "video_url": ""},
+      {"title": "Section 3: HTML and CSS Comments - Best Practices", "content": "", "order": 4, "template_path": "modules/module1/m1lesson3.html", "video_url": ""}
     ]
   }
 ]

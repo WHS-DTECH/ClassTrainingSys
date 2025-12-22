@@ -1,3 +1,71 @@
+
+from flask import Blueprint, render_template, request, session, redirect, url_for
+from flask import send_file, flash
+from flask_login import login_required, current_user
+from app.models import Course, Enrollment, Assignment, Submission, Quiz, QuizAttempt, User, CommentCheck
+import io
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from sqlalchemy import func
+from datetime import datetime
+
+bp = Blueprint('main', __name__)
+
+# PDF download for extracted comments and feedback
+@bp.route('/download_comments_pdf', methods=['POST'])
+@login_required
+def download_comments_pdf():
+    from flask import make_response
+    code = request.form.get('code', '')
+    uploaded_filename = request.form.get('uploaded_filename', 'Extracted_Comments')
+    extracted_comments = session.get('extracted_comments', [])
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    pdf_filename = f"{uploaded_filename}_comments_{today_str}.pdf"
+    # Generate PDF
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+    y = height - 40
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(40, y, f"Extracted Comments for: {uploaded_filename}")
+    y -= 24
+    p.setFont("Helvetica", 12)
+    p.drawString(40, y, f"Date: {today_str}")
+    y -= 30
+    p.setFont("Helvetica", 11)
+    p.drawString(40, y, "Code:")
+    y -= 18
+    p.setFont("Courier", 9)
+    for line in code.splitlines():
+        if y < 60:
+            p.showPage()
+            y = height - 40
+            p.setFont("Courier", 9)
+        p.drawString(50, y, line)
+        y -= 12
+    y -= 18
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(40, y, "Extracted Comments and Feedback:")
+    y -= 18
+    p.setFont("Helvetica", 10)
+    if extracted_comments:
+        for idx, (line_num, comment, feedback) in enumerate(extracted_comments):
+            if y < 60:
+                p.showPage()
+                y = height - 40
+                p.setFont("Helvetica", 10)
+            p.drawString(50, y, f"Line {line_num}: {comment}")
+            y -= 12
+            p.setFont("Helvetica-Oblique", 9)
+            p.drawString(70, y, f"Feedback: {feedback}")
+            y -= 16
+            p.setFont("Helvetica", 10)
+    else:
+        p.drawString(50, y, "No comments found.")
+    p.save()
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name=pdf_filename, mimetype='application/pdf')
+
 from flask import Blueprint, render_template, request, session, redirect, url_for
 from flask import send_file, flash
 from flask_login import login_required, current_user
@@ -130,16 +198,19 @@ def practice_debug_checker():
             code = file.read().decode('utf-8')
             # Normalize line endings for uploaded files
             code = code.replace('\r\n', '\n').replace('\r', '\n')
-            # Only restrict for students (DebugCheck)
             from app.models import DebugCheck
-            if current_user.is_authenticated and uploaded_filename and not current_user.is_teacher():
-                existing = DebugCheck.query.filter_by(user_id=current_user.id, filename=uploaded_filename).first()
-                if existing:
-                    already_checked = True
-                    upload_status = f"User '{username}' has already uploaded/checked this file in the Debug Checker. Only one upload/check is allowed."
-                else:
+            if current_user.is_authenticated and uploaded_filename:
+                if current_user.is_teacher():
                     can_extract = True
                     upload_status = f"File '{uploaded_filename}' uploaded by user '{username}'. Ready to extract."
+                else:
+                    existing = DebugCheck.query.filter_by(user_id=current_user.id, filename=uploaded_filename).first()
+                    if existing:
+                        already_checked = True
+                        upload_status = f"User '{username}' has already uploaded/checked this file in the Debug Checker. Only one upload/check is allowed."
+                    else:
+                        can_extract = True
+                        upload_status = f"File '{uploaded_filename}' uploaded by user '{username}'. Ready to extract."
             else:
                 can_extract = True
                 upload_status = f"File '{uploaded_filename}' uploaded by user '{username}'. Ready to extract."
@@ -150,23 +221,29 @@ def practice_debug_checker():
         elif 'extract_file' in request.form:
             uploaded_filename = request.form.get('uploaded_filename')
             code = request.form.get('uploaded_code')
-            # Only restrict for students (DebugCheck)
             from app.models import DebugCheck
-            if current_user.is_authenticated and uploaded_filename and not current_user.is_teacher():
-                existing = DebugCheck.query.filter_by(user_id=current_user.id, filename=uploaded_filename).first()
-                if existing:
-                    already_checked = True
-                    upload_status = f"User '{username}' has already uploaded/checked this file in the Debug Checker. Only one upload/check is allowed."
-                else:
-                    from app import db
-                    new_check = DebugCheck(user_id=current_user.id, filename=uploaded_filename)
-                    db.session.add(new_check)
-                    db.session.commit()
+            from app import db
+            if current_user.is_authenticated and uploaded_filename:
+                if current_user.is_teacher():
+                    # Always create a DebugCheck record for teachers on extraction attempt
+                    existing = DebugCheck.query.filter_by(user_id=current_user.id, filename=uploaded_filename).first()
+                    if not existing:
+                        new_check = DebugCheck(user_id=current_user.id, filename=uploaded_filename)
+                        db.session.add(new_check)
+                        db.session.commit()
                     can_extract = True
-                    upload_status = f"File '{uploaded_filename}' extracted and checked for user '{username}'."
-            else:
-                can_extract = True
-                upload_status = f"File '{uploaded_filename}' extracted for user '{username}'."
+                    upload_status = f"File '{uploaded_filename}' extracted for user '{username}'."
+                else:
+                    existing = DebugCheck.query.filter_by(user_id=current_user.id, filename=uploaded_filename).first()
+                    if existing:
+                        already_checked = True
+                        upload_status = f"User '{username}' has already uploaded/checked this file in the Debug Checker. Only one upload/check is allowed."
+                    else:
+                        new_check = DebugCheck(user_id=current_user.id, filename=uploaded_filename)
+                        db.session.add(new_check)
+                        db.session.commit()
+                        can_extract = True
+                        upload_status = f"File '{uploaded_filename}' extracted and checked for user '{username}'."
             # Extract debug blocks
             if can_extract and code:
                 print("[DEBUG] Code received for extraction (file upload):\n" + code, flush=True)
@@ -192,9 +269,11 @@ def practice_debug_checker():
 
 
     if already_checked:
-        code = None
-        debug_blocks = []
-        can_extract = False
+        # Do not clear code for teachers, only for students who have already checked
+        if not (current_user.is_authenticated and current_user.is_teacher()):
+            code = None
+            debug_blocks = []
+            can_extract = False
 
     # Only set debug_blocks from session if not just extracted (i.e., not POST with extraction)
     if request.method != 'POST' and 'extracted_debug_blocks' in session:
@@ -202,7 +281,8 @@ def practice_debug_checker():
 
     # Add a message if no debug blocks are found after extraction (file or paste)
     debug_message = None
-    if can_extract and request.method == 'POST' and (not debug_blocks or len(debug_blocks) == 0):
+    # Only show the message if the user just tried to extract (not on upload or GET)
+    if request.method == 'POST' and 'extract_file' in request.form and (not debug_blocks or len(debug_blocks) == 0):
         debug_message = "No DEBUG code blocks were found. You must include at least <b>three</b> DEBUG code blocks in your code to meet the requirement."
 
     # Gather checked files for this user (for sidebar grid)
@@ -210,7 +290,11 @@ def practice_debug_checker():
     if current_user.is_authenticated:
         from app.models import CommentCheck, DebugCheck
         comment_files = {c.filename for c in CommentCheck.query.filter_by(user_id=current_user.id).all()}
-        debug_files = {d.filename for d in DebugCheck.query.filter_by(user_id=current_user.id).all()}
+        # For teachers, always show all files they've checked (all DebugCheck records)
+        if current_user.is_teacher():
+            debug_files = {d.filename for d in DebugCheck.query.filter_by(user_id=current_user.id).all()}
+        else:
+            debug_files = {d.filename for d in DebugCheck.query.filter_by(user_id=current_user.id).all()}
         all_files = sorted(comment_files | debug_files)
         for fname in all_files:
             checked_files_grid.append({
@@ -218,16 +302,112 @@ def practice_debug_checker():
                 'comment': '✔️' if fname in comment_files else '',
                 'debug': '✔️' if fname in debug_files else ''
             })
+
     return render_template('main/practice_debug_checker.html', code=code, debug_blocks=debug_blocks, already_checked=already_checked, uploaded_filename=uploaded_filename, upload_status=upload_status, can_extract=can_extract, username=username, checked_files_grid=checked_files_grid, debug_message=debug_message)
 
+# PDF download for extracted debug blocks and feedback
+@bp.route('/download_debug_blocks_pdf', methods=['POST'])
+@login_required
+def download_debug_blocks_pdf():
+    from flask import make_response
+    code = request.form.get('code', '')
+    if not code:
+        code = session.get('uploaded_code', '')
+    uploaded_filename = request.form.get('uploaded_filename', '').strip()
+    if not uploaded_filename or uploaded_filename == 'None':
+        uploaded_filename = session.get('uploaded_filename', 'Extracted_DebugBlocks')
+    debug_blocks = session.get('extracted_debug_blocks', [])
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    pdf_filename = f"{uploaded_filename}_debug_blocks_{today_str}.pdf"
+    # Generate PDF
+    buffer = io.BytesIO()
+    from reportlab.lib.pagesizes import letter
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.utils import simpleSplit
+    width, height = letter
+    y = height - 40
+    p = canvas.Canvas(buffer, pagesize=letter)
+    p.setFont("Helvetica-Bold", 16)
+    p.drawString(40, y, f"{uploaded_filename}")
+    y -= 28
+    p.setFont("Helvetica", 12)
+    p.drawString(40, y, f"Date: {today_str}")
+    y -= 30
+    p.setFont("Helvetica-Bold", 13)
+    p.drawString(40, y, "Lesson 2: Debug Checker - Extracted Debug Blocks")
+    y -= 28
+    p.setFont("Helvetica", 11)
+    p.drawString(40, y, "Code:")
+    y -= 18
+    p.setFont("Courier", 9)
+    if code.strip():
+        for line in code.splitlines():
+            if y < 60:
+                p.showPage()
+                y = height - 40
+                p.setFont("Courier", 9)
+            p.drawString(50, y, line)
+            y -= 12
+    else:
+        p.drawString(50, y, "(No code provided)")
+        y -= 12
+    y -= 18
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(40, y, "Extracted Debug Blocks and Feedback:")
+    y -= 18
+    p.setFont("Helvetica", 10)
+    if debug_blocks:
+        for block in debug_blocks:
+            if y < 60:
+                p.showPage()
+                y = height - 40
+                p.setFont("Helvetica", 10)
+            block_lines = simpleSplit(block, "Helvetica", 10, width - 100)
+            for line in block_lines:
+                p.drawString(50, y, line)
+                y -= 12
+            # Feedback logic (same as template)
+            block_lower = block.lower()
+            if '# debug:' in block_lower and ('test' not in block_lower and 'issue' not in block_lower and 'fix' not in block_lower):
+                feedback = 'Add a test, issue, and fix description to your DEBUG block.'
+            else:
+                missing = []
+                if 'test' not in block_lower:
+                    missing.append('TEST')
+                if 'issue' not in block_lower:
+                    missing.append('ISSUE')
+                if 'fix' not in block_lower:
+                    missing.append('FIX')
+                if not missing:
+                    feedback = 'Great! Your DEBUG block is complete.'
+                else:
+                    feedback = f"Add a {', '.join(missing)} to your DEBUG block for full marks."
+            p.setFont("Helvetica-Oblique", 9)
+            p.setFillColorRGB(0.2,0.2,0.7)
+            feedback_lines = simpleSplit(f"Feedback: {feedback}", "Helvetica-Oblique", 9, width - 120)
+            for line in feedback_lines:
+                p.drawString(70, y, line)
+                y -= 12
+            p.setFillColorRGB(0,0,0)
+            y -= 10
+    p.save()
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name=pdf_filename, mimetype="application/pdf")
+
 # Practice: Code Comments Extractor (copy/paste version)
-@bp.route('/lesson1/download_feedback')
+@bp.route('/lesson1/download_feedback', methods=['POST'])
 @login_required
 def download_lesson1_feedback():
     from app.models import CommentFeedback
     from datetime import datetime
     from reportlab.lib.pagesizes import A4
-    lesson_id = 46
+    # Dynamically get lesson_id by template_path
+    from app.models import Lesson
+    template_path = "modules/module3/m3lesson1.html"
+    lesson = Lesson.query.filter_by(template_path=template_path).first()
+    if not lesson:
+        return "Lesson for comment checker not found.", 404
+    lesson_id = lesson.id
     # Use session comments if available, else DB
     extracted_comments = None
     feedback_entries = []
@@ -242,7 +422,7 @@ def download_lesson1_feedback():
         if feedback_entries:
             extracted_comments = [(entry.line_num, entry.comment, entry.feedback) for entry in feedback_entries]
     if not extracted_comments:
-        return redirect(url_for('courses.view_lesson', lesson_id=46))
+        return "No extracted comments found for this lesson.", 404
 
     # Get filename from first entry (all entries have same filename)
     filename = "unknown"
@@ -304,6 +484,8 @@ def practice_code_comments():
     can_extract = False
     username = current_user.username if current_user.is_authenticated else None
     extracted_comments_for_session = []  # Always define at the start
+    extracted_feedback_for_session = []
+    feedback_entries = []
     if request.method == 'POST':
         # Handle file upload only (no extraction yet)
         if 'file' in request.files and request.files['file'].filename:
@@ -359,18 +541,17 @@ def practice_code_comments():
                     new_check = CommentCheck(user_id=current_user.id, filename=uploaded_filename)
                     db.session.add(new_check)
                     db.session.commit()
-                # Save extracted comments with feedback and filename to session for lesson view and PDF
-                if extracted_comments_for_session:
-                    session['extracted_comments'] = extracted_comments_for_session
-                    if uploaded_filename:
-                        session['uploaded_filename'] = uploaded_filename
                 can_extract = True
                 upload_status = f"File '{uploaded_filename}' extracted for user '{username}'."
             # Extract all comments (lines starting with # or inline after code)
             if can_extract and code:
                 from app import db
-                from app.models import CommentFeedback
-                lesson_id = 46  # Lesson 1: Comment Checker
+                from app.models import CommentFeedback, Lesson
+                template_path = "modules/module3/m3lesson1.html"
+                lesson = Lesson.query.filter_by(template_path=template_path).first()
+                if not lesson:
+                    return "Lesson for comment checker not found.", 404
+                lesson_id = lesson.id
                 save_filename = uploaded_filename or filename or "unknown"
                 extracted_comments_for_session.clear()
                 for idx, line in enumerate(code.splitlines(), start=1):
@@ -389,6 +570,7 @@ def practice_code_comments():
                                 feedback = "This comment is clear and descriptive. Well done!"
                             comment_lines.append((idx, comment))
                             extracted_comments_for_session.append((idx, comment, feedback))
+                            extracted_feedback_for_session.append((idx, feedback))
                             # Save to DB
                             if current_user.is_authenticated:
                                 exists = CommentFeedback.query.filter_by(user_id=current_user.id, lesson_id=lesson_id, filename=save_filename, line_num=idx).first()
@@ -402,20 +584,21 @@ def practice_code_comments():
                                         feedback=feedback
                                     ))
                 db.session.commit()
-                # Save extracted comments with feedback to session for lesson view
-                if extracted_comments_for_session:
-                    session['extracted_comments'] = extracted_comments_for_session
-                # If the extract was triggered and go_to_lesson is present, redirect to lesson 1
-                if 'go_to_lesson' in request.form:
-                    return redirect(url_for('courses.view_lesson', lesson_id=46) + '#extracted-comments')
+                # Always fetch feedback for this file from DB for display
+                feedback_entries = CommentFeedback.query.filter_by(user_id=current_user.id, lesson_id=lesson_id, filename=save_filename).order_by(CommentFeedback.line_num).all()
+                # Instead of redirecting, just show results on this page
         # Handle paste/submit as before
         else:
             code = request.form.get('code', '')
             # Extract all comments (lines starting with # or inline after code)
             if code:
                 from app import db
-                from app.models import CommentFeedback
-                lesson_id = 46  # Lesson 1: Comment Checker
+                from app.models import CommentFeedback, Lesson
+                template_path = "modules/module3/m3lesson1.html"
+                lesson = Lesson.query.filter_by(template_path=template_path).first()
+                if not lesson:
+                    return "Lesson for comment checker not found.", 404
+                lesson_id = lesson.id
                 save_filename = filename or "unknown"
                 for idx, line in enumerate(code.splitlines(), start=1):
                     if '#' in line:
@@ -445,6 +628,8 @@ def practice_code_comments():
                                         feedback=feedback
                                     ))
                 db.session.commit()
+                # Always fetch feedback for this file from DB for display
+                feedback_entries = CommentFeedback.query.filter_by(user_id=current_user.id, lesson_id=lesson_id, filename=save_filename).order_by(CommentFeedback.line_num).all()
             # Restriction: Only allow one check per user per filename (on submit/paste)
             if current_user.is_authenticated and filename:
                 is_teacher = hasattr(current_user, 'is_teacher') and current_user.is_teacher()
@@ -490,31 +675,30 @@ def practice_code_comments():
     checked_files_grid = []
     is_teacher = False
     if current_user.is_authenticated:
-        from app.models import DebugCheck
+        from app.models import CommentCheck, DebugCheck
         is_teacher = hasattr(current_user, 'is_teacher') and current_user.is_teacher()
-        if is_teacher:
-            # Show only debug checks the teacher has done themselves
-            debug_files = {d.filename for d in DebugCheck.query.filter_by(user_id=current_user.id).all()}
-            all_files = sorted(debug_files)
-            for fname in all_files:
-                checked_files_grid.append({
-                    'filename': fname,
-                    'comment': '',
-                    'debug': '✔️'
-                })
-        else:
-            from app.models import CommentCheck
-            # Show only files the student has checked themselves
-            comment_files = {c.filename for c in CommentCheck.query.filter_by(user_id=current_user.id).all()}
-            debug_files = {d.filename for d in DebugCheck.query.filter_by(user_id=current_user.id).all()}
-            all_files = sorted(comment_files | debug_files)
-            for fname in all_files:
-                checked_files_grid.append({
-                    'filename': fname,
-                    'comment': '✔️' if fname in comment_files else '',
-                    'debug': '✔️' if fname in debug_files else ''
-                })
-    return render_template('main/practice_code_comments.html', code=code, comment_lines=comment_lines, already_checked=already_checked, uploaded_filename=uploaded_filename, upload_status=upload_status, can_extract=can_extract, username=username, checked_files_grid=checked_files_grid, is_teacher=is_teacher)
+        # Show both comment and debug checked files for both teachers and students
+        comment_files = {c.filename for c in CommentCheck.query.filter_by(user_id=current_user.id).all()}
+        debug_files = {d.filename for d in DebugCheck.query.filter_by(user_id=current_user.id).all()}
+        all_files = sorted(comment_files | debug_files)
+        for fname in all_files:
+            checked_files_grid.append({
+                'filename': fname,
+                'comment': '✔️' if fname in comment_files else '',
+                'debug': '✔️' if fname in debug_files else ''
+            })
+    # Always fetch feedback for the current file for display
+    if current_user.is_authenticated and (uploaded_filename or filename):
+        from app.models import CommentFeedback, Lesson
+        template_path = "modules/module3/m3lesson1.html"
+        lesson = Lesson.query.filter_by(template_path=template_path).first()
+        if lesson:
+            lesson_id = lesson.id
+            file_to_check = uploaded_filename or filename or "unknown"
+            feedback_entries = CommentFeedback.query.filter_by(user_id=current_user.id, lesson_id=lesson_id, filename=file_to_check).order_by(CommentFeedback.line_num).all()
+    # Build a feedback dict for template: line_num -> feedback
+    feedback_dict = {entry.line_num: entry.feedback for entry in feedback_entries} if feedback_entries else {}
+    return render_template('main/practice_code_comments.html', code=code, comment_lines=comment_lines, already_checked=already_checked, uploaded_filename=uploaded_filename, upload_status=upload_status, can_extract=can_extract, username=username, checked_files_grid=checked_files_grid, is_teacher=is_teacher, feedback_dict=feedback_dict)
 
 @bp.route('/')
 def index():

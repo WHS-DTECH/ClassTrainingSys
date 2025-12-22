@@ -2,13 +2,12 @@
   {
     "course": {
       "title": "Module 3: Assessment Checking",
-      "description": "Module 3 covers assessment checking concepts and practices, including how to review, check, and provide feedback on programming assessments."
+      "description": "Module 3 covers advanced programming concepts and practices."
     },
     "lessons": [
-      {"title": "Lesson 0: Overview", "content": "", "order": 0, "template_path": "modules/module3/m3lesson0.html", "video_url": ""},
-      {"title": "Lesson 1: Lesson 1", "content": "", "order": 1, "template_path": "modules/module3/m3lesson1.html", "video_url": ""},
-      {"title": "Lesson 2: Lesson 2", "content": "", "order": 2, "template_path": "modules/module3/m3lesson2.html", "video_url": ""},
-      {"title": "Lesson 3: Contents", "content": "", "order": 3, "template_path": "modules/module3/m3_contents.html", "video_url": ""}
+      {"title": "Checking Overview", "content": "", "order": 0, "template_path": "modules/module3/m3lesson0.html", "video_url": ""},
+      {"title": "Lesson 1: Comment Checker", "content": "", "order": 1, "template_path": "modules/module3/m3lesson1.html", "video_url": ""},
+      {"title": "Lesson 2: Debug Checker", "content": "", "order": 2, "template_path": "modules/module3/m3lesson2.html", "video_url": ""}
     ]
   }
 ]
