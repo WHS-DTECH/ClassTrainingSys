@@ -960,3 +960,139 @@ def search():
         results['lessons'] = lessons
     
     return render_template('main/search_results.html', query=query, results=results)
+
+@bp.route('/progress')
+@login_required
+def student_progress():
+    """Student progress dashboard with completion stats and charts"""
+    if current_user.is_teacher():
+        flash('Students only feature.', 'warning')
+        return redirect(url_for('main.dashboard'))
+    
+    # Get all enrolled courses
+    enrollments = Enrollment.query.filter_by(student_id=current_user.id).all()
+    
+    progress_data = []
+    total_lessons = 0
+    total_completed = 0
+    total_assignments = 0
+    total_submitted = 0
+    total_quizzes = 0
+    total_quiz_attempts = 0
+    
+    for enrollment in enrollments:
+        course = enrollment.course
+        
+        # Count lessons
+        lessons = Lesson.query.filter_by(course_id=course.id).all()
+        lesson_count = len(lessons)
+        total_lessons += lesson_count
+        
+        # Count completed lessons (has submission or quiz attempt)
+        completed_lessons = 0
+        for lesson in lessons:
+            has_submission = Submission.query.filter(
+                Submission.user_id == current_user.id,
+                Submission.assignment_id.in_(
+                    db.session.query(Assignment.id).filter_by(lesson_id=lesson.id)
+                )
+            ).first()
+            
+            has_quiz = QuizAttempt.query.filter(
+                QuizAttempt.user_id == current_user.id,
+                QuizAttempt.quiz_id.in_(
+                    db.session.query(Quiz.id).filter_by(lesson_id=lesson.id)
+                )
+            ).first()
+            
+            if has_submission or has_quiz:
+                completed_lessons += 1
+        
+        total_completed += completed_lessons
+        
+        # Count assignments and submissions
+        assignments = Assignment.query.filter(
+            Assignment.lesson_id.in_(db.session.query(Lesson.id).filter_by(course_id=course.id))
+        ).all()
+        assignment_count = len(assignments)
+        total_assignments += assignment_count
+        
+        submitted_count = Submission.query.filter(
+            Submission.user_id == current_user.id,
+            Submission.assignment_id.in_(
+                db.session.query(Assignment.id).filter(
+                    Assignment.lesson_id.in_(db.session.query(Lesson.id).filter_by(course_id=course.id))
+                )
+            )
+        ).count()
+        total_submitted += submitted_count
+        
+        # Count quizzes and attempts
+        quizzes = Quiz.query.filter(
+            Quiz.lesson_id.in_(db.session.query(Lesson.id).filter_by(course_id=course.id))
+        ).all()
+        quiz_count = len(quizzes)
+        total_quizzes += quiz_count
+        
+        quiz_attempts = QuizAttempt.query.filter(
+            QuizAttempt.user_id == current_user.id,
+            QuizAttempt.quiz_id.in_(
+                db.session.query(Quiz.id).filter(
+                    Quiz.lesson_id.in_(db.session.query(Lesson.id).filter_by(course_id=course.id))
+                )
+            )
+        ).count()
+        total_quiz_attempts += quiz_attempts
+        
+        # Calculate percentages
+        lesson_progress = (completed_lessons / lesson_count * 100) if lesson_count > 0 else 0
+        assignment_progress = (submitted_count / assignment_count * 100) if assignment_count > 0 else 0
+        quiz_progress = (quiz_attempts / quiz_count * 100) if quiz_count > 0 else 0
+        
+        # Overall course progress
+        total_items = lesson_count + assignment_count + quiz_count
+        completed_items = completed_lessons + submitted_count + quiz_attempts
+        overall_progress = (completed_items / total_items * 100) if total_items > 0 else 0
+        
+        progress_data.append({
+            'course': course,
+            'lessons': {
+                'total': lesson_count,
+                'completed': completed_lessons,
+                'progress': round(lesson_progress, 1)
+            },
+            'assignments': {
+                'total': assignment_count,
+                'submitted': submitted_count,
+                'progress': round(assignment_progress, 1)
+            },
+            'quizzes': {
+                'total': quiz_count,
+                'attempts': quiz_attempts,
+                'progress': round(quiz_progress, 1)
+            },
+            'overall_progress': round(overall_progress, 1)
+        })
+    
+    # Calculate overall statistics
+    overall_stats = {
+        'lessons': {
+            'total': total_lessons,
+            'completed': total_completed,
+            'progress': (total_completed / total_lessons * 100) if total_lessons > 0 else 0
+        },
+        'assignments': {
+            'total': total_assignments,
+            'submitted': total_submitted,
+            'progress': (total_submitted / total_assignments * 100) if total_assignments > 0 else 0
+        },
+        'quizzes': {
+            'total': total_quizzes,
+            'attempts': total_quiz_attempts,
+            'progress': (total_quiz_attempts / total_quizzes * 100) if total_quizzes > 0 else 0
+        }
+    }
+    
+    return render_template('dashboard/student_progress.html', 
+                         progress_data=progress_data,
+                         overall_stats=overall_stats)
