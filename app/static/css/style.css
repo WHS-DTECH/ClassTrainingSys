@@ -857,6 +857,157 @@ body {
     
     .nav-links {
         gap: 1rem;
+/* ===== RESPONSIVE TABLE FIXES ===== */
+@media (max-width: 768px) {
+    /* Make tables scrollable on mobile */
+    table {
+        font-size: 0.9em;
+    }
+
+    table th,
+    table td {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .submissions-table th,
+    .submissions-table td {
+        padding: 0.7rem 0.5rem;
+    }
+
+    /* Stack form fields */
+    .form-row,
+    .form-group-row {
+        grid-template-columns: 1fr;
+    }
+
+    /* Reduce padding for cards */
+    .card,
+    .enrollment-card,
+    .stat-card,
+    .dashboard-card {
+        padding: 1rem;
+    }
+
+    /* Responsive grid */
+    .grid,
+    .dashboard-grid,
+    .course-grid,
+    .enrollments-grid,
+    .courses-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Stack button groups */
+    .button-group {
+        flex-direction: column;
+    }
+
+    .button-group button,
+    .button-group .btn {
+        width: 100%;
+    }
+
+    /* Responsive typography */
+    h1 {
+        font-size: 1.8em;
+    }
+
+    h2 {
+        font-size: 1.4em;
+    }
+
+    h3 {
+        font-size: 1.1em;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        font-size: 14px;
+    }
+
+    .dashboard,
+    .split-dashboard,
+    .main-content {
+        padding: 1rem 0.75rem;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.2em;
+    }
+
+    .stat-card .stat-number {
+        font-size: 1.8em;
+    }
+
+    .stat-card .stat-label {
+        font-size: 0.85em;
+    }
+
+    .action-button,
+    .btn {
+        padding: 0.7em 1rem;
+        font-size: 0.95em;
+    }
+
+    .assignment-item {
+        padding: 0.9rem;
+    }
+
+    .assignment-meta {
+        gap: 0.5rem;
+    }
+
+    /* Reduce grid gaps on mobile */
+    .stats-grid,
+    .courses-grid,
+    .enrollments-grid {
+        gap: 1rem;
+    }
+
+    /* Make mobile menu items larger for touch */
+    .mobile-menu a,
+    .mobile-menu button {
+        padding: 1rem 1.25rem;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+}
+
+/* ===== EXTRA SMALL DEVICES ===== */
+@media (max-width: 360px) {
+    .navbar-brand {
+        font-size: 1em;
+    }
+
+    .main-content {
+        padding: 0.75rem 0.5rem;
+    }
+
+    h1 {
+        font-size: 1.3em;
+    }
+
+    .alert {
+        padding: 0.6em 0.8em;
+        font-size: 0.9em;
+    }
+
+    table {
+        font-size: 0.85em;
+    }
+
+    table th,
+    table td {
+        padding: 0.5rem 0.3rem;
+    }
+}
+
         font-size: 0.875rem;
     }
     
