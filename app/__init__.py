@@ -47,26 +47,27 @@ def create_app():
     )
     app.register_blueprint(google_bp, url_prefix="/login")
     
-    # Custom handler for Google OAuth callback
-    @app.route("/login/google/authorized", methods=["GET"])
-    def google_authorized():
+    # Handle the authorized event from Flask-Dance
+    from flask_dance.consumer import oauth_authorized
+    
+    @oauth_authorized.connect_via(google_bp)
+    def google_logged_in(blueprint, token):
         try:
-            if not google.authorized:
-                return redirect(url_for("auth.login"))
+            from app.models import User
             
-            resp = google.get("/oauth2/v2/userinfo")
+            # Get user info from Google
+            resp = blueprint.session.get("/oauth2/v2/userinfo")
             if not resp.ok:
-                return f"Failed to fetch user info from Google. Status: {resp.status_code}", 400
+                return False
             
             user_info = resp.json()
             user_email = user_info.get("email")
             
             if not user_email:
-                return "No email found in Google account.", 400
+                return False
             
-            from app.models import User
+            # Find or create user
             user = User.query.filter_by(email=user_email).first()
-            
             if not user:
                 username = user_email.split("@")[0]
                 user = User(
@@ -78,9 +79,9 @@ def create_app():
                 db.session.commit()
             
             login_user(user)
-            return redirect(url_for("main.dashboard"))
+            return True
         except Exception as e:
-            return f"Error during Google login: {str(e)}", 500
+            return False
     
     # Create database tables
     with app.app_context():
