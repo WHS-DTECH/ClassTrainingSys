@@ -1,7 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_login import LoginManager, login_user
 from flask_migrate import Migrate
+from flask_dance.contrib.google import make_google_blueprint, google
 import os
 
 db = SQLAlchemy()
@@ -34,6 +35,15 @@ def create_app():
     app.register_blueprint(quizzes.bp)
     app.register_blueprint(admin.bp)
     
+    # Google OAuth blueprint
+    google_bp = make_google_blueprint(
+        client_id=os.environ.get("GOOGLE_OAUTH_CLIENT_ID"),
+        client_secret=os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET"),
+        scope=["profile", "email"],
+        redirect_url="/login/google/authorized"
+    )
+    app.register_blueprint(google_bp, url_prefix="/login")
+    
     # Create database tables
     with app.app_context():
         db.create_all()
@@ -61,6 +71,28 @@ def create_app():
         db.session.commit()
         print(f"[ADMIN BOOTSTRAP] Admin user {admin_email} ensured with password (hidden) and role teacher.")
         # --- End permanent admin bootstrap ---
+    
+    @app.route("/login/google")
+    def login_google():
+        if not google.authorized:
+            return redirect(url_for("google.login"))
+        resp = google.get("/oauth2/v2/userinfo")
+        assert resp.ok, resp.text
+        user_info = resp.json()
+        user_email = user_info["email"]
+        # Fetch or create user in DB
+        from app.models import User, db
+        user = User.query.filter_by(email=user_email).first()
+        if not user:
+            user = User(
+                username=user_email.split("@")[0],
+                email=user_email,
+                role="student"  # Default role, adjust as needed
+            )
+            db.session.add(user)
+            db.session.commit()
+        login_user(user)
+        return redirect(url_for("main.dashboard"))  # Redirect to your dashboard or home page
     
     return app
 
