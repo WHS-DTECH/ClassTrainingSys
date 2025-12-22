@@ -1,5 +1,5 @@
 /* General UI Improvements: Padding and Whitespace */
-.w3-main, .dashboard, .split-dashboard {
+.dashboard, .split-dashboard {
     padding: 2.5em 2em 2em 2em;
     max-width: 1200px;
     margin: 0 auto;
@@ -162,38 +162,8 @@
     justify-content: center;
     margin-bottom: 2em;
 }
-/* Sidebar improvements */
-.w3-sidebar {
-    width: 200px !important;
-    background: #5c0e2a !important;
-    color: #fff !important;
-    box-shadow: 2px 0 8px rgba(92,14,42,0.08);
-}
-.sidebar-link {
-    display: flex;
-    align-items: center;
-    gap: 0.7em;
-    padding: 12px 18px !important;
-    font-size: 1.08em;
-    transition: background 0.2s, color 0.2s;
-}
-.sidebar-link i {
-    font-size: 1.1em;
-    min-width: 22px;
-    text-align: center;
-}
-.sidebar-link:hover, .sidebar-link:focus {
-    background: #7a1d3e !important;
-    color: #fff !important;
-    text-decoration: none;
-}
-.w3-sidebar .w3-bar-item {
-    margin-bottom: 2px;
-    border-radius: 6px;
-}
-.w3-sidebar hr {
-    border-color: #fff2;
-}
+/* Sidebar improvements - NO LONGER USED (replaced with navbar) */
+/* Previous sidebar styles removed */
 /* ...existing code... */
      color: #222;
      overflow-x: auto;
@@ -502,24 +472,12 @@ body {
         color: #0c5460;
         background: #d1ecf1;
     }
-
     /* Utility */
     .text-center {
         text-align: center;
     }
 
-    /* W3CSS overrides for custom color */
-    .w3-deep-purple, .w3-hover-deep-purple:hover {
-        background-color: #5c0e2a !important;
-        color: #fff !important;
-    }
-
-    /* Responsive tweaks for main content */
-    @media (max-width: 768px) {
-        .w3-container {
-            padding: 10px !important;
-        }
-    }
+    /* W3CSS styles removed - using new CSS architecture */
 
 .btn-secondary {
     background-color: var(--secondary-color);
