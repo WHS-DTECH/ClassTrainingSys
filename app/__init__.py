@@ -48,29 +48,29 @@ def create_app():
         authorized_url="/login/google/authorized"
     )
     app.register_blueprint(google_bp, url_prefix="/login")
-        @app.route("/login/google/authorized")
-        def google_authorized():
-            if not google.authorized:
-                return redirect(url_for("google.login"))
-            resp = google.get("/oauth2/v2/userinfo")
-            if not resp.ok:
-                return "Failed to fetch user info from Google.", 400
-            user_info = resp.json()
-            user_email = user_info.get("email")
-            if not user_email:
-                return "No email found in Google account.", 400
-            from app.models import User
-            user = User.query.filter_by(email=user_email).first()
-            if not user:
-                user = User(
-                    username=user_email.split("@")[0],
-                    email=user_email,
-                    role="student"  # Default role, adjust as needed
-                )
-                db.session.add(user)
-                db.session.commit()
-            login_user(user)
-            return redirect(url_for("main.dashboard"))
+    @app.route("/login/google/authorized")
+    def google_authorized():
+        if not google.authorized:
+            return redirect(url_for("google.login"))
+        resp = google.get("/oauth2/v2/userinfo")
+        if not resp.ok:
+            return "Failed to fetch user info from Google.", 400
+        user_info = resp.json()
+        user_email = user_info.get("email")
+        if not user_email:
+            return "No email found in Google account.", 400
+        from app.models import User
+        user = User.query.filter_by(email=user_email).first()
+        if not user:
+            user = User(
+                username=user_email.split("@")[0],
+                email=user_email,
+                role="student"  # Default role, adjust as needed
+            )
+            db.session.add(user)
+            db.session.commit()
+        login_user(user)
+        return redirect(url_for("main.dashboard"))
     
     # Create database tables
     with app.app_context():
