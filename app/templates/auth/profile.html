@@ -271,29 +271,29 @@
                             {{ enrollment.course.description[:100] }}{% if enrollment.course.description|length > 100 %}...{% endif %}
                         </p>
                     {% endif %}
-                
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 45%;"></div>
-                </div>
-                <small style="color: #888;">45% Complete</small>
-                
-                {% if enrollment.completed %}
-                    <div class="status-badge status-completed">
-                        <i class="fas fa-check-circle"></i> Completed
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 45%;"></div>
                     </div>
-                {% else %}
-                    <div class="status-badge status-in-progress">
-                        <i class="fas fa-spinner"></i> In Progress
+                    <small style="color: #888;">45% Complete</small>
+                    
+                    {% if enrollment.completed %}
+                        <div class="status-badge status-completed">
+                            <i class="fas fa-check-circle"></i> Completed
+                        </div>
+                    {% else %}
+                        <div class="status-badge status-in-progress">
+                            <i class="fas fa-spinner"></i> In Progress
+                        </div>
+                    {% endif %}
+                    
+                    <div style="margin-top: 1rem;">
+                        <a href="{{ url_for('courses.view_course', course_id=enrollment.course.id) }}" 
+                           style="color: #5c0e2a; text-decoration: none; font-weight: 600;">
+                            Continue <i class="fas fa-arrow-right"></i>
+                        </a>
                     </div>
-                {% endif %}
-                
-                <div style="margin-top: 1rem;">
-                    <a href="{{ url_for('courses.view_course', course_id=enrollment.course.id) }}" 
-                       style="color: #5c0e2a; text-decoration: none; font-weight: 600;">
-                        Continue <i class="fas fa-arrow-right"></i>
-                    </a>
                 </div>
-            </div>
             {% endif %}
         {% endfor %}
     </div>
@@ -338,8 +338,8 @@
                     </td>
                     <td>{{ submission.submitted_at.strftime('%b %d, %Y %I:%M %p') if submission.submitted_at else 'N/A' }}</td>
                     <td>
-                        {% if submission.grade %}
-                            <span style="color: #28a745; font-weight: 600;">✓ Graded ({{ submission.grade }}%)</span>
+                        {% if submission.score %}
+                            <span style="color: #28a745; font-weight: 600;">✓ Graded ({{ submission.score }}%)</span>
                         {% elif submission.feedback %}
                             <span style="color: #17a2b8; font-weight: 600;">Feedback Provided</span>
                         {% else %}
