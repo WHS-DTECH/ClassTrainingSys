@@ -19,9 +19,29 @@ def download_comments_pdf():
     uploaded_filename = request.form.get('uploaded_filename', 'Extracted_Comments')
     today_str = datetime.now().strftime('%Y-%m-%d')
     pdf_filename = f"{uploaded_filename}_comments_{today_str}.pdf"
-    # Use comment_lines and feedback_dict from session (matches web view)
-    comment_lines = session.get('comment_lines', [])
-    feedback_dict = session.get('feedback_dict', {})
+    # Unified logic: match web view
+    comment_lines = []
+    feedback_dict = {}
+    already_checked = False
+    from app.models import CommentFeedback, Lesson
+    template_path = "modules/module3/m3lesson1.html"
+    lesson = Lesson.query.filter_by(template_path=template_path).first()
+    if lesson:
+        lesson_id = lesson.id
+        feedback_entries = CommentFeedback.query.filter_by(
+            user_id=current_user.id,
+            lesson_id=lesson_id,
+            filename=uploaded_filename
+        ).order_by(CommentFeedback.line_num).all()
+        if feedback_entries:
+            already_checked = True
+            for entry in feedback_entries:
+                comment_lines.append((entry.line_num, entry.comment))
+                feedback_dict[entry.line_num] = entry.feedback
+    if not already_checked:
+        # Use session data if not checked
+        comment_lines = session.get('comment_lines', [])
+        feedback_dict = session.get('feedback_dict', {})
     # Generate PDF
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
