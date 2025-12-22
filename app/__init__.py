@@ -84,7 +84,7 @@ def create_app():
     from flask_dance.signals import oauth_authorized
     from flask import flash
     from flask_login import login_user
-    from app.models import User, db
+    from app.models import User
     import sqlalchemy as sa
 
     @oauth_authorized.connect_via(google_bp)
