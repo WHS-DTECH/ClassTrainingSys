@@ -537,7 +537,10 @@ def practice_code_comments():
         if 'file' in request.files and request.files['file'].filename:
             file = request.files['file']
             uploaded_filename = file.filename
-            code = file.read().decode('utf-8')
+            try:
+                code = file.read().decode('utf-8')
+            except (UnicodeDecodeError, AttributeError) as e:
+                return f"Error reading file: {str(e)}", 400
             if current_user.is_authenticated and uploaded_filename:
                 # Restrict only students to one check per file
                 is_teacher = hasattr(current_user, 'is_teacher') and current_user.is_teacher()
@@ -564,6 +567,23 @@ def practice_code_comments():
             else:
                 can_extract = True
                 upload_status = f"File '{uploaded_filename}' uploaded by user '{username}'. Ready to extract."
+            # Return immediately after file upload to show extract button
+            # Build checked_files_grid before returning
+            checked_files_grid = []
+            is_teacher = False
+            if current_user.is_authenticated:
+                from app.models import CommentCheck as CommentCheckModel, DebugCheck
+                is_teacher = hasattr(current_user, 'is_teacher') and current_user.is_teacher()
+                comment_files = {c.filename for c in CommentCheckModel.query.filter_by(user_id=current_user.id).all()}
+                debug_files = {d.filename for d in DebugCheck.query.filter_by(user_id=current_user.id).all()}
+                all_files = sorted(comment_files | debug_files)
+                for fname in all_files:
+                    checked_files_grid.append({
+                        'filename': fname,
+                        'comment': '✔️' if fname in comment_files else '',
+                        'debug': '✔️' if fname in debug_files else ''
+                    })
+            return render_template('main/practice_code_comments.html', code=code, comment_lines=[], already_checked=already_checked, uploaded_filename=uploaded_filename, upload_status=upload_status, can_extract=can_extract, username=username, checked_files_grid=checked_files_grid, is_teacher=is_teacher, feedback_dict={})
         # Handle extraction after upload
         elif 'extract_file' in request.form:
             uploaded_filename = request.form.get('uploaded_filename')
