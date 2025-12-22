@@ -231,3 +231,24 @@ class QuizAttempt(db.Model):
     
     def __repr__(self):
         return f'<QuizAttempt Quiz:{self.quiz_id} Student:{self.student_id}>'
+
+class LessonFeedback(db.Model):
+    __tablename__ = 'lesson_feedback'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)  # 1-5 stars
+    clarity = db.Column(db.Integer)  # 1-5: How clear was the lesson?
+    difficulty = db.Column(db.Integer)  # 1-5: How difficult was the lesson?
+    engagement = db.Column(db.Integer)  # 1-5: How engaging was the lesson?
+    comment = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    lesson = db.relationship('Lesson', backref='feedback', lazy=True)
+    student = db.relationship('User', backref='lesson_feedback', lazy=True)
+    
+    def __repr__(self):
+        return f'<LessonFeedback Lesson:{self.lesson_id} Student:{self.student_id} Rating:{self.rating}>'

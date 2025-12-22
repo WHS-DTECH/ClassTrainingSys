@@ -105,6 +105,45 @@
         flex: 1;
     }
 
+    .feedback-widget-container {
+        margin: 2rem 0;
+    }
+
+    .feedback-widget {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 0.6em;
+        overflow: hidden;
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.25);
+    }
+
+    .feedback-widget-header {
+        background: rgba(0, 0, 0, 0.1);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .feedback-widget-header h6 {
+        color: white;
+        margin: 0;
+    }
+
+    .feedback-widget-body {
+        padding: 1.25rem;
+    }
+
+    .feedback-widget .btn {
+        background: white;
+        border-color: white;
+        color: #667eea;
+        font-weight: 600;
+    }
+
+    .feedback-widget .btn:hover {
+        background: #f0f0f0;
+        border-color: #f0f0f0;
+    }
+
     @media (max-width: 768px) {
         .breadcrumb-nav {
             font-size: 0.85em;
@@ -127,6 +166,10 @@
             flex: 1;
             min-width: 120px;
             font-size: 0.95em;
+        }
+
+        .feedback-widget-body {
+            padding: 1rem;
         }
     }
 </style>
@@ -241,6 +284,27 @@
                 <button type="submit" class="btn btn-success">Mark as Complete</button>
             </form>
         </div>
+    {% endif %}
+    
+    <!-- Feedback Widget -->
+    {% if not current_user.is_teacher() %}
+    <div class="feedback-widget-container">
+        <div class="feedback-widget">
+            <div class="feedback-widget-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-comments me-2"></i>
+                    Help Us Improve This Lesson
+                </h6>
+            </div>
+            <div class="feedback-widget-body">
+                <p class="text-muted small mb-3">Your feedback helps us create better learning experiences.</p>
+                <a href="{{ url_for('courses.submit_lesson_feedback', lesson_id=lesson.id) }}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-star me-1"></i>
+                    Share Your Feedback
+                </a>
+            </div>
+        </div>
+    </div>
     {% endif %}
     
     <!-- Lesson Navigation with Prev/Next Buttons -->

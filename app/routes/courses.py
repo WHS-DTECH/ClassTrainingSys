@@ -303,3 +303,88 @@ def complete_lesson(lesson_id):
     return redirect(url_for('courses.view_course', course_id=lesson.course_id))
 
 from sqlalchemy import func
+
+@bp.route('/<int:lesson_id>/feedback', methods=['GET', 'POST'])
+@login_required
+def submit_lesson_feedback(lesson_id):
+    """Submit or view feedback for a lesson"""
+    from app.models import LessonFeedback
+    
+    lesson = Lesson.query.get_or_404(lesson_id)
+    
+    # Check if user is enrolled in course
+    if not current_user.is_teacher():
+        enrollment = Enrollment.query.filter_by(
+            student_id=current_user.id,
+            course_id=lesson.course_id
+        ).first()
+        if not enrollment:
+            flash('You are not enrolled in this course.', 'danger')
+            return redirect(url_for('courses.list_courses'))
+    
+    # Check for existing feedback
+    existing_feedback = LessonFeedback.query.filter_by(
+        lesson_id=lesson_id,
+        student_id=current_user.id
+    ).first()
+    
+    if request.method == 'POST':
+        rating = request.form.get('rating', type=int)
+        clarity = request.form.get('clarity', type=int)
+        difficulty = request.form.get('difficulty', type=int)
+        engagement = request.form.get('engagement', type=int)
+        comment = request.form.get('comment', '').strip()
+        
+        # Validate ratings
+        if not rating or rating < 1 or rating > 5:
+            flash('Invalid rating.', 'danger')
+            return redirect(url_for('courses.submit_lesson_feedback', lesson_id=lesson_id))
+        
+        if existing_feedback:
+            # Update existing feedback
+            existing_feedback.rating = rating
+            existing_feedback.clarity = clarity
+            existing_feedback.difficulty = difficulty
+            existing_feedback.engagement = engagement
+            existing_feedback.comment = comment
+            existing_feedback.updated_at = datetime.utcnow()
+            db.session.commit()
+            flash('Feedback updated successfully!', 'success')
+        else:
+            # Create new feedback
+            feedback = LessonFeedback(
+                lesson_id=lesson_id,
+                student_id=current_user.id,
+                rating=rating,
+                clarity=clarity,
+                difficulty=difficulty,
+                engagement=engagement,
+                comment=comment
+            )
+            db.session.add(feedback)
+            db.session.commit()
+            flash('Feedback submitted successfully!', 'success')
+        
+        return redirect(url_for('courses.view_lesson', lesson_id=lesson_id))
+    
+    # Calculate average ratings for the lesson
+    all_feedback = LessonFeedback.query.filter_by(lesson_id=lesson_id).all()
+    avg_stats = {
+        'rating': 0,
+        'clarity': 0,
+        'difficulty': 0,
+        'engagement': 0,
+        'total': len(all_feedback)
+    }
+    
+    if all_feedback:
+        avg_stats['rating'] = sum(f.rating for f in all_feedback if f.rating) / len([f for f in all_feedback if f.rating]) if any(f.rating for f in all_feedback) else 0
+        avg_stats['clarity'] = sum(f.clarity for f in all_feedback if f.clarity) / len([f for f in all_feedback if f.clarity]) if any(f.clarity for f in all_feedback) else 0
+        avg_stats['difficulty'] = sum(f.difficulty for f in all_feedback if f.difficulty) / len([f for f in all_feedback if f.difficulty]) if any(f.difficulty for f in all_feedback) else 0
+        avg_stats['engagement'] = sum(f.engagement for f in all_feedback if f.engagement) / len([f for f in all_feedback if f.engagement]) if any(f.engagement for f in all_feedback) else 0
+    
+    return render_template('courses/feedback.html',
+                         lesson=lesson,
+                         existing_feedback=existing_feedback,
+                         avg_stats=avg_stats,
+                         all_feedback=all_feedback)
