@@ -529,6 +529,9 @@ def practice_code_comments():
     extracted_comments_for_session = []  # Always define at the start
     extracted_feedback_for_session = []
     feedback_entries = []
+    checked_files_grid = []
+    is_teacher = False
+    feedback_dict = {}
     if request.method == 'POST':
         # Handle file upload only (no extraction yet)
         if 'file' in request.files and request.files['file'].filename:
