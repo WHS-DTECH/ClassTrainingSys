@@ -10,19 +10,59 @@ bp = Blueprint('courses', __name__, url_prefix='/courses')
 @bp.route('/')
 @login_required
 def list_courses():
+    # Get filter and sort parameters
+    search_query = request.args.get('search', '').strip()
+    sort_by = request.args.get('sort', 'name')  # name, created, difficulty
+    category = request.args.get('category', '')
+    status_filter = request.args.get('status', '')  # all, enrolled, not-enrolled
+    
     if current_user.is_teacher():
-        courses = Course.query.filter_by(teacher_id=current_user.id).all()
+        courses = Course.query.filter_by(teacher_id=current_user.id)
     else:
         # Students can see all available courses
-        courses = Course.query.filter_by(is_active=True).all()
+        courses = Course.query.filter_by(is_active=True)
+    
+    # Apply search filter
+    if search_query:
+        courses = courses.filter(
+            (Course.title.ilike(f'%{search_query}%')) |
+            (Course.description.ilike(f'%{search_query}%'))
+        )
+    
+    # Apply category filter (if category field exists)
+    if category and hasattr(Course, 'category'):
+        courses = courses.filter_by(category=category)
+    
+    # Apply sorting
+    if sort_by == 'created':
+        courses = courses.order_by(Course.created_at.desc())
+    elif sort_by == 'difficulty' and hasattr(Course, 'difficulty_level'):
+        courses = courses.order_by(Course.difficulty_level)
+    else:  # default to name
+        courses = courses.order_by(Course.title)
+    
+    courses = courses.all()
     
     # Get enrollment status for students
     enrolled_course_ids = set()
     if not current_user.is_teacher():
         enrollments = Enrollment.query.filter_by(student_id=current_user.id).all()
         enrolled_course_ids = {e.course_id for e in enrollments}
+        
+        # Apply enrollment status filter
+        if status_filter == 'enrolled':
+            courses = [c for c in courses if c.id in enrolled_course_ids]
+        elif status_filter == 'not-enrolled':
+            courses = [c for c in courses if c.id not in enrolled_course_ids]
     
-    return render_template('courses/list.html', courses=courses, enrolled_course_ids=enrolled_course_ids)
+    return render_template('courses/list.html', 
+        courses=courses, 
+        enrolled_course_ids=enrolled_course_ids,
+        search_query=search_query,
+        sort_by=sort_by,
+        category=category,
+        status_filter=status_filter
+    )
 
 @bp.route('/create', methods=['GET', 'POST'])
 @login_required
