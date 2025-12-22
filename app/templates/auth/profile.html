@@ -321,20 +321,20 @@
             {% for submission in recent_submissions %}
                 <tr>
                     <td>
-                        {% if submission.assignment.title %}
+                        {% if submission.assignment and submission.assignment.title %}
                             {{ submission.assignment.title }}
                         {% else %}
                             Assignment
                         {% endif %}
                     </td>
                     <td>
-                        {% if submission.assignment.lesson.course %}
+                        {% if submission.assignment and submission.assignment.lesson and submission.assignment.lesson.course %}
                             {{ submission.assignment.lesson.course.title }}
                         {% else %}
                             --
                         {% endif %}
                     </td>
-                    <td>{{ submission.submitted_at.strftime('%b %d, %Y %I:%M %p') }}</td>
+                    <td>{{ submission.submitted_at.strftime('%b %d, %Y %I:%M %p') if submission.submitted_at else 'N/A' }}</td>
                     <td>
                         {% if submission.grade %}
                             <span style="color: #28a745; font-weight: 600;">✓ Graded ({{ submission.grade }}%)</span>
