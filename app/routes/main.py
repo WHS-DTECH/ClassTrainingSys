@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, session, redirect, url_for
 from flask import send_file, flash
 from flask_login import login_required, current_user
-from app.models import Course, Enrollment, Assignment, Submission, Quiz, QuizAttempt, User, CommentCheck
+from app.models import Course, Enrollment, Assignment, Submission, Quiz, QuizAttempt, User, CommentCheck, Lesson
 import io
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
@@ -929,3 +929,26 @@ def settings():
             return redirect(url_for('main.settings'))
     
     return render_template('auth/settings.html')
+
+@bp.route('/search')
+@login_required
+def search():
+    """Global search for courses and lessons"""
+    query = request.args.get('q', '').strip()
+    results = {'courses': [], 'lessons': []}
+    
+    if query and len(query) >= 2:
+        # Search courses
+        courses = Course.query.filter(
+            Course.title.ilike(f'%{query}%') | Course.description.ilike(f'%{query}%')
+        ).all()
+        
+        # Search lessons
+        lessons = Lesson.query.filter(
+            Lesson.title.ilike(f'%{query}%') | Lesson.content.ilike(f'%{query}%')
+        ).all()
+        
+        results['courses'] = courses
+        results['lessons'] = lessons
+    
+    return render_template('main/search_results.html', query=query, results=results)
