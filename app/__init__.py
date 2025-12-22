@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user
 from flask_migrate import Migrate
@@ -127,6 +127,20 @@ def create_app():
                     print("[DB INIT] code_hash column added successfully")
         except Exception as e:
             print(f"[DB INIT] Warning: {e}")
+    
+    # Register error handlers
+    @app.errorhandler(404)
+    def not_found_error(error):
+        return render_template('errors/404.html'), 404
+    
+    @app.errorhandler(500)
+    def internal_error(error):
+        db.session.rollback()
+        return render_template('errors/500.html'), 500
+    
+    @app.errorhandler(403)
+    def forbidden_error(error):
+        return render_template('errors/403.html'), 403
     
     return app
 
