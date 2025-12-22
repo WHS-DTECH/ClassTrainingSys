@@ -43,15 +43,14 @@ def create_app():
             "https://www.googleapis.com/auth/userinfo.email",
             "https://www.googleapis.com/auth/userinfo.profile",
             "openid"
-        ],
-        redirect_to="main.dashboard",
-        redirect_url=os.environ.get("GOOGLE_REDIRECT_URI", "http://localhost:5000/login/google/authorized")
+        ]
     )
     app.register_blueprint(google_bp, url_prefix="/login")
+    
     @app.route("/login/google/authorized")
     def google_authorized():
         if not google.authorized:
-            return redirect(url_for("google.login"))
+            return redirect(url_for("auth.login"))
         resp = google.get("/oauth2/v2/userinfo")
         if not resp.ok:
             return "Failed to fetch user info from Google.", 400
