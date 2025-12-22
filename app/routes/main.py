@@ -728,22 +728,22 @@ def practice_code_comments():
                 for entry in feedback_entries:
                     comment_lines.append((entry.line_num, entry.comment))
         can_extract = False
-    # Gather checked files for this user (student or teacher)
-    checked_files_grid = []
-    is_teacher = False
-    if current_user.is_authenticated:
-        from app.models import CommentCheck, DebugCheck
-        is_teacher = hasattr(current_user, 'is_teacher') and current_user.is_teacher()
-        # Show both comment and debug checked files for both teachers and students
-        comment_files = {c.filename for c in CommentCheck.query.filter_by(user_id=current_user.id).all()}
-        debug_files = {d.filename for d in DebugCheck.query.filter_by(user_id=current_user.id).all()}
-        all_files = sorted(comment_files | debug_files)
-        for fname in all_files:
-            checked_files_grid.append({
-                'filename': fname,
-                'comment': '✔️' if fname in comment_files else '',
-                'debug': '✔️' if fname in debug_files else ''
-            })
+    
+    # Populate checked files grid and teacher status if not already set
+    if not checked_files_grid:
+        if current_user.is_authenticated:
+            from app.models import CommentCheck, DebugCheck
+            is_teacher = hasattr(current_user, 'is_teacher') and current_user.is_teacher()
+            # Show both comment and debug checked files for both teachers and students
+            comment_files = {c.filename for c in CommentCheck.query.filter_by(user_id=current_user.id).all()}
+            debug_files = {d.filename for d in DebugCheck.query.filter_by(user_id=current_user.id).all()}
+            all_files = sorted(comment_files | debug_files)
+            for fname in all_files:
+                checked_files_grid.append({
+                    'filename': fname,
+                    'comment': '✔️' if fname in comment_files else '',
+                    'debug': '✔️' if fname in debug_files else ''
+                })
     # Always fetch feedback for the current file for display
     if current_user.is_authenticated and (uploaded_filename or filename):
         from app.models import CommentFeedback, Lesson
