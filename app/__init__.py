@@ -79,18 +79,28 @@ def create_app():
         # --- End permanent admin bootstrap ---
     
 
-    @app.route("/login/google/authorized")
-    def google_authorized():
-        if not google.authorized:
-            return redirect(url_for("google.login"))
-        resp = google.get("/oauth2/v2/userinfo")
+
+    # Flask-Dance: Use authorized signal to log in user after Google OAuth
+    from flask_dance.signals import oauth_authorized
+    from flask import flash
+    from flask_login import login_user
+    from app.models import User, db
+    import sqlalchemy as sa
+
+    @oauth_authorized.connect_via(google_bp)
+    def google_logged_in(blueprint, token):
+        if not token:
+            flash("Failed to log in with Google.", category="danger")
+            return False
+        resp = blueprint.session.get("/oauth2/v2/userinfo")
         if not resp.ok:
-            return "Failed to fetch user info from Google.", 400
+            flash("Failed to fetch user info from Google.", category="danger")
+            return False
         user_info = resp.json()
         user_email = user_info.get("email")
         if not user_email:
-            return "No email found in Google account.", 400
-        from app.models import User, db
+            flash("No email found in Google account.", category="danger")
+            return False
         user = User.query.filter_by(email=user_email).first()
         if not user:
             user = User(
@@ -101,7 +111,8 @@ def create_app():
             db.session.add(user)
             db.session.commit()
         login_user(user)
-        return redirect(url_for("main.dashboard"))
+        # Prevent Flask-Dance from redirecting to login page again
+        return False
     
     return app
 
