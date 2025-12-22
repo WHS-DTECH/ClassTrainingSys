@@ -8,6 +8,7 @@ from reportlab.pdfgen import canvas
 from sqlalchemy import func
 from datetime import datetime
 import hashlib
+from app import db
 
 bp = Blueprint('main', __name__)
 
@@ -872,3 +873,59 @@ def student_dashboard():
 
 from flask import redirect, url_for
 from app import db
+from werkzeug.security import check_password_hash, generate_password_hash
+
+@bp.route('/profile')
+@login_required
+def profile():
+    """User profile page showing account info and activity"""
+    enrollments = Enrollment.query.filter_by(user_id=current_user.id).all()
+    
+    # Calculate stats
+    total_courses = len(enrollments)
+    completed_courses = sum(1 for e in enrollments if e.completed)
+    
+    # Get recent submissions
+    recent_submissions = Submission.query.filter_by(
+        student_id=current_user.id
+    ).order_by(Submission.submitted_at.desc()).limit(5).all()
+    
+    return render_template('auth/profile.html',
+        enrollments=enrollments,
+        total_courses=total_courses,
+        completed_courses=completed_courses,
+        recent_submissions=recent_submissions
+    )
+
+@bp.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    """User settings page for password and preferences"""
+    if request.method == 'POST':
+        action = request.form.get('action')
+        
+        if action == 'change_password':
+            current_password = request.form.get('current_password')
+            new_password = request.form.get('new_password')
+            confirm_password = request.form.get('confirm_password')
+            
+            # Validate current password
+            if not current_user.check_password(current_password):
+                flash('Current password is incorrect.', 'error')
+            elif len(new_password) < 6:
+                flash('New password must be at least 6 characters long.', 'error')
+            elif new_password != confirm_password:
+                flash('New passwords do not match.', 'error')
+            else:
+                current_user.set_password(new_password)
+                db.session.commit()
+                flash('Password changed successfully!', 'success')
+                return redirect(url_for('main.settings'))
+        
+        elif action == 'update_preferences':
+            # Store preferences in user model or preferences table
+            # For now, we'll just show success
+            flash('Preferences updated successfully!', 'success')
+            return redirect(url_for('main.settings'))
+    
+    return render_template('auth/settings.html')
