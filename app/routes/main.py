@@ -19,9 +19,9 @@ def download_comments_pdf():
     uploaded_filename = request.form.get('uploaded_filename', 'Extracted_Comments')
     today_str = datetime.now().strftime('%Y-%m-%d')
     pdf_filename = f"{uploaded_filename}_comments_{today_str}.pdf"
-    # Get extracted comments and feedback from session (not DB)
-    extracted_comments = session.get('extracted_comments')
-    feedback_list = session.get('extracted_feedback')
+    # Use comment_lines and feedback_dict from session (matches web view)
+    comment_lines = session.get('comment_lines', [])
+    feedback_dict = session.get('feedback_dict', {})
     # Generate PDF
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
@@ -49,15 +49,16 @@ def download_comments_pdf():
     p.drawString(40, y, "Extracted Comments and Feedback:")
     y -= 18
     p.setFont("Helvetica", 10)
-    if extracted_comments and feedback_list:
-        for idx, (comment, feedback) in enumerate(zip(extracted_comments, feedback_list)):
+    if comment_lines:
+        for idx, (line_num, comment) in enumerate(comment_lines):
             if y < 60:
                 p.showPage()
                 y = height - 40
                 p.setFont("Helvetica", 10)
-            p.drawString(50, y, f"Line {comment[0]}: {comment[1]}")
+            p.drawString(50, y, f"Line {line_num}: {comment}")
             y -= 12
             p.setFont("Helvetica-Oblique", 9)
+            feedback = feedback_dict.get(line_num, '(No feedback available)')
             p.drawString(70, y, f"Feedback: {feedback}")
             y -= 16
             p.setFont("Helvetica", 10)
