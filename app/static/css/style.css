@@ -1488,3 +1488,257 @@ body {
     }
 }
 
+/* ===== CODE SYNTAX HIGHLIGHTING ===== */
+.syntax-highlight {
+    position: relative;
+    background: #282c34;
+    border-radius: 0.5em;
+    overflow: hidden;
+    margin: 1.5em 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.syntax-highlight pre {
+    margin: 0;
+    padding: 1.25em 1em;
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.5;
+    overflow-x: auto;
+    background: transparent;
+}
+
+.syntax-highlight code {
+    font-family: 'Fira Code', 'Courier New', monospace;
+    background: transparent;
+    color: #abb2bf;
+}
+
+/* Language label */
+.language-label {
+    position: absolute;
+    top: 0.5em;
+    right: 3.5em;
+    background: rgba(255, 255, 255, 0.1);
+    color: #abb2bf;
+    padding: 0.25em 0.75em;
+    border-radius: 0.3em;
+    font-size: 0.75em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 1;
+    backdrop-filter: blur(5px);
+}
+
+/* Copy button styling */
+.copy-btn {
+    position: absolute;
+    top: 0.5em;
+    right: 0.5em;
+    background: rgba(76, 175, 80, 0.8);
+    color: white;
+    border: none;
+    padding: 0.5em 1em;
+    border-radius: 0.3em;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    transition: all 0.2s;
+    z-index: 2;
+    backdrop-filter: blur(5px);
+}
+
+.copy-btn:hover {
+    background: rgba(76, 175, 80, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.copy-btn:active {
+    transform: translateY(0);
+}
+
+.copy-btn i {
+    font-size: 0.9em;
+}
+
+/* Line numbers styling */
+.line-numbers {
+    padding-left: 3em !important;
+}
+
+.line-numbers code {
+    position: relative;
+    white-space: inherit;
+}
+
+.line-numbers .line-numbers-rows {
+    position: absolute;
+    pointer-events: none;
+    top: 1.25em;
+    font-size: inherit;
+    letter-spacing: -1px;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    user-select: none;
+    left: 0;
+    width: 2.5em;
+    padding: 0 0.5em;
+    text-align: right;
+    color: #6e7681;
+}
+
+.line-numbers .line-numbers-rows > span {
+    display: block;
+    counter-increment: linenumber;
+    line-height: 1.5;
+}
+
+/* Prism theme customization */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: #5c6370;
+}
+
+.token.punctuation {
+    color: #abb2bf;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+    color: #e06c75;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+    color: #98c379;
+}
+
+.token.operator,
+.token.entity,
+.token.url {
+    color: #56b6c2;
+}
+
+.token.atrule,
+.token.keyword {
+    color: #c678dd;
+}
+
+.token.function,
+.token.class-name {
+    color: #61afef;
+}
+
+.token.attr-value {
+    color: #98c379;
+}
+
+/* Code block in lesson content */
+.lesson-content pre {
+    background: #282c34;
+    border-radius: 0.5em;
+    padding: 1.25em 1em;
+    overflow-x: auto;
+    margin: 1.5em 0;
+}
+
+.lesson-content code {
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+.lesson-content pre code {
+    background: transparent;
+}
+
+/* Inline code styling */
+:not(pre) > code {
+    background: rgba(0, 0, 0, 0.1);
+    color: #e06c75;
+    padding: 0.2em 0.4em;
+    border-radius: 0.3em;
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+/* Code block in dark theme */
+@media (prefers-color-scheme: dark) {
+    .syntax-highlight {
+        background: #1e1e1e;
+    }
+
+    .syntax-highlight pre {
+        color: #d4d4d4;
+    }
+
+    :not(pre) > code {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ce9178;
+    }
+}
+
+/* Responsive adjustments for code blocks */
+@media (max-width: 768px) {
+    .syntax-highlight {
+        margin: 1em 0;
+        border-radius: 0.4em;
+    }
+
+    .syntax-highlight pre {
+        padding: 1em 0.75em;
+        font-size: 0.85em;
+    }
+
+    .language-label {
+        font-size: 0.65em;
+        padding: 0.2em 0.5em;
+    }
+
+    .copy-btn {
+        padding: 0.4em 0.8em;
+        font-size: 0.75em;
+    }
+
+    .line-numbers {
+        padding-left: 2.5em !important;
+    }
+
+    .line-numbers .line-numbers-rows {
+        width: 2em;
+    }
+}
+
+/* Scrollbar styling for code blocks */
+.syntax-highlight::-webkit-scrollbar {
+    height: 8px;
+}
+
+.syntax-highlight::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.syntax-highlight::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.syntax-highlight::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+

@@ -139,24 +139,65 @@
         font-weight: 600;
     }
 
-    .feedback-widget .btn:hover {
-        background: #f0f0f0;
-        border-color: #f0f0f0;
-    }
+        .feedback-widget .btn:hover {
+            background: #f0f0f0;
+            border-color: #f0f0f0;
+        }
 
-    @media (max-width: 768px) {
-        .breadcrumb-nav {
-            font-size: 0.85em;
+        /* Enhance code blocks in lesson content */
+        .lesson-display pre {
+            background: #282c34;
+            border-radius: 0.5em;
+            padding: 1.25em 1em;
             overflow-x: auto;
-            white-space: nowrap;
-            padding-bottom: 0.75rem;
+            margin: 1.5em 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
-        .lesson-progress {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.5rem;
+        .lesson-display code {
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
         }
+
+        .lesson-display pre code {
+            background: transparent;
+            color: #abb2bf;
+        }
+
+        .lesson-display :not(pre) > code {
+            background: rgba(0, 0, 0, 0.1);
+            color: #e06c75;
+            padding: 0.2em 0.4em;
+            border-radius: 0.3em;
+            font-family: 'Fira Code', 'Courier New', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .lesson-display pre {
+                margin: 1em 0;
+                border-radius: 0.4em;
+                padding: 1em 0.75em;
+            }
+
+            .lesson-display code {
+                font-size: 0.85em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .breadcrumb-nav {
+                font-size: 0.85em;
+                overflow-x: auto;
+                white-space: nowrap;
+                padding-bottom: 0.75rem;
+            }
+
+            .lesson-progress {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
 
         .lesson-navigation {
             gap: 0.75rem;
@@ -339,4 +380,36 @@
 <script src="{{ url_for('static', filename='js/comment_activities.js') }}"></script>
 <script src="{{ url_for('static', filename='js/debug_activities.js') }}"></script>
 <script src="{{ url_for('static', filename='js/practice_debug_activities.js') }}"></script>
+
+<script>
+// Enhanced code block styling and interaction
+document.addEventListener('DOMContentLoaded', () => {
+    const lessonContent = document.querySelector('.lesson-display') || document.querySelector('.lesson-content');
+    
+    if (lessonContent) {
+        // Wrap code blocks with syntax-highlight class
+        lessonContent.querySelectorAll('pre').forEach(pre => {
+            if (!pre.classList.contains('syntax-highlight')) {
+                pre.classList.add('syntax-highlight');
+            }
+            
+            // Auto-detect language if not specified
+            const code = pre.querySelector('code');
+            if (code && !code.className) {
+                const language = SyntaxHighlighter.detectLanguage(code.textContent);
+                if (language) {
+                    code.className = `language-${language}`;
+                    pre.className += ` language-${language}`;
+                }
+            }
+        });
+
+        // Add copy buttons
+        setTimeout(() => {
+            SyntaxHighlighter.addCopyButtons();
+            SyntaxHighlighter.enhanceCodeBlocks();
+        }, 500);
+    }
+});
+</script>
 {% endblock %}
