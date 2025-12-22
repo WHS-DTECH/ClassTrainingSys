@@ -110,7 +110,7 @@
     </form>
     {% endif %}
 
-    <div id="resultsSection" {% if not code or already_checked %}style="display:none;"{% endif %}>
+    <div id="resultsSection" {% if not code and not comment_lines %}style="display:none;"{% endif %}>
         <hr>
         <div style="margin-bottom:1em;">
             {# Find the lesson with title 'Assessment Checking Overview' and link to it #}
