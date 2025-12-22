@@ -52,6 +52,8 @@ def create_app():
         admin_email = os.environ.get("ADMIN_EMAIL")
         admin_username = "vanessapringle"
         admin_password = os.environ.get("ADMIN_PASSWORD")
+        if admin_password is None:
+            admin_password = "defaultpassword"  # Or raise an error if you want to force setting it
         user = User.query.filter_by(email=admin_email).first()
         if not user:
             print("[ADMIN BOOTSTRAP] Creating admin user...")
@@ -66,7 +68,7 @@ def create_app():
         else:
             print("[ADMIN BOOTSTRAP] Admin user exists. Resetting password and role...")
         # Always set password and role for admin user
-        user.set_password(admin_password)
+        user.set_password(str(admin_password))
         user.role = "teacher"
         db.session.commit()
         print(f"[ADMIN BOOTSTRAP] Admin user {admin_email} ensured with password (hidden) and role teacher.")
