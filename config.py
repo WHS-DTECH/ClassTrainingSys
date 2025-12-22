@@ -1,15 +1,18 @@
+
 import os
 
 class Config:
+    # Security
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
-    # Use DATABASE_URL from environment for production (e.g., Render), otherwise use local PostgreSQL for development
+
+    # Database
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql://classuser:classpassword@localhost/class_training_system')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
-    # Upload settings
+
+    # File Uploads
     UPLOAD_FOLDER = 'uploads'
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
-    
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB
+
     # Pagination
     ITEMS_PER_PAGE = 20
 
