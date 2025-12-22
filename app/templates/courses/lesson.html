@@ -3,10 +3,162 @@
 {% block title %}{{ lesson.title }}{% endblock %}
 
 {% block content %}
+<style>
+    .breadcrumb-nav {
+        padding: 1rem 0;
+        margin-bottom: 1.5rem;
+        font-size: 0.95em;
+    }
+
+    .breadcrumb-nav a {
+        color: #5c0e2a;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s;
+    }
+
+    .breadcrumb-nav a:hover {
+        color: #7a1d3e;
+        text-decoration: underline;
+    }
+
+    .breadcrumb-nav span {
+        color: #999;
+        margin: 0 0.5rem;
+    }
+
+    .lesson-progress {
+        background: #f0f0f0;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.4em;
+        margin-bottom: 1.5rem;
+        font-size: 0.95em;
+        color: #666;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .lesson-progress-info {
+        font-weight: 600;
+        color: #5c0e2a;
+    }
+
+    .lesson-view {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .lesson-navigation {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid #ddd;
+        flex-wrap: wrap;
+    }
+
+    .lesson-nav-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75em 1.5em;
+        background: #5c0e2a;
+        color: white;
+        text-decoration: none;
+        border: none;
+        border-radius: 0.4em;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .lesson-nav-button:hover {
+        background: #7a1d3e;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(92, 14, 42, 0.2);
+    }
+
+    .lesson-nav-button.disabled,
+    .lesson-nav-button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .lesson-nav-button.secondary {
+        background: #f0f0f0;
+        color: #333;
+    }
+
+    .lesson-nav-button.secondary:hover {
+        background: #e0e0e0;
+    }
+
+    .lesson-nav-button.secondary.disabled {
+        background: #e8e8e8;
+        color: #999;
+    }
+
+    .lesson-nav-spacer {
+        flex: 1;
+    }
+
+    @media (max-width: 768px) {
+        .breadcrumb-nav {
+            font-size: 0.85em;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: 0.75rem;
+        }
+
+        .lesson-progress {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .lesson-navigation {
+            gap: 0.75rem;
+        }
+
+        .lesson-nav-button {
+            flex: 1;
+            min-width: 120px;
+            font-size: 0.95em;
+        }
+    }
+</style>
+
 <div class="lesson-view">
-    <div class="breadcrumb">
-        <a href="{{ url_for('courses.view_course', course_id=course.id) }}">{{ course.title }}</a> / {{ lesson.title }}
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb-nav">
+        <a href="{{ url_for('main.dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
+        <span>/</span>
+        <a href="{{ url_for('courses.list_courses') }}">Courses</a>
+        <span>/</span>
+        <a href="{{ url_for('courses.view_course', course_id=course.id) }}">{{ course.title }}</a>
+        <span>/</span>
+        <span>{{ lesson.title }}</span>
     </div>
+
+    <!-- Lesson Progress Indicator -->
+    {% if lesson_order and total_lessons %}
+        <div class="lesson-progress">
+            <div>
+                <span class="lesson-progress-info">Lesson {{ lesson_order }} of {{ total_lessons }}</span>
+            </div>
+            <div style="flex: 1; margin: 0 1.5rem;">
+                <div style="background: #ddd; height: 6px; border-radius: 3px; overflow: hidden;">
+                    <div style="background: linear-gradient(90deg, #28a745, #20c997); height: 100%; width: {{ (lesson_order / total_lessons * 100)|int }}%; transition: width 0.3s;"></div>
+                </div>
+            </div>
+            <div style="color: #999; font-size: 0.9em;">
+                {% set progress = ((lesson_order / total_lessons * 100)|int) %}{{ progress }}% Complete
+            </div>
+        </div>
+    {% endif %}
     
     {% if lesson.title == 'Assessment Checking Overview' %}
         <h1>Section 1: Python Debugging - Best Practices</h1>
@@ -91,8 +243,33 @@
         </div>
     {% endif %}
     
+    <!-- Lesson Navigation with Prev/Next Buttons -->
     <div class="lesson-navigation">
-        <a href="{{ url_for('courses.view_course', course_id=course.id) }}" class="btn btn-secondary">Back to Course</a>
+        {% if previous_lesson %}
+            <a href="{{ url_for('courses.view_lesson', lesson_id=previous_lesson.id) }}" class="lesson-nav-button secondary">
+                <i class="fas fa-arrow-left"></i> Previous Lesson
+            </a>
+        {% else %}
+            <button class="lesson-nav-button secondary disabled" disabled>
+                <i class="fas fa-arrow-left"></i> Previous Lesson
+            </button>
+        {% endif %}
+
+        <a href="{{ url_for('courses.view_course', course_id=course.id) }}" class="lesson-nav-button secondary">
+            <i class="fas fa-book"></i> Back to Course
+        </a>
+
+        <div class="lesson-nav-spacer"></div>
+
+        {% if next_lesson %}
+            <a href="{{ url_for('courses.view_lesson', lesson_id=next_lesson.id) }}" class="lesson-nav-button">
+                Next Lesson <i class="fas fa-arrow-right"></i>
+            </a>
+        {% else %}
+            <button class="lesson-nav-button disabled" disabled>
+                Next Lesson <i class="fas fa-arrow-right"></i>
+            </button>
+        {% endif %}
     </div>
     </div>
 <script src="{{ url_for('static', filename='js/comment_activities.js') }}"></script>

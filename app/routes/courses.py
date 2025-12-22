@@ -148,6 +148,22 @@ def view_lesson(lesson_id):
             flash('You are not enrolled in this course.', 'danger')
             return redirect(url_for('courses.list_courses'))
 
+    # Calculate lesson navigation info
+    all_lessons = Lesson.query.filter_by(course_id=course.id).order_by(Lesson.order).all()
+    total_lessons = len(all_lessons)
+    lesson_order = None
+    previous_lesson = None
+    next_lesson = None
+    
+    for idx, l in enumerate(all_lessons):
+        if l.id == lesson_id:
+            lesson_order = idx + 1
+            if idx > 0:
+                previous_lesson = all_lessons[idx - 1]
+            if idx < len(all_lessons) - 1:
+                next_lesson = all_lessons[idx + 1]
+            break
+
     # Render custom template if specified, otherwise use default
     # For Lesson 1: Comment Checker, fetch feedback from DB
     extracted_comments = None
@@ -216,9 +232,9 @@ def view_lesson(lesson_id):
     if extracted_debug_blocks and feedback_debug_blocks:
         extracted_debug_feedback_pairs = list(zip(extracted_debug_blocks, feedback_debug_blocks))
     if lesson.template_path:
-        return render_template(lesson.template_path, lesson=lesson, course=course, extracted_comments=extracted_comments, extracted_debug_blocks=extracted_debug_blocks, feedback_debug_blocks=feedback_debug_blocks, extracted_debug_feedback_pairs=extracted_debug_feedback_pairs, debug_summary=debug_summary)
+        return render_template(lesson.template_path, lesson=lesson, course=course, extracted_comments=extracted_comments, extracted_debug_blocks=extracted_debug_blocks, feedback_debug_blocks=feedback_debug_blocks, extracted_debug_feedback_pairs=extracted_debug_feedback_pairs, debug_summary=debug_summary, lesson_order=lesson_order, total_lessons=total_lessons, previous_lesson=previous_lesson, next_lesson=next_lesson)
     else:
-        return render_template('courses/lesson.html', lesson=lesson, course=course, extracted_comments=extracted_comments, extracted_debug_blocks=extracted_debug_blocks, feedback_debug_blocks=feedback_debug_blocks, extracted_debug_feedback_pairs=extracted_debug_feedback_pairs, debug_summary=debug_summary)
+        return render_template('courses/lesson.html', lesson=lesson, course=course, extracted_comments=extracted_comments, extracted_debug_blocks=extracted_debug_blocks, feedback_debug_blocks=feedback_debug_blocks, extracted_debug_feedback_pairs=extracted_debug_feedback_pairs, debug_summary=debug_summary, lesson_order=lesson_order, total_lessons=total_lessons, previous_lesson=previous_lesson, next_lesson=next_lesson)
 
 @bp.route('/lessons/<int:lesson_id>/complete', methods=['POST'])
 @login_required
