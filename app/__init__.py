@@ -113,10 +113,20 @@ def create_app():
         print(f"[ADMIN BOOTSTRAP] Admin user {admin_email} ensured with password (hidden) and role teacher.")
         # --- End permanent admin bootstrap ---
     
-
-
-
-
+    # Ensure code_hash column exists in comment_feedback table
+    with app.app_context():
+        try:
+            from sqlalchemy import text, inspect
+            inspector = inspect(db.engine)
+            if 'comment_feedback' in inspector.get_table_names():
+                columns = [col['name'] for col in inspector.get_columns('comment_feedback')]
+                if 'code_hash' not in columns:
+                    print("[DB INIT] Adding code_hash column to comment_feedback table...")
+                    with db.engine.begin() as conn:
+                        conn.execute(text('ALTER TABLE comment_feedback ADD COLUMN code_hash VARCHAR(64) DEFAULT \'unknown\''))
+                    print("[DB INIT] code_hash column added successfully")
+        except Exception as e:
+            print(f"[DB INIT] Warning: {e}")
     
     return app
 

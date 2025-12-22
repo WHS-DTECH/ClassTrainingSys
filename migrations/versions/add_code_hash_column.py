@@ -1,7 +1,7 @@
 """Add code_hash column to comment_feedback
 
-Revision ID: add_code_hash_to_comment_feedback
-Revises: 
+Revision ID: add_code_hash_column
+Revises: c511bffa91ca
 Create Date: 2025-12-23 08:46:19.000000
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'add_code_hash_to_comment_feedback'
-down_revision = None
+revision = 'add_code_hash_column'
+down_revision = 'c511bffa91ca'
 branch_labels = None
 depends_on = None
 
@@ -30,3 +30,4 @@ def upgrade():
 
 def downgrade():
     op.drop_column('comment_feedback', 'code_hash')
+
