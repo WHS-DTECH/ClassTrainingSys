@@ -36,7 +36,6 @@ def create_app():
     app.register_blueprint(admin.bp)
     
     # Google OAuth blueprint
-
     google_bp = make_google_blueprint(
         client_id=os.environ.get("GOOGLE_OAUTH_CLIENT_ID"),
         client_secret=os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET"),
@@ -45,7 +44,8 @@ def create_app():
             "https://www.googleapis.com/auth/userinfo.profile",
             "openid"
         ],
-        authorized_url="/login/google/authorized"
+        redirect_to="main.dashboard",
+        redirect_url=os.environ.get("GOOGLE_REDIRECT_URI", "http://localhost:5000/login/google/authorized")
     )
     app.register_blueprint(google_bp, url_prefix="/login")
     @app.route("/login/google/authorized")
