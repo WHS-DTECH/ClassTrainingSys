@@ -1,4 +1,3 @@
-
 import csv
 import json
 from werkzeug.utils import secure_filename
@@ -203,3 +202,15 @@ def student_detail(student_id):
     return render_template('admin/student_detail.html', 
                          student=student, 
                          enrollments=enrollments)
+
+@bp.route('/reset_student_checker/<int:student_id>', methods=['POST'])
+@login_required
+@teacher_required
+def reset_student_checker(student_id):
+    from app.models import CommentCheck, DebugCheck, User
+    student = User.query.get_or_404(student_id)
+    CommentCheck.query.filter_by(user_id=student_id).delete()
+    DebugCheck.query.filter_by(user_id=student_id).delete()
+    db.session.commit()
+    flash(f'All checker files for {student.username} have been reset.', 'success')
+    return redirect(url_for('admin.student_detail', student_id=student_id))
