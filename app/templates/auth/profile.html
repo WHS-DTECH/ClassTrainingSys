@@ -261,15 +261,16 @@
     <h2 class="section-title"><i class="fas fa-book"></i> My Courses</h2>
     <div class="enrollments-grid">
         {% for enrollment in enrollments %}
-            <div class="enrollment-card">
-                <h3>{{ enrollment.course.title }}</h3>
-                <p><strong>Enrolled:</strong> {{ enrollment.enrolled_at.strftime('%B %d, %Y') }}</p>
-                
-                {% if enrollment.course.description %}
-                    <p style="font-size: 0.9em; color: #888; margin: 0.5rem 0;">
-                        {{ enrollment.course.description[:100] }}{% if enrollment.course.description|length > 100 %}...{% endif %}
-                    </p>
-                {% endif %}
+            {% if enrollment.course %}
+                <div class="enrollment-card">
+                    <h3>{{ enrollment.course.title }}</h3>
+                    <p><strong>Enrolled:</strong> {{ enrollment.enrolled_at.strftime('%B %d, %Y') if enrollment.enrolled_at else 'Unknown' }}</p>
+                    
+                    {% if enrollment.course.description %}
+                        <p style="font-size: 0.9em; color: #888; margin: 0.5rem 0;">
+                            {{ enrollment.course.description[:100] }}{% if enrollment.course.description|length > 100 %}...{% endif %}
+                        </p>
+                    {% endif %}
                 
                 <div class="progress-bar">
                     <div class="progress-fill" style="width: 45%;"></div>
@@ -293,6 +294,7 @@
                     </a>
                 </div>
             </div>
+            {% endif %}
         {% endfor %}
     </div>
 {% else %}
