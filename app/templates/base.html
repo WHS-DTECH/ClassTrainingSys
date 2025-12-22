@@ -3,112 +3,378 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <style>
-        .w3-bar, .w3-sidebar, .w3-button, .w3-hover-deep-purple { background-color: #5c0e2a !important; color: #fff !important; }
-        .w3-sidebar { width: 250px; }
-        .w3-bar .w3-bar-item { color: #fff !important; }
-        .w3-bar .w3-bar-item.w3-hover-white:hover { color: #5c0e2a !important; background: #fff !important; }
-        .w3-bar .w3-bar-item.w3-hover-deep-purple:hover { background: #7a1d3e !important; }
-        .w3-sidebar .w3-bar-item.w3-hover-white:hover { color: #5c0e2a !important; background: #fff !important; }
-        .w3-sidebar .w3-bar-item.w3-hover-deep-purple:hover { background: #7a1d3e !important; }
-        .w3-sidebar .w3-bar-item.active { background: #7a1d3e !important; }
-        .w3-main { margin-left: 0; transition: margin-left .3s; }
-        @media (min-width: 601px) { .w3-main { margin-left: 0; } }
-        .w3-overlay { cursor: pointer; }
-    </style>
-</head>
     <title>{% block title %}Class Training System{% endblock %}</title>
-    <!-- Lexend Google Font -->
+    
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}">
+    
+    <!-- Custom Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body, html {
             font-family: 'Lexend', 'Segoe UI', 'Roboto', Arial, sans-serif !important;
+            background-color: #f5f7fa;
+            color: #333;
         }
-        .w3-bar, .w3-sidebar, .w3-button, .w3-hover-deep-purple { background-color: #5c0e2a !important; color: #fff !important; }
-        .w3-sidebar { width: 250px; }
-        .w3-bar .w3-bar-item { color: #fff !important; }
-        .w3-bar .w3-bar-item.w3-hover-white:hover { color: #5c0e2a !important; background: #fff !important; }
-        .w3-bar .w3-bar-item.w3-hover-deep-purple:hover { background: #7a1d3e !important; }
-        .w3-sidebar .w3-bar-item.w3-hover-white:hover { color: #5c0e2a !important; background: #fff !important; }
-        .w3-sidebar .w3-bar-item.w3-hover-deep-purple:hover { background: #7a1d3e !important; }
-        .w3-sidebar .w3-bar-item.active { background: #7a1d3e !important; }
-        .w3-main { margin-left: 0; transition: margin-left .3s; }
-        @media (min-width: 601px) { .w3-main { margin-left: 0; } }
-        .w3-overlay { cursor: pointer; }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 3px solid #5c0e2a;
+        }
+
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1.5rem;
+            max-width: 100%;
+            height: 60px;
+        }
+
+        .navbar-brand {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #5c0e2a;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-brand:hover {
+            color: #7a1d3e;
+        }
+
+        /* Center nav items */
+        .navbar-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            list-style: none;
+        }
+
+        .navbar-menu a {
+            color: #333;
+            text-decoration: none;
+            padding: 0.6em 1.2em;
+            border-radius: 0.4em;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .navbar-menu a:hover {
+            background: #f0f0f0;
+            color: #5c0e2a;
+        }
+
+        /* Right side (user menu) */
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-menu-btn {
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.4em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            color: #333;
+            font-size: 1em;
+        }
+
+        .user-menu-btn:hover {
+            background: #f0f0f0;
+            color: #5c0e2a;
+        }
+
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 0.5em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            min-width: 200px;
+            margin-top: 0.5rem;
+        }
+
+        .user-dropdown.active {
+            display: block;
+        }
+
+        .user-dropdown a,
+        .user-dropdown button {
+            display: block;
+            width: 100%;
+            padding: 0.8em 1.2em;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            color: #333;
+            text-decoration: none;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+
+        .user-dropdown a:last-child,
+        .user-dropdown button:last-child {
+            border-bottom: none;
+        }
+
+        .user-dropdown a:hover,
+        .user-dropdown button:hover {
+            background: #f5f5f5;
+            color: #5c0e2a;
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            background: none;
+            border: none;
+            cursor: pointer;
+            gap: 0.4rem;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: #5c0e2a;
+            transition: all 0.3s;
+            border-radius: 2px;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(8px, -8px);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 0;
+            background: white;
+            border-bottom: 1px solid #ddd;
+            flex-direction: column;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .mobile-menu.active {
+            display: flex;
+        }
+
+        .mobile-menu a,
+        .mobile-menu button {
+            padding: 0.8em 1.5rem;
+            color: #333;
+            text-decoration: none;
+            border: none;
+            background: none;
+            cursor: pointer;
+            text-align: left;
+            transition: background 0.2s;
+        }
+
+        .mobile-menu a:hover,
+        .mobile-menu button:hover {
+            background: #f5f5f5;
+            color: #5c0e2a;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-top: 0;
+            padding: 2rem 1.5rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: #f5f5f5;
+            border-top: 1px solid #ddd;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            color: #666;
+            margin-top: 3rem;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .navbar-menu {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .navbar-container {
+                padding: 0 1rem;
+            }
+
+            .navbar-brand {
+                font-size: 1.2em;
+            }
+
+            .main-content {
+                padding: 1.5rem 1rem;
+            }
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 2rem;
+        }
+
+        .alert {
+            padding: 1em 1.5em;
+            border-radius: 0.5em;
+            margin-bottom: 1em;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
+        }
+
+        .alert-error, .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border-left-color: #dc3545;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left-color: #17a2b8;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left-color: #ffc107;
+        }
     </style>
+    
     {% block extra_css %}{% endblock %}
+</head>
 <body>
-
-
-    <!-- Sidebar: always visible, fixed left -->
-    <nav class="w3-sidebar w3-bar-block w3-card" style="z-index:5;width:250px;position:fixed;top:0;left:0;height:100vh;overflow:auto;">
-        <div class="w3-container w3-center w3-padding-16">
-            <span class="w3-xlarge"><b>Class Training System</b></span>
-        </div>
-        {% if current_user.is_authenticated %}
-            <a href="{{ url_for('main.dashboard') }}" class="w3-bar-item w3-button sidebar-link">
-                <i class="fa fa-home"></i> Dashboard
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{{ url_for('main.dashboard') if current_user.is_authenticated else url_for('main.index') }}" class="navbar-brand">
+                <i class="fas fa-graduation-cap"></i> Class Training
             </a>
-            {% if current_user.is_teacher() %}
-                <a href="{{ url_for('admin.index') }}" class="w3-bar-item w3-button sidebar-link">
-                    <i class="fa fa-user-shield"></i> Admin
-                </a>
-            {% endif %}
-            <a href="{{ url_for('auth.logout') }}" class="w3-bar-item w3-button sidebar-link">
-                <i class="fa fa-sign-out-alt"></i> Logout ({{ current_user.username }})
-            </a>
-            <hr style="margin: 10px 0; border-color: #fff2;">
-            <div class="w3-dropdown-hover">
-                <button class="w3-button sidebar-link"><i class="fa fa-book"></i> Courses <i class="fa fa-caret-down"></i></button>
-                <div class="w3-dropdown-content w3-bar-block w3-card-4" style="min-width:180px;">
-                    <a href="{{ url_for('courses.list_courses') }}" class="w3-bar-item w3-button sidebar-link">All Courses</a>
-                    {% if current_user.is_authenticated %}
-                        <div class="w3-bar-item" style="font-weight:bold; color:#5c0e2a; background: #f5f5f5; cursor:default;">My Courses</div>
-                        {% set my_courses = [] %}
-                        {% for enrollment in current_user.enrollments %}
-                            {% if enrollment.course not in my_courses %}
-                                {% set _ = my_courses.append(enrollment.course) %}
-                            {% endif %}
-                        {% endfor %}
-                        {% for course in my_courses %}
-                            {% if course.title != 'Introduction to Python Programming' and course.title != 'Introduction to Programming Documentation' %}
-                                {% if course.title.startswith('Module 3') %}
-                                    <a href="{{ url_for('courses.view_course', course_id=course.id) }}" class="w3-bar-item w3-button sidebar-link">Module 3: Assessment Checking</a>
-                                {% else %}
-                                    <a href="{{ url_for('courses.view_course', course_id=course.id) }}" class="w3-bar-item w3-button sidebar-link">{{ course.title }}</a>
-                                {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    {% endif %}
+
+            <!-- Center Menu -->
+            <ul class="navbar-menu" id="navbarMenu">
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('main.dashboard') }}"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="{{ url_for('courses.list_courses') }}"><i class="fas fa-book"></i> Courses</a></li>
                     {% if current_user.is_teacher() %}
-                        <a href="{{ url_for('courses.create_course') }}" class="w3-bar-item w3-button sidebar-link">Create New Course</a>
+                        <li><a href="{{ url_for('admin.index') }}"><i class="fas fa-shield-alt"></i> Admin</a></li>
                     {% endif %}
-                </div>
+                {% endif %}
+            </ul>
+
+            <!-- Right Side -->
+            <div class="navbar-right">
+                {% if current_user.is_authenticated %}
+                    <!-- User Menu Dropdown -->
+                    <div class="user-menu">
+                        <button class="user-menu-btn" id="userMenuBtn">
+                            <i class="fas fa-user-circle"></i>
+                            <span>{{ current_user.username }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="#"><i class="fas fa-user"></i> My Profile</a>
+                            <a href="#"><i class="fas fa-cog"></i> Settings</a>
+                            <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" style="padding: 0.6em 1.2em; background: #5c0e2a; color: white; border-radius: 0.4em; text-decoration: none;">Login</a>
+                {% endif %}
+
+                <!-- Hamburger Menu -->
+                <button class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
-        {% else %}
-            <a href="{{ url_for('auth.login') }}" class="w3-bar-item w3-button">Login</a>
-            <a href="{{ url_for('auth.register') }}" class="w3-bar-item w3-button">Register</a>
-        {% endif %}
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="{{ url_for('courses.list_courses') }}"><i class="fas fa-book"></i> Courses</a>
+                {% if current_user.is_teacher() %}
+                    <a href="{{ url_for('admin.index') }}"><i class="fas fa-shield-alt"></i> Admin</a>
+                {% endif %}
+                <a href="#"><i class="fas fa-user"></i> My Profile</a>
+                <a href="#"><i class="fas fa-cog"></i> Settings</a>
+                <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}">Login</a>
+                <a href="{{ url_for('auth.register') }}">Register</a>
+            {% endif %}
+        </div>
     </nav>
 
-
-
-    <!-- Top bar -->
-    <div class="w3-bar w3-top w3-large w3-card" style="margin-left:250px;">
-        <span class="w3-bar-item">Class Training System</span>
-    </div>
-
-    <div class="w3-main" style="margin-top:52px; margin-left:250px; padding-left:32px;">
+    <!-- Main Content -->
+    <div class="main-content">
         {% block fullwidth_content %}{% endblock %}
-        <div class="w3-container" style="max-width:1200px;">
+        <div>
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     <div class="flash-messages">
@@ -122,10 +388,47 @@
         </div>
     </div>
 
-    <footer class="w3-container w3-center w3-margin-top" style="padding:32px 0 16px 0; background:#f5f5f5; color:#5c0e2a;">
+    <!-- Footer -->
+    <footer>
         <p>&copy; 2025 Class Training System. Built for programming education.</p>
     </footer>
 
+    <script>
+        // User Menu Dropdown
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userDropdown = document.getElementById('userDropdown');
+        
+        if (userMenuBtn) {
+            userMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('active');
+            });
+
+            document.addEventListener('click', () => {
+                userDropdown.classList.remove('active');
+            });
+        }
+
+        // Mobile Menu Hamburger
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const navbarMenu = document.getElementById('navbarMenu');
+
+        if (hamburger) {
+            hamburger.addEventListener('click', () => {
+                hamburger.classList.toggle('active');
+                mobileMenu.classList.toggle('active');
+            });
+
+            // Close menu when clicking a link
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    hamburger.classList.remove('active');
+                    mobileMenu.classList.remove('active');
+                });
+            });
+        }
+    </script>
 
     {% block extra_js %}{% endblock %}
 </body>
