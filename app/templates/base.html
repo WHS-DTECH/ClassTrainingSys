@@ -459,6 +459,36 @@
                     </div>
                 {% endif %}
             {% endwith %}
+            
+            <!-- Flash Messages to Toast Converter -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Convert Flask flash messages to toasts
+                    const flashMessages = document.querySelectorAll('.flash-messages .alert');
+                    flashMessages.forEach(alert => {
+                        const message = alert.textContent.trim();
+                        const category = Array.from(alert.classList)
+                            .find(cls => cls.startsWith('alert-'))
+                            ?.replace('alert-', '') || 'info';
+                        
+                        // Map Flask categories to toast types
+                        const toastType = {
+                            'error': 'error',
+                            'danger': 'error',
+                            'warning': 'warning',
+                            'success': 'success',
+                            'info': 'info'
+                        }[category] || 'info';
+                        
+                        // Show toast
+                        Toast.show(message, toastType);
+                        
+                        // Hide flash message
+                        alert.style.display = 'none';
+                    });
+                });
+            </script>
+            
             {% block content %}{% endblock %}
         </div>
     </div>
@@ -507,6 +537,9 @@
 
     <!-- Loading States Manager -->
     <script src="{{ url_for('static', filename='js/loading.js') }}"></script>
+    
+    <!-- Toast Notifications -->
+    <script src="{{ url_for('static', filename='js/toast.js') }}"></script>
 
     {% block extra_js %}{% endblock %}
 </body>
