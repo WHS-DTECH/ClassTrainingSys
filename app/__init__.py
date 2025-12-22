@@ -47,29 +47,40 @@ def create_app():
     )
     app.register_blueprint(google_bp, url_prefix="/login")
     
-    @app.route("/login/google/authorized")
+    # Custom handler for Google OAuth callback
+    @app.route("/login/google/authorized", methods=["GET"])
     def google_authorized():
-        if not google.authorized:
-            return redirect(url_for("auth.login"))
-        resp = google.get("/oauth2/v2/userinfo")
-        if not resp.ok:
-            return "Failed to fetch user info from Google.", 400
-        user_info = resp.json()
-        user_email = user_info.get("email")
-        if not user_email:
-            return "No email found in Google account.", 400
-        from app.models import User
-        user = User.query.filter_by(email=user_email).first()
-        if not user:
-            user = User(
-                username=user_email.split("@")[0],
-                email=user_email,
-                role="student"  # Default role, adjust as needed
-            )
-            db.session.add(user)
-            db.session.commit()
-        login_user(user)
-        return redirect(url_for("main.dashboard"))
+        try:
+            if not google.authorized:
+                return redirect(url_for("auth.login"))
+            
+            resp = google.get("/oauth2/v2/userinfo")
+            if not resp.ok:
+                return f"Failed to fetch user info from Google. Status: {resp.status_code}", 400
+            
+            user_info = resp.json()
+            user_email = user_info.get("email")
+            
+            if not user_email:
+                return "No email found in Google account.", 400
+            
+            from app.models import User
+            user = User.query.filter_by(email=user_email).first()
+            
+            if not user:
+                username = user_email.split("@")[0]
+                user = User(
+                    username=username,
+                    email=user_email,
+                    role="student"
+                )
+                db.session.add(user)
+                db.session.commit()
+            
+            login_user(user)
+            return redirect(url_for("main.dashboard"))
+        except Exception as e:
+            return f"Error during Google login: {str(e)}", 500
     
     # Create database tables
     with app.app_context():
