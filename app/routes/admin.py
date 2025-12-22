@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app import db
-from app.models import User, Course, Enrollment, Lesson
+from app.models import User, Course, Enrollment, Lesson, Assignment, Submission
 from functools import wraps
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -18,6 +18,43 @@ def teacher_required(f):
             return redirect(url_for('main.dashboard'))
         return f(*args, **kwargs)
     return decorated_function
+
+
+@bp.route('/dashboard')
+@login_required
+@teacher_required
+def dashboard():
+    """Enhanced teacher dashboard with statistics and recent submissions"""
+    # Get current teacher's courses and students
+    teacher_courses = Course.query.filter_by(teacher_id=current_user.id).all()
+    
+    # Collect all students enrolled in teacher's courses
+    student_ids = set()
+    for course in teacher_courses:
+        for enrollment in course.enrollments:
+            student_ids.add(enrollment.student_id)
+    
+    # Get student info and submissions
+    students = User.query.filter(User.id.in_(student_ids)).all() if student_ids else []
+    
+    # Get recent submissions from teacher's courses
+    recent_submissions = db.session.query(Submission).join(
+        Submission.assignment
+    ).filter(
+        Submission.assignment.has(Assignment.course_id.in_([c.id for c in teacher_courses]))
+    ).order_by(Submission.submitted_at.desc()).limit(10).all()
+    
+    # Calculate statistics
+    total_students = len(students)
+    total_enrollments = sum(len(course.enrollments) for course in teacher_courses)
+    
+    return render_template('admin/teacher_dashboard.html',
+        teacher_courses=teacher_courses,
+        students=students,
+        recent_submissions=recent_submissions,
+        total_students=total_students,
+        total_enrollments=total_enrollments
+    )
 
 
 
@@ -150,13 +187,44 @@ def bulk_upload():
 @login_required
 @teacher_required
 def index():
+    # Get current teacher's courses and students
+    teacher_courses = Course.query.filter_by(teacher_id=current_user.id).all()
+    
+    # Collect all students enrolled in teacher's courses
+    student_ids = set()
+    for course in teacher_courses:
+        for enrollment in course.enrollments:
+            student_ids.add(enrollment.student_id)
+    
+    # Get student info and submissions
+    students = User.query.filter(User.id.in_(student_ids)).all() if student_ids else []
+    
+    # Get recent submissions from teacher's courses
+    from app.models import Submission
+    recent_submissions = db.session.query(Submission).join(
+        Submission.assignment
+    ).filter(
+        Submission.assignment.has(Assignment.course_id.in_([c.id for c in teacher_courses]))
+    ).order_by(Submission.submitted_at.desc()).limit(10).all()
+    
+    # Calculate statistics
+    total_students = len(students)
+    total_enrollments = sum(len(course.enrollments) for course in teacher_courses)
+    total_submissions = sum(
+        len([s for s in course.assignments]) 
+        for course in teacher_courses
+        for assign in course.assignments
+        for s in assign.submissions
+    )
+    
+    # Fallback for legacy interface
     users = User.query.all()
     courses = Course.query.all()
-    # Build a dict: user_id -> list of enrolled course titles
     user_enrollments = {}
     for user in users:
         enrolled_courses = [enrollment.course for enrollment in user.enrollments]
         user_enrollments[user.id] = enrolled_courses
+    
     message = None
     if request.method == 'POST':
         user_id = int(request.form['user_id'])
@@ -183,7 +251,19 @@ def index():
                     message = f'{user.username} unenrolled from {course.title}.'
                 else:
                     message = f'{user.username} is not enrolled in {course.title}.'
-    return render_template('admin/index.html', users=users, courses=courses, user_enrollments=user_enrollments, message=message)
+    
+    return render_template('admin/index.html', 
+        users=users, 
+        courses=courses, 
+        user_enrollments=user_enrollments, 
+        message=message,
+        teacher_courses=teacher_courses,
+        students=students,
+        recent_submissions=recent_submissions,
+        total_students=total_students,
+        total_enrollments=total_enrollments,
+        total_submissions=total_submissions
+    )
 
 @bp.route('/students')
 @login_required
