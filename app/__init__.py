@@ -9,7 +9,14 @@ import os
 db = SQLAlchemy()
 login_manager = LoginManager()
 migrate = Migrate()
-socketio = SocketIO(cors_allowed_origins="*")
+# Configure SocketIO with polling mode for compatibility with standard gunicorn
+socketio = SocketIO(
+    cors_allowed_origins="*",
+    async_mode='threading',  # Use threading instead of gevent
+    ping_timeout=60,
+    ping_interval=25,
+    engineio_logger=False
+)
 
 def create_app():
     app = Flask(__name__)
