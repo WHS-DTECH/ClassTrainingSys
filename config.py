@@ -7,7 +7,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
 
     # Database URL with SSL configuration
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql://classuser:classpassword@localhost/class_training_system')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql://neondb_owner:npg_F47xzVPyGQCb@ep-old-sea-a7k7s3p8-pooler.ap-southeast-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require')
     
     # Ensure SSL mode is set for PostgreSQL
     if SQLALCHEMY_DATABASE_URI.startswith('postgresql') and 'sslmode=' not in SQLALCHEMY_DATABASE_URI:
