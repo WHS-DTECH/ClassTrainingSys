@@ -85,11 +85,17 @@ Class Training System
                     'needs_auth': True
                 }), 401
             else:
-                error_details = resp.json() if resp.headers.get('content-type') == 'application/json' else resp.text
-                print(f"Gmail API Error Response: {error_details}")
+                # Try to parse error details
+                try:
+                    error_details = resp.json() if resp.headers.get('content-type', '').find('application/json') >= 0 else {}
+                    error_msg = error_details.get('error', {}).get('message', 'Unknown error') if isinstance(error_details, dict) else str(error_details)
+                except:
+                    error_msg = f'HTTP {resp.status_code}: {resp.text[:100]}'
+                
+                print(f"Gmail API Error Response: {resp.status_code} - {error_msg}")
                 return jsonify({
                     'success': False,
-                    'error': f'Failed to send email: {error_details.get("error", {}).get("message", "Unknown error")}'
+                    'error': f'Failed to send email: {error_msg}'
                 }), 500
         except RequestException as email_error:
             print(f"Gmail API Request Error: {str(email_error)}")

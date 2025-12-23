@@ -1116,7 +1116,17 @@
                         body: formData
                     });
 
-                    const data = await response.json();
+                    let data = {};
+                    try {
+                        data = await response.json();
+                    } catch (parseError) {
+                        // Response is not valid JSON - server error
+                        console.error('JSON Parse Error:', parseError);
+                        contactMessage.className = 'contact-form-message error';
+                        contactMessage.textContent = `✗ Server error: ${response.status}. Please try again later or contact your instructor directly.`;
+                        contactSubmitBtn.disabled = false;
+                        return;
+                    }
 
                     if (response.ok) {
                         contactMessage.className = 'contact-form-message success';
