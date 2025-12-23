@@ -85,7 +85,7 @@ class Course(db.Model):
     order = db.Column(db.Integer, default=0)  # For custom ordering
     
     # Relationships
-    lessons = db.relationship('Lesson', backref='course', lazy=True, cascade='all, delete-orphan', order_by='Lesson.order')
+    lessons = db.relationship('Lesson', backref='course', lazy=True, cascade='all, delete-orphan', order_by='Lesson.order', foreign_keys='Lesson.course_id')
     enrollments = db.relationship('Enrollment', backref='course', lazy=True, cascade='all, delete-orphan')
     assignments = db.relationship('Assignment', backref='course', lazy=True, cascade='all, delete-orphan')
     quizzes = db.relationship('Quiz', backref='course', lazy=True, cascade='all, delete-orphan')
