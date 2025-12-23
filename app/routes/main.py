@@ -21,6 +21,8 @@ bp = Blueprint('main', __name__)
 def contact_teacher():
     """Send a message to the teacher (logged for now, email when Google API available)"""
     try:
+        from sqlalchemy.exc import OperationalError
+        
         # Get form data
         subject = request.form.get('subject', 'Question from Student')
         message = request.form.get('message', '')
@@ -29,7 +31,12 @@ def contact_teacher():
         if not message or not recipient_email:
             return jsonify({'success': False, 'error': 'Missing required fields'}), 400
         
-        student_name = f"{current_user.first_name} {current_user.last_name}".strip() or current_user.username
+        # Handle potential database connection issues when accessing current_user
+        try:
+            student_name = f"{current_user.first_name} {current_user.last_name}".strip() or current_user.username
+        except OperationalError as db_error:
+            print(f"[ERROR] Database connection error accessing user data: {str(db_error)}")
+            student_name = current_user.username
         
         # Try to send via Gmail API if available
         try:
