@@ -45,7 +45,7 @@ class LessonForm(FlaskForm):
 class AssignmentForm(FlaskForm):
     title = StringField('Assignment Title', validators=[DataRequired(), Length(max=200)])
     description = TextAreaField('Description', validators=[Optional()])
-    due_date = DateTimeField('Due Date', validators=[Optional()], format='%Y-%m-%d %H:%M:%S')
+    due_date = DateTimeField('Due Date', validators=[Optional()], format='%Y-%m-%dT%H:%M')
     max_points = IntegerField('Maximum Points', validators=[DataRequired(), NumberRange(max=9223372036854775807)], default=100)
     submit = SubmitField('Create Assignment')
 
