@@ -176,18 +176,6 @@ def download_comments_pdf():
     buffer.seek(0)
     return send_file(buffer, as_attachment=True, download_name=pdf_filename, mimetype='application/pdf')
 
-from flask import Blueprint, render_template, request, session, redirect, url_for
-from flask import send_file, flash
-from flask_login import login_required, current_user
-from app.models import Course, Enrollment, Assignment, Submission, Quiz, QuizAttempt, User, CommentCheck
-import io
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from sqlalchemy import func
-from datetime import datetime
-
-bp = Blueprint('main', __name__)
-
 # PDF download for extracted debug blocks and feedback (Lesson 2)
 @bp.route('/lesson2/download_debug_feedback')
 @login_required
