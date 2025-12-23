@@ -5,7 +5,7 @@ from subprocess import Popen, PIPE
 
 admin_db_export = Blueprint('admin_db_export', __name__)
 
-@admin_db_export.route('/admin/export-db')
+@admin_db_export.route('/export-db')
 def export_db():
     # Only allow in debug mode for safety
     if not app.debug:
