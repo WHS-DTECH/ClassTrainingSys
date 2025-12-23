@@ -2,12 +2,14 @@ from flask import Flask, redirect, url_for, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user
 from flask_migrate import Migrate
+from flask_socketio import SocketIO
 from flask_dance.contrib.google import make_google_blueprint, google
 import os
 
 db = SQLAlchemy()
 login_manager = LoginManager()
 migrate = Migrate()
+socketio = SocketIO(cors_allowed_origins="*")
 
 def create_app():
     app = Flask(__name__)
@@ -21,12 +23,13 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
+    socketio.init_app(app)
     
     login_manager.login_view = 'auth.login'
     login_manager.login_message = 'Please log in to access this page.'
     
     # Register blueprints
-    from app.routes import auth, main, courses, assignments, quizzes, admin
+    from app.routes import auth, main, courses, assignments, quizzes, admin, notifications
     
     app.register_blueprint(auth.bp)
     app.register_blueprint(main.bp)
@@ -34,6 +37,7 @@ def create_app():
     app.register_blueprint(assignments.bp)
     app.register_blueprint(quizzes.bp)
     app.register_blueprint(admin.bp)
+    app.register_blueprint(notifications.bp)
     
     # Google OAuth blueprint
     google_bp = make_google_blueprint(

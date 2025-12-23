@@ -148,6 +148,18 @@ def submit_assignment(assignment_id):
         
         db.session.commit()
         flash('Assignment submitted successfully!', 'success')
+        
+        # Send notification to teachers
+        from app.routes.notifications import notify_teachers_assignment_submitted
+        student_name = f"{current_user.first_name} {current_user.last_name}".strip() or current_user.username
+        submission_id = submission.id if existing else db.session.execute(
+            db.select(Submission.id).filter_by(
+                assignment_id=assignment_id,
+                student_id=current_user.id
+            )
+        ).scalar()
+        notify_teachers_assignment_submitted(assignment_id, submission_id, student_name)
+        
         return redirect(url_for('assignments.view_assignment', assignment_id=assignment_id))
     
     # Pre-fill form if resubmitting
@@ -276,6 +288,12 @@ def grade_submission_advanced(assignment_id, submission_id):
         
         db.session.commit()
         flash('Submission graded successfully!', 'success')
+        
+        # Send notification to student
+        from app.routes.notifications import notify_student_assignment_graded
+        teacher_name = f"{current_user.first_name} {current_user.last_name}".strip() or current_user.username
+        notify_student_assignment_graded(submission.student_id, assignment_id, submission.score, teacher_name)
+        
         return redirect(url_for('assignments.grading_dashboard', assignment_id=assignment_id))
     
     # GET request - prepare data

@@ -123,6 +123,268 @@
             color: #5c0e2a;
         }
 
+        /* ===== NOTIFICATION BELL ===== */
+        .notification-bell-container {
+            position: relative;
+        }
+
+        .notification-bell {
+            background: none;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.4em;
+            cursor: pointer;
+            font-size: 1.2em;
+            color: #333;
+            transition: all 0.2s;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .notification-bell:hover {
+            background: #f0f0f0;
+            color: #5c0e2a;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 1.5em;
+            height: 1.5em;
+            font-size: 0.7em;
+            display: none;
+            flex-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .notifications-panel {
+            display: none;
+            position: absolute;
+            right: -1rem;
+            top: calc(100% + 0.5rem);
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 0.6em;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            width: 350px;
+            max-height: 500px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .notifications-header {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f9f9f9;
+            border-radius: 0.6em 0.6em 0 0;
+        }
+
+        .notifications-header h4 {
+            margin: 0;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .mark-all-read {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 0.4rem;
+            border-radius: 0.3em;
+            transition: all 0.2s;
+        }
+
+        .mark-all-read:hover {
+            background: #eee;
+            color: #5c0e2a;
+        }
+
+        .notifications-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-empty {
+            padding: 2rem 1rem;
+            text-align: center;
+            color: #999;
+            font-size: 0.95em;
+        }
+
+        .notification-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .notification-item:hover {
+            background: #f9f9f9;
+        }
+
+        .notification-item.unread {
+            background: #f0f8ff;
+            border-left: 3px solid #5c0e2a;
+            padding-left: calc(1rem - 3px);
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.4rem;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+        }
+
+        .notification-delete {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 0;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .notification-delete:hover {
+            color: #dc3545;
+        }
+
+        .notification-message {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 0.4rem;
+            line-height: 1.4;
+        }
+
+        .notification-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85em;
+        }
+
+        .notification-time {
+            color: #999;
+        }
+
+        .notification-mark-read {
+            background: none;
+            border: none;
+            color: #5c0e2a;
+            cursor: pointer;
+            padding: 0;
+            font-size: 0.85em;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+
+        .notification-mark-read:hover {
+            color: #7a1d3e;
+        }
+
+        /* ===== NOTIFICATION TOASTS ===== */
+        #notificationToasts {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .notification-toast {
+            background: white;
+            border-left: 4px solid #5c0e2a;
+            border-radius: 0.4em;
+            padding: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 300px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification-toast.assignment_submitted {
+            border-left-color: #007bff;
+        }
+
+        .notification-toast.assignment_graded {
+            border-left-color: #28a745;
+        }
+
+        .notification-toast.message {
+            border-left-color: #17a2b8;
+        }
+
+        .notification-toast.system {
+            border-left-color: #ffc107;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.3rem;
+        }
+
+        .toast-message {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 1.5em;
+            padding: 0;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .toast-close:hover {
+            color: #333;
+        }
+
         .user-dropdown {
             display: none;
             position: absolute;
@@ -547,7 +809,7 @@
     
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body data-authenticated="{{ 'true' if current_user.is_authenticated else 'false' }}">
     <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-container">
@@ -585,6 +847,25 @@
             <!-- Right Side -->
             <div class="navbar-right">
                 {% if current_user.is_authenticated %}
+                    <!-- Notification Bell -->
+                    <div class="notification-bell-container">
+                        <button class="notification-bell" id="notificationBell" onclick="notificationManager && notificationManager.togglePanel()">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notificationBadge">0</span>
+                        </button>
+                        <div class="notifications-panel" id="notificationsPanel">
+                            <div class="notifications-header">
+                                <h4>Notifications</h4>
+                                <button class="mark-all-read" onclick="notificationManager && notificationManager.markAllAsRead()" title="Mark all as read">
+                                    <i class="fas fa-check-double"></i>
+                                </button>
+                            </div>
+                            <div class="notifications-list" id="notificationsList">
+                                <div class="notification-empty">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- User Menu Dropdown -->
                     <div class="user-menu">
                         <button class="user-menu-btn" id="userMenuBtn">
@@ -769,6 +1050,12 @@
 
     <!-- Syntax Highlighting Manager -->
     <script src="{{ url_for('static', filename='js/syntax-highlight.js') }}"></script>
+
+    <!-- Socket.IO for Real-time Notifications -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+    <!-- Real-time Notifications System -->
+    <script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
 
     <!-- Contact Teacher Form Handler -->
     <script>

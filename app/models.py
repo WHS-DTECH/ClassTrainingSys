@@ -306,3 +306,42 @@ class GradeDetail(db.Model):
     def __repr__(self):
         return f'<GradeDetail Submission:{self.submission_id} Criterion:{self.criterion_id} Points:{self.points_awarded}>'
 
+
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    notification_type = db.Column(db.String(50), nullable=False)  # 'assignment_submitted', 'assignment_graded', 'message', 'system'
+    title = db.Column(db.String(200), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    is_read = db.Column(db.Boolean, default=False)
+    related_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # Who initiated the notification
+    assignment_id = db.Column(db.Integer, db.ForeignKey('assignments.id'), nullable=True)
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', foreign_keys=[user_id], backref='notifications')
+    related_user = db.relationship('User', foreign_keys=[related_user_id])
+    assignment = db.relationship('Assignment', backref='notifications')
+    submission = db.relationship('Submission', backref='notifications')
+    
+    def to_dict(self):
+        """Convert notification to dictionary for JSON serialization"""
+        return {
+            'id': self.id,
+            'notification_type': self.notification_type,
+            'title': self.title,
+            'message': self.message,
+            'is_read': self.is_read,
+            'related_user': f"{self.related_user.first_name} {self.related_user.last_name}".strip() if self.related_user else None,
+            'assignment_id': self.assignment_id,
+            'submission_id': self.submission_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+    
+    def __repr__(self):
+        return f'<Notification user_id={self.user_id} type={self.notification_type} title={self.title}>'
+
