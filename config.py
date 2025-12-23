@@ -2,6 +2,7 @@ import os
 from sqlalchemy.pool import NullPool
 
 class Config:
+        DEBUG = True  # TEMP: Enable debug for /admin/export-db route
     # Security
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
 
