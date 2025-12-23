@@ -252,3 +252,57 @@ class LessonFeedback(db.Model):
     
     def __repr__(self):
         return f'<LessonFeedback Lesson:{self.lesson_id} Student:{self.student_id} Rating:{self.rating}>'
+
+
+class AssignmentRubric(db.Model):
+    __tablename__ = 'assignment_rubrics'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    assignment_id = db.Column(db.Integer, db.ForeignKey('assignments.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    total_points = db.Column(db.Integer, default=100)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    criteria = db.relationship('RubricCriterion', backref='rubric', lazy=True, cascade='all, delete-orphan')
+    assignment = db.relationship('Assignment', backref='rubrics', lazy=True)
+    
+    def __repr__(self):
+        return f'<AssignmentRubric {self.title} Assignment:{self.assignment_id}>'
+
+
+class RubricCriterion(db.Model):
+    __tablename__ = 'rubric_criteria'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    rubric_id = db.Column(db.Integer, db.ForeignKey('assignment_rubrics.id'), nullable=False)
+    name = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    points = db.Column(db.Integer, nullable=False)
+    order = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<RubricCriterion {self.name} {self.points}pts>'
+
+
+class GradeDetail(db.Model):
+    __tablename__ = 'grade_details'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
+    criterion_id = db.Column(db.Integer, db.ForeignKey('rubric_criteria.id'), nullable=False)
+    points_awarded = db.Column(db.Integer, default=0)
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    submission = db.relationship('Submission', backref='grade_details', lazy=True)
+    criterion = db.relationship('RubricCriterion', lazy=True)
+    
+    def __repr__(self):
+        return f'<GradeDetail Submission:{self.submission_id} Criterion:{self.criterion_id} Points:{self.points_awarded}>'
+
