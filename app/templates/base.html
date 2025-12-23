@@ -249,6 +249,179 @@
             text-align: center;
             color: #666;
             margin-top: 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        footer p {
+            margin: 0;
+            flex: 1;
+        }
+
+        .footer-contact-btn {
+            background: linear-gradient(135deg, #5c0e2a 0%, #8b1538 100%);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .footer-contact-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(92, 14, 42, 0.3);
+        }
+
+        /* Contact Modal */
+        .contact-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .contact-modal.active {
+            display: flex;
+        }
+
+        .contact-modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .contact-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 1rem;
+        }
+
+        .contact-modal-header h3 {
+            margin: 0;
+            color: #5c0e2a;
+        }
+
+        .contact-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .contact-modal-close:hover {
+            color: #333;
+        }
+
+        .contact-form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .contact-form-group input,
+        .contact-form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
+        }
+
+        .contact-form-group input:focus,
+        .contact-form-group textarea:focus {
+            outline: none;
+            border-color: #5c0e2a;
+            box-shadow: 0 0 0 3px rgba(92, 14, 42, 0.1);
+        }
+
+        .contact-form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .contact-form-submit {
+            background: linear-gradient(135deg, #5c0e2a 0%, #8b1538 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .contact-form-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(92, 14, 42, 0.3);
+        }
+
+        .contact-form-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .contact-form-message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .contact-form-message.success {
+            display: block;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .contact-form-message.error {
+            display: block;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
         /* ===== RESPONSIVE ===== */
@@ -506,7 +679,38 @@
     <!-- Footer -->
     <footer>
         <p>&copy; 2025 Class Training System. Built for programming education.</p>
+        {% if current_user.is_authenticated %}
+        <button class="footer-contact-btn" id="contactTeacherBtn">
+            <i class="fas fa-envelope"></i> Contact Teacher
+        </button>
+        {% endif %}
     </footer>
+
+    <!-- Contact Teacher Modal -->
+    {% if current_user.is_authenticated %}
+    <div class="contact-modal" id="contactModal">
+        <div class="contact-modal-content">
+            <div class="contact-modal-header">
+                <h3>Contact Teacher</h3>
+                <button class="contact-modal-close" id="contactModalClose">&times;</button>
+            </div>
+            <form id="contactForm">
+                <div class="contact-form-group">
+                    <label for="contactSubject">Subject</label>
+                    <input type="text" id="contactSubject" name="subject" placeholder="e.g., Question about assignment" required>
+                </div>
+                <div class="contact-form-group">
+                    <label for="contactMessage">Message</label>
+                    <textarea id="contactMessage" name="message" placeholder="Please describe your question or issue..." required></textarea>
+                </div>
+                <button type="submit" class="contact-form-submit" id="contactSubmitBtn">
+                    <i class="fas fa-paper-plane"></i> Send Email
+                </button>
+                <div class="contact-form-message" id="contactFormMessage"></div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
 
     <script>
         // User Menu Dropdown
@@ -565,6 +769,96 @@
 
     <!-- Syntax Highlighting Manager -->
     <script src="{{ url_for('static', filename='js/syntax-highlight.js') }}"></script>
+
+    <!-- Contact Teacher Form Handler -->
+    <script>
+        {% if current_user.is_authenticated %}
+        const contactModal = document.getElementById('contactModal');
+        const contactForm = document.getElementById('contactForm');
+        const contactBtn = document.getElementById('contactTeacherBtn');
+        const contactClose = document.getElementById('contactModalClose');
+        const contactSubmitBtn = document.getElementById('contactSubmitBtn');
+        const contactMessage = document.getElementById('contactFormMessage');
+
+        // Open modal
+        if (contactBtn) {
+            contactBtn.addEventListener('click', () => {
+                contactModal.classList.add('active');
+            });
+        }
+
+        // Close modal
+        if (contactClose) {
+            contactClose.addEventListener('click', () => {
+                contactModal.classList.remove('active');
+            });
+        }
+
+        // Close on outside click
+        if (contactModal) {
+            contactModal.addEventListener('click', (e) => {
+                if (e.target === contactModal) {
+                    contactModal.classList.remove('active');
+                }
+            });
+        }
+
+        // Handle form submission
+        if (contactForm) {
+            contactForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                contactSubmitBtn.disabled = true;
+                contactMessage.className = 'contact-form-message';
+                
+                try {
+                    const formData = new FormData(contactForm);
+                    const teacherEmail = '{{ admin_email }}';
+                    
+                    if (!teacherEmail || teacherEmail.includes('example.com')) {
+                        contactMessage.className = 'contact-form-message error';
+                        contactMessage.textContent = 'Unable to determine teacher email. Please contact your instructor directly.';
+                        contactSubmitBtn.disabled = false;
+                        return;
+                    }
+                    
+                    formData.append('recipient_email', teacherEmail);
+                    
+                    const response = await fetch('{{ url_for("main.contact_teacher") }}', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        contactMessage.className = 'contact-form-message success';
+                        contactMessage.textContent = '✓ Email sent successfully! Your teacher will respond shortly.';
+                        contactForm.reset();
+                        setTimeout(() => {
+                            contactModal.classList.remove('active');
+                            contactMessage.className = 'contact-form-message';
+                        }, 3000);
+                    } else if (response.status === 401) {
+                        contactMessage.className = 'contact-form-message error';
+                        contactMessage.textContent = 'Please authorize with Google to send emails. Redirecting to login...';
+                        setTimeout(() => {
+                            window.location.href = '{{ url_for("auth.login") }}';
+                        }, 2000);
+                    } else {
+                        contactMessage.className = 'contact-form-message error';
+                        contactMessage.textContent = `✗ Error: ${data.error || 'Failed to send email'}`;
+                    }
+                } catch (error) {
+                    contactMessage.className = 'contact-form-message error';
+                    contactMessage.textContent = `✗ Error: ${error.message}`;
+                } finally {
+                    contactSubmitBtn.disabled = false;
+                }
+            });
+        }
+        {% endif %}
+    </script>
 
     {% block extra_js %}{% endblock %}
 </body>

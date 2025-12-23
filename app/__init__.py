@@ -42,6 +42,7 @@ def create_app():
         scope=[
             "https://www.googleapis.com/auth/userinfo.email",
             "https://www.googleapis.com/auth/userinfo.profile",
+            "https://www.googleapis.com/auth/gmail.send",
             "openid"
         ]
     )
@@ -141,6 +142,12 @@ def create_app():
     @app.errorhandler(403)
     def forbidden_error(error):
         return render_template('errors/403.html'), 403
+    
+    # Context processor to provide admin email for contact form
+    @app.context_processor
+    def inject_admin_info():
+        admin_email = os.environ.get("ADMIN_EMAIL", "teacher@example.com")
+        return {'admin_email': admin_email}
     
     return app
 

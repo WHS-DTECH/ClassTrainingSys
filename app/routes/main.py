@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, session, redirect, url_for
-from flask import send_file, flash
+from flask import send_file, flash, jsonify
 from flask_login import login_required, current_user
 from app.models import Course, Enrollment, Assignment, Submission, Quiz, QuizAttempt, User, CommentCheck, Lesson
 import io
@@ -9,8 +9,90 @@ from sqlalchemy import func
 from datetime import datetime
 import hashlib
 from app import db
+import base64
+import json
+from email.mime.text import MIMEText
 
 bp = Blueprint('main', __name__)
+
+# Contact teacher route
+@bp.route('/contact_teacher', methods=['POST'])
+@login_required
+def contact_teacher():
+    """Send an email to the teacher through Gmail API"""
+    try:
+        from flask_dance.contrib.google import google
+        
+        # Get form data
+        subject = request.form.get('subject', 'Question from Student')
+        message = request.form.get('message', '')
+        recipient_email = request.form.get('recipient_email')
+        
+        if not message or not recipient_email:
+            return jsonify({'success': False, 'error': 'Missing required fields'}), 400
+        
+        # Check if user is authenticated with Google
+        if not google.authorized:
+            return jsonify({
+                'success': False, 
+                'error': 'Please authorize with Google first to send emails'
+            }), 401
+        
+        # Build the email message
+        sender = current_user.email
+        student_name = f"{current_user.first_name} {current_user.last_name}".strip() or current_user.username
+        
+        body = f"""Hello,
+
+I have a question from your student {student_name} ({current_user.email}):
+
+---
+{message}
+---
+
+Please reply to this email or contact the student directly.
+
+Best regards,
+Class Training System
+"""
+        
+        # Create email message
+        email_message = MIMEText(body)
+        email_message['to'] = recipient_email
+        email_message['from'] = sender
+        email_message['subject'] = f"[Class Training System] {subject}"
+        
+        # Send through Gmail API
+        try:
+            raw_message = base64.urlsafe_b64encode(email_message.as_bytes()).decode()
+            send_message = {'raw': raw_message}
+            
+            resp = google.post(
+                'https://www.googleapis.com/gmail/v1/users/me/messages/send',
+                json=send_message
+            )
+            
+            if resp.ok:
+                flash(f'Email sent to {recipient_email}! Thank you for contacting me.', 'success')
+                return jsonify({'success': True, 'message': 'Email sent successfully!'}), 200
+            else:
+                return jsonify({
+                    'success': False,
+                    'error': 'Failed to send email through Gmail'
+                }), 500
+        except Exception as email_error:
+            print(f"Gmail API Error: {str(email_error)}")
+            return jsonify({
+                'success': False,
+                'error': f'Error sending email: {str(email_error)}'
+            }), 500
+            
+    except Exception as e:
+        print(f"Contact teacher error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': f'An error occurred: {str(e)}'
+        }), 500
 
 # PDF download for extracted comments and feedback
 @bp.route('/download_comments_pdf', methods=['POST'])
