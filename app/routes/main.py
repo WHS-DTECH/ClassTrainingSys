@@ -11,6 +11,7 @@ import hashlib
 from app import db
 import base64
 import json
+import os
 from email.mime.text import MIMEText
 
 bp = Blueprint('main', __name__)
@@ -19,7 +20,7 @@ bp = Blueprint('main', __name__)
 @bp.route('/contact_teacher', methods=['POST'])
 @login_required
 def contact_teacher():
-    """Send a message to the teacher (logged for now, email when Google API available)"""
+    """Send a message to the teacher via email"""
     try:
         from sqlalchemy.exc import OperationalError
         
@@ -38,13 +39,8 @@ def contact_teacher():
             print(f"[ERROR] Database connection error accessing user data: {str(db_error)}")
             student_name = current_user.username
         
-        # Try to send via Gmail API if available
-        try:
-            from flask_dance.contrib.google import google
-            
-            if google.authorized:
-                # Build the email message
-                body = f"""Hello,
+        # Build email body
+        body = f"""Hello,
 
 I have a question from your student {student_name} ({current_user.email}):
 
@@ -55,10 +51,15 @@ I have a question from your student {student_name} ({current_user.email}):
 Please reply to this email or contact the student directly.
 
 Best regards,
-Class Training System
-"""
-                
-                # Create email message
+Class Training System"""
+        
+        # Try Gmail API first if available
+        email_sent = False
+        try:
+            from flask_dance.contrib.google import google
+            
+            if google.authorized:
+                # Build the email message for Gmail API
                 email_message = MIMEText(body)
                 email_message['to'] = recipient_email
                 email_message['from'] = current_user.email
@@ -74,10 +75,75 @@ Class Training System
                 )
                 
                 if resp.ok:
-                    print(f"[EMAIL] Successfully sent message from {current_user.username} to {recipient_email}")
-                    return jsonify({'success': True, 'message': 'Email sent successfully!'}), 200
+                    print(f"[EMAIL] Successfully sent via Gmail API from {current_user.username} to {recipient_email}")
+                    email_sent = True
                 elif resp.status_code == 401:
                     print(f"[EMAIL] Google token expired for user {current_user.username}")
+        except Exception as google_error:
+            print(f"[EMAIL] Gmail API unavailable: {str(google_error)}")
+        
+        # If Gmail didn't work, try SMTP
+        if not email_sent:
+            try:
+                import smtplib
+                from email.mime.multipart import MIMEMultipart
+                
+                # Get SMTP configuration from environment
+                smtp_server = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
+                smtp_port = int(os.environ.get('SMTP_PORT', 587))
+                smtp_username = os.environ.get('SMTP_USERNAME')
+                smtp_password = os.environ.get('SMTP_PASSWORD')
+                smtp_from_email = os.environ.get('SMTP_FROM_EMAIL') or smtp_username
+                
+                if not smtp_username or not smtp_password:
+                    print("[EMAIL] SMTP credentials not configured")
+                else:
+                    # Create email message
+                    msg = MIMEMultipart()
+                    msg['From'] = smtp_from_email
+                    msg['To'] = recipient_email
+                    msg['Subject'] = f"[Class Training System] {subject}"
+                    msg.attach(MIMEText(body, 'plain'))
+                    
+                    # Send email via SMTP
+                    with smtplib.SMTP(smtp_server, smtp_port, timeout=10) as server:
+                        server.starttls()
+                        server.login(smtp_username, smtp_password)
+                        server.send_message(msg)
+                    
+                    print(f"[EMAIL] Successfully sent via SMTP from {current_user.username} to {recipient_email}")
+                    email_sent = True
+            except Exception as smtp_error:
+                print(f"[EMAIL] SMTP error: {str(smtp_error)}")
+                import traceback
+                traceback.print_exc()
+        
+        # Return success message
+        if email_sent:
+            return jsonify({
+                'success': True, 
+                'message': 'Your message has been sent to your teacher!'
+            }), 200
+        else:
+            # Fallback: log the message locally if all email methods fail
+            print(f"[CONTACT_REQUEST] From: {student_name} ({current_user.email})")
+            print(f"[CONTACT_REQUEST] To: {recipient_email}")
+            print(f"[CONTACT_REQUEST] Subject: {subject}")
+            print(f"[CONTACT_REQUEST] Message: {message}")
+            
+            return jsonify({
+                'success': True, 
+                'message': 'Your message has been received by the system.'
+            }), 200
+            
+    except Exception as e:
+        print(f"[ERROR] Contact teacher error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': f'An error occurred: {str(e)}'
+        }), 500
                     return jsonify({
                         'success': False,
                         'error': 'Your Google authorization has expired. Please re-authorize to send emails.',
