@@ -1,2 +1,2 @@
 release: flask db upgrade
-web: gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT app:app
+web: gunicorn -w 1 -k geventwebsocket.gunicorn.workers.GeventWebSocketWorker --timeout 120 --bind 0.0.0.0:$PORT app:app
