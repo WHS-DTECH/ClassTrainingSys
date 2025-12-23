@@ -94,14 +94,25 @@ class Course(db.Model):
         return f'<Course {self.title}>'
 
 class Lesson(db.Model):
-    __tablename__ = 'lessons'
+    """3rd level (formerly 2nd): Content sections within lessons
+    
+    NOTE: This model is temporarily named 'Lesson' for backward compatibility.
+    After Phase 2, this will be renamed to 'Section' in the code.
+    Database table name is now 'sections' after Phase 1.2 migration.
+    
+    Structure after Phase 1.2:
+    - courses.id -> lessons2.course_id
+    - lessons2.id -> sections.lesson_id (will be added in Phase 1.3)
+    - sections represent individual content sections/pages with exercises
+    """
+    __tablename__ = 'sections'  # Changed from 'lessons' in Phase 1.2
     
     id = db.Column(db.Integer, primary_key=True)
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text)
     order = db.Column(db.Integer, default=0)
-    template_path = db.Column(db.String(255))  # Path to the lesson's HTML template
+    template_path = db.Column(db.String(255))  # Path to the section's HTML template
     video_url = db.Column(db.String(500))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
