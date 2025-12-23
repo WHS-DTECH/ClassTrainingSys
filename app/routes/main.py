@@ -22,6 +22,7 @@ def contact_teacher():
     """Send an email to the teacher through Gmail API"""
     try:
         from flask_dance.contrib.google import google
+        from requests.exceptions import RequestException
         
         # Get form data
         subject = request.form.get('subject', 'Question from Student')
@@ -35,7 +36,8 @@ def contact_teacher():
         if not google.authorized:
             return jsonify({
                 'success': False, 
-                'error': 'Please authorize with Google first to send emails'
+                'error': 'Please authorize with Google first to send emails. Redirecting to login...',
+                'needs_auth': True
             }), 401
         
         # Build the email message
@@ -67,19 +69,40 @@ Class Training System
             raw_message = base64.urlsafe_b64encode(email_message.as_bytes()).decode()
             send_message = {'raw': raw_message}
             
+            # Attempt to send with current token
             resp = google.post(
                 'https://www.googleapis.com/gmail/v1/users/me/messages/send',
                 json=send_message
             )
             
             if resp.ok:
-                flash(f'Email sent to {recipient_email}! Thank you for contacting me.', 'success')
                 return jsonify({'success': True, 'message': 'Email sent successfully!'}), 200
-            else:
+            elif resp.status_code == 401:
+                # Token expired - need to re-authenticate
                 return jsonify({
                     'success': False,
-                    'error': 'Failed to send email through Gmail'
+                    'error': 'Your Google authorization has expired. Please re-authorize to send emails.',
+                    'needs_auth': True
+                }), 401
+            else:
+                error_details = resp.json() if resp.headers.get('content-type') == 'application/json' else resp.text
+                print(f"Gmail API Error Response: {error_details}")
+                return jsonify({
+                    'success': False,
+                    'error': f'Failed to send email: {error_details.get("error", {}).get("message", "Unknown error")}'
                 }), 500
+        except RequestException as email_error:
+            print(f"Gmail API Request Error: {str(email_error)}")
+            if 'token_expired' in str(email_error).lower():
+                return jsonify({
+                    'success': False,
+                    'error': 'Your Google authorization has expired. Please re-authorize to send emails.',
+                    'needs_auth': True
+                }), 401
+            return jsonify({
+                'success': False,
+                'error': f'Error sending email: {str(email_error)}'
+            }), 500
         except Exception as email_error:
             print(f"Gmail API Error: {str(email_error)}")
             return jsonify({

@@ -1126,19 +1126,24 @@
                             contactModal.classList.remove('active');
                             contactMessage.className = 'contact-form-message';
                         }, 3000);
-                    } else if (response.status === 401) {
+                    } else if (response.status === 401 || data.needs_auth) {
+                        // Token expired or needs re-authorization
                         contactMessage.className = 'contact-form-message error';
-                        contactMessage.textContent = 'Please authorize with Google to send emails. Redirecting to login...';
+                        contactMessage.textContent = '⚠ Your Google authorization expired. Redirecting to re-authorize...';
                         setTimeout(() => {
-                            window.location.href = '{{ url_for("auth.login") }}';
+                            // Redirect to Google OAuth login
+                            window.location.href = '{{ url_for("google.login") }}';
                         }, 2000);
                     } else {
                         contactMessage.className = 'contact-form-message error';
-                        contactMessage.textContent = `✗ Error: ${data.error || 'Failed to send email'}`;
+                        const errorMsg = data.error || 'Failed to send email';
+                        // Extract just the error message, removing technical details
+                        const cleanError = errorMsg.split('(')[0].trim() || 'An error occurred';
+                        contactMessage.textContent = `✗ Error: ${cleanError}`;
                     }
                 } catch (error) {
                     contactMessage.className = 'contact-form-message error';
-                    contactMessage.textContent = `✗ Error: ${error.message}`;
+                    contactMessage.textContent = `✗ Network error: ${error.message}`;
                 } finally {
                     contactSubmitBtn.disabled = false;
                 }
