@@ -144,34 +144,6 @@ Class Training System"""
             'success': False,
             'error': f'An error occurred: {str(e)}'
         }), 500
-                    return jsonify({
-                        'success': False,
-                        'error': 'Your Google authorization has expired. Please re-authorize to send emails.',
-                        'needs_auth': True
-                    }), 401
-        except Exception as google_error:
-            print(f"[EMAIL] Google API unavailable: {str(google_error)}")
-        
-        # Fallback: Log the message locally (admin can retrieve from logs)
-        print(f"[CONTACT_REQUEST] From: {student_name} ({current_user.email})")
-        print(f"[CONTACT_REQUEST] To: {recipient_email}")
-        print(f"[CONTACT_REQUEST] Subject: {subject}")
-        print(f"[CONTACT_REQUEST] Message: {message}")
-        
-        # Return success so student knows message was received
-        return jsonify({
-            'success': True, 
-            'message': 'Your message has been sent to your teacher. They will review it shortly.'
-        }), 200
-            
-    except Exception as e:
-        print(f"[ERROR] Contact teacher error: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({
-            'success': False,
-            'error': f'An error occurred: {str(e)}'
-        }), 500
 
 
 # PDF download for extracted comments and feedback
