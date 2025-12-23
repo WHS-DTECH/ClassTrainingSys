@@ -344,9 +344,3 @@ class Notification(db.Model):
     
     def __repr__(self):
         return f'<Notification user_id={self.user_id} type={self.notification_type} title={self.title}>'
-
-
-# Compatibility aliases for migration period
-# These allow old code to work while we transition to the new 3-level hierarchy
-LessonProgress = SectionProgress
-LessonFeedback = SectionFeedback
