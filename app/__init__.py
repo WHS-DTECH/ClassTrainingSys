@@ -38,6 +38,7 @@ def create_app():
     # Register blueprints
     from app.routes import auth, main, courses, assignments, quizzes, notifications
     from app.routes.admin_routes import bp as admin_bp
+    from app.routes.admin.db_export import admin_db_export
     
     app.register_blueprint(auth.bp)
     app.register_blueprint(main.bp)
@@ -46,6 +47,7 @@ def create_app():
     app.register_blueprint(quizzes.bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(notifications.bp)
+    app.register_blueprint(admin_db_export, url_prefix='/admin')
     
     # Google OAuth blueprint
     google_bp = make_google_blueprint(
