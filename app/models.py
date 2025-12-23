@@ -112,6 +112,30 @@ class Lesson(db.Model):
     def __repr__(self):
         return f'<Lesson {self.title}>'
 
+class Lesson2(db.Model):
+    """2nd level: Lessons within a Course (e.g., 'Commenting', 'Debugging')
+    
+    This is the new 2nd level in the 3-level hierarchy:
+    Course (level 1) > Lesson2 (level 2) > Lesson (level 3, will be renamed to Section)
+    
+    This model will eventually replace the structure where lessons are direct children of courses.
+    """
+    __tablename__ = 'lessons2'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    order = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships - will eventually link to Lesson (renamed to Section)
+    # course = db.relationship('Course', backref='lessons2')
+    
+    def __repr__(self):
+        return f'<Lesson2 {self.title}>'
+
 # New model for robust feedback persistence
 class CommentFeedback(db.Model):
     __tablename__ = 'comment_feedback'
