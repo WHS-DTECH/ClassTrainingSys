@@ -37,7 +37,7 @@ def create_app():
     
     # Register blueprints
     from app.routes import auth, main, courses, assignments, quizzes, notifications
-    from app.routes.admin import bp as admin_bp
+    from app.routes.admin_routes import bp as admin_bp
     
     app.register_blueprint(auth.bp)
     app.register_blueprint(main.bp)
