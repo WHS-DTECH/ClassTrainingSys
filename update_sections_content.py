@@ -1,45 +1,57 @@
-# Script to update section content from HTML files
+
+# Script to update all key fields for Section records 5–17
 import os
 from app import db, create_app
 from app.models import Section
 
-# Map section_id to HTML file path
-SECTION_HTML_MAP = {
-    5: 'app/templates/lessons/lesson1/l1section_intro.html',
-    6: 'app/templates/lessons/lesson1/l1section1.html',
-    7: 'app/templates/lessons/lesson1/l1section2.html',
-    8: 'app/templates/lessons/lesson1/l1section3.html',
-    9: 'app/templates/lessons/lesson2/l2section_intro.html',
-    10: 'app/templates/lessons/lesson2/l2section1.html',
-    11: 'app/templates/lessons/lesson2/l2section2.html',
-    12: 'app/templates/lessons/lesson2/l2section3.html',
-    13: 'app/templates/lessons/lesson3/l3section_intro.html',
-    14: 'app/templates/lessons/lesson3/l3section1.html',
-    15: 'app/templates/lessons/lesson3/l3section2.html',
-    16: 'app/templates/lessons/lesson4/l4section1.html',
-    17: 'app/templates/lessons/lesson4/l4section2.html',
-}
+# Define the correct data for each section (id, lesson_id, title, html_path)
+SECTION_DATA = [
+    # Lesson 1: Commenting
+    dict(id=5, lesson_id=3, title="1. Introduction to Code Comments", html_path="app/templates/lessons/lesson1/l1section_intro.html"),
+    dict(id=6, lesson_id=3, title="2. Section 1: Python Comments - Best Practices", html_path="app/templates/lessons/lesson1/l1section1.html"),
+    dict(id=7, lesson_id=3, title="3. Section 2: JavaScript Comments - Best Practices", html_path="app/templates/lessons/lesson1/l1section2.html"),
+    dict(id=8, lesson_id=3, title="4. Section 3: HTML and CSS Comments - Best Practices", html_path="app/templates/lessons/lesson1/l1section3.html"),
+    # Lesson 2: Debugging
+    dict(id=9, lesson_id=4, title="1. Introduction to Code Debugging", html_path="app/templates/lessons/lesson2/l2section_intro.html"),
+    dict(id=10, lesson_id=4, title="2. Section 1: Python Debugging - Best Practices", html_path="app/templates/lessons/lesson2/l2section1.html"),
+    dict(id=11, lesson_id=4, title="3. Section 2: JavaScript Debugging - Best Practices", html_path="app/templates/lessons/lesson2/l2section2.html"),
+    dict(id=12, lesson_id=4, title="4. Section 3: HTML and CSS Debugging - Best Practices", html_path="app/templates/lessons/lesson2/l2section3.html"),
+    # Lesson 3: Assessment Checking
+    dict(id=13, lesson_id=7, title="0. Checking Overview", html_path="app/templates/lessons/lesson3/l3section_intro.html"),
+    dict(id=14, lesson_id=7, title="1. Lesson 1: Comment Checker", html_path="app/templates/lessons/lesson3/l3section1.html"),
+    dict(id=15, lesson_id=7, title="2. Lesson 2: Debug Checker", html_path="app/templates/lessons/lesson3/l3section2.html"),
+    # Lesson 4: AI
+    dict(id=16, lesson_id=8, title="1. Coding with AI", html_path="app/templates/lessons/lesson4/l4section1.html"),
+    dict(id=17, lesson_id=8, title="2. Assessment Specific and AI", html_path="app/templates/lessons/lesson4/l4section2.html"),
+]
 
 def read_html(path):
     with open(path, encoding='utf-8') as f:
         return f.read()
 
-def update_sections_content():
+def update_sections_all_fields():
     app = create_app(skip_socketio=True)
     with app.app_context():
         print("SQLAlchemy DB URI:", app.config['SQLALCHEMY_DATABASE_URI'])
-        for section_id, html_path in SECTION_HTML_MAP.items():
-            if not os.path.exists(html_path):
-                print(f"File not found: {html_path}")
+        for sec in SECTION_DATA:
+            section = Section.query.get(sec['id'])
+            if not section:
+                print(f"Section ID {sec['id']} not found, skipping.")
                 continue
-            html_content = read_html(html_path)
-            section = Section.query.get(section_id)
-            if section:
-                section.content = html_content
-                print(f"Updated Section_ID={section_id} with content from {html_path}")
+            # Update lesson_id and title
+            section.lesson_id = sec['lesson_id']
+            section.title = sec['title']
+            # Update content
+            if not os.path.exists(sec['html_path']):
+                print(f"File not found: {sec['html_path']}")
+                continue
+            section.content = read_html(sec['html_path'])
+            # Update template_path (relative to templates/)
+            rel_path = sec['html_path'].replace('app/templates/', '')
+            section.template_path = rel_path
+            print(f"Updated Section_ID={sec['id']} (lesson_id={sec['lesson_id']}) with title, content, template_path={rel_path}")
         db.session.commit()
-        print("Section content update complete.")
+        print("Section records 5–17 updated: lesson_id, title, content, template_path.")
 
 if __name__ == "__main__":
-    update_sections_content()
-## Removed all SQLite code and duplicate SECTION_HTML_MAP. Only SQLAlchemy/Flask app context is used above.
+    update_sections_all_fields()
