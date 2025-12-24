@@ -12,10 +12,11 @@
     </div>
     <h2>Course Content</h2>
     <ol style="font-size:1.13em; color:#1a237e; margin-bottom:2em;">
-        <li><a href="{{ url_for('courses.view_lesson', lesson_id=34) }}">Introduction to Code Comments</a></li>
-        <li><a href="{{ url_for('courses.view_lesson', lesson_id=35) }}">Section 1: Python Comments - Best Practices</a></li>
-        <li><a href="{{ url_for('courses.view_lesson', lesson_id=36) }}">Section 2: JavaScript Comments - Best Practices</a></li>
-        <li><a href="{{ url_for('courses.view_lesson', lesson_id=37) }}">Section 3: HTML and CSS Comments - Best Practices</a></li>
+        {% for section in lesson.sections %}
+            <li>
+                <a href="{{ url_for('courses.view_section', section_id=section.id) }}">{{ section.title }}</a>
+            </li>
+        {% endfor %}
     </ol>
 </div>
 {% endblock %}

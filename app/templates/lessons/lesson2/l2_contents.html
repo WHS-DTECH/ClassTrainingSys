@@ -11,12 +11,12 @@
         <b>Instructor:</b> Vanessa Pringle (HOLA Technology)
     </div>
     <h2>Course Content</h2>
-        <ol style="font-size:1.13em; color:#1a237e; margin-bottom:2em;">
-                {% for lesson in lessons %}
-                    {% if lesson.order != 99 %}
-                        <li><a href="{{ url_for('courses.view_lesson', lesson_id=lesson.id) }}">{{ lesson.title }}</a></li>
-                    {% endif %}
-                {% endfor %}
-        </ol>
+    <ol style="font-size:1.13em; color:#1a237e; margin-bottom:2em;">
+        {% for section in lesson.sections %}
+            <li>
+                <a href="{{ url_for('courses.view_section', section_id=section.id) }}">{{ section.title }}</a>
+            </li>
+        {% endfor %}
+    </ol>
 </div>
 {% endblock %}
