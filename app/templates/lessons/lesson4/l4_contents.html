@@ -6,7 +6,7 @@
     <div style="font-size:1.08em; margin-bottom:2em; color:#444;">
         <b>Instructor:</b> Vanessa Pringle (HOLA Technology)
     </div>
-    <h2>Course Content</h2>
+  <h2>Course Content</h2>
     <ol style="font-size:1.13em; color:#1a237e; margin-bottom:2em;">
         {% for section in lesson.sections %}
             <li>
@@ -14,10 +14,5 @@
             </li>
         {% endfor %}
     </ol>
-    <div>
-        <a href="{{ url_for('assignments.view_assignments', lesson_id=lesson.id) }}">Assignments</a>
-        &nbsp;|&nbsp;
-        <a href="{{ url_for('quizzes.view_quizzes', lesson_id=lesson.id) }}">Quizzes</a>
-    </div>
 </div>
 {% endblock %}
