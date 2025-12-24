@@ -28,8 +28,10 @@ def upgrade():
             sa.Column('id', sa.INTEGER(), autoincrement=True, nullable=False),
             sa.Column('username', sa.VARCHAR(length=64), nullable=False),
             sa.Column('email', sa.VARCHAR(length=120), nullable=False),
-            sa.Column('password_hash', sa.VARCHAR(length=128), nullable=True),
-            sa.Column('role', sa.VARCHAR(length=20), nullable=True),
+            sa.Column('password_hash', sa.VARCHAR(length=200), nullable=False),
+            sa.Column('role', sa.VARCHAR(length=20), nullable=False, server_default='student'),
+            sa.Column('first_name', sa.VARCHAR(length=64), nullable=True),
+            sa.Column('last_name', sa.VARCHAR(length=64), nullable=True),
             sa.PrimaryKeyConstraint('id', name=op.f('users_pkey'))
         )
 
