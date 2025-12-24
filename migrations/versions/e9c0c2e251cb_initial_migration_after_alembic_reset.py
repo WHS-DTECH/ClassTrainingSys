@@ -49,9 +49,7 @@ def upgrade():
         batch_op.drop_column('lesson_id')
 
     with op.batch_alter_table('sections', schema=None) as batch_op:
-        # batch_op.add_column(sa.Column('course_id', sa.Integer(), nullable=False))
-        # batch_op.drop_constraint(batch_op.f('sections_lesson_id_fkey'), type_='foreignkey')
-        batch_op.create_foreign_key(None, 'courses', ['course_id'], ['id'])
+        # Only drop lesson_id, do not add course_id or FK to courses
         batch_op.drop_column('lesson_id')
 
     # ### end Alembic commands ###
