@@ -32,6 +32,7 @@ def upgrade():
             sa.Column('role', sa.VARCHAR(length=20), nullable=False, server_default='student'),
             sa.Column('first_name', sa.VARCHAR(length=64), nullable=True),
             sa.Column('last_name', sa.VARCHAR(length=64), nullable=True),
+            sa.Column('created_at', sa.TIMESTAMP(), nullable=True),
             sa.PrimaryKeyConstraint('id', name=op.f('users_pkey'))
         )
 
