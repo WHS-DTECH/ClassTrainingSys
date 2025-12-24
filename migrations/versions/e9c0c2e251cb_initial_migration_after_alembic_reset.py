@@ -24,9 +24,8 @@ def upgrade():
     with op.batch_alter_table('comment_feedback', schema=None) as batch_op:
         # 1. Add as nullable
         batch_op.add_column(sa.Column('section_id', sa.Integer(), nullable=True))
-    # 2. Backfill: set to a valid section id, or NULL if you want to delete these rows later
-    # Example: set all to 1 (replace with a real section id if needed)
-    op.execute('UPDATE comment_feedback SET section_id = 1 WHERE section_id IS NULL')
+    # 2. Delete all old comment_feedback rows before enforcing NOT NULL and foreign key
+    op.execute('DELETE FROM comment_feedback')
     with op.batch_alter_table('comment_feedback', schema=None) as batch_op:
         # 3. Set NOT NULL
         batch_op.alter_column('section_id', nullable=False)
