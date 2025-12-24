@@ -1,0 +1,10 @@
+{
+  "title": "Introduction of Code Comments",
+  "description": "Code comments are notes you write in your code to explain what your code does, why you made certain choices, or to leave reminders for yourself or others.",
+  "sections": [
+    {
+      "title": "Section Contents",
+      "content": "{% extends 'base.html' %}\n{% block title %}Module 1: Commenting{% endblock %}\n{% block content %}\n<div style='background: #ffeb3b; color: #b71c1c; font-weight: bold; padding: 1em; border: 2px solid #b71c1c; margin-bottom: 1.5em;'>DEBUG MARKER: m1_contents.html is being rendered</div>\n<div class='lesson-view'>\n    <h1>Module 1: Commenting</h1>\n    <div style='font-size:1.15em; margin-bottom:1.2em; color:#222; max-width:700px;'>\n        Learn best practices for writing effective comments in your code. This module covers general commenting principles and specific conventions for Python and JavaScript.\n    </div>\n    <div style='font-size:1.08em; margin-bottom:2em; color:#444;'>\n        <b>Instructor:</b> Vanessa Pringle (HOLA Technology)\n    </div>\n    <h2>Course Content</h2>\n    <ol style='font-size:1.13em; color:#1a237e; margin-bottom:2em;'>\n        <li><a href='{{ url_for('courses.view_lesson', lesson_id=34) }}'>Introduction to Code Comments</a></li>\n        <li><a href='{{ url_for('courses.view_lesson', lesson_id=35) }}'>Section 1: Python Comments - Best Practices</a></li>\n        <li><a href='{{ url_for('courses.view_lesson', lesson_id=36) }}'>Section 2: JavaScript Comments - Best Practices</a></li>\n        <li><a href='{{ url_for('courses.view_lesson', lesson_id=37) }}'>Section 3: HTML and CSS Comments - Best Practices</a></li>\n    </ol>\n</div>\n{% endblock %}"
+    }
+  ]
+}

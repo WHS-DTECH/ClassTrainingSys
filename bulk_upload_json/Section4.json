@@ -1,0 +1,10 @@
+{
+  "title": "Coding with AI",
+  "description": "How to use AI tools for coding and debugging, and what evidence is required for assessment.",
+  "sections": [
+    {
+      "title": "Section Contents",
+      "content": "{% extends 'base.html' %}\n{% block title %}Lesson 4: Realtime Commenting and Debugging With AI{% endblock %}\n{% block content %}\n<div class='lesson-view'>\n    <h1>Lesson 4: Realtime Commenting and Debugging With AI</h1>\n    <div style='font-size:1.15em; margin-bottom:1.2em; color:#222; max-width:700px;'>\n        This lesson discusses how a real-world project is developed with AI.\n        <br>Instructor: Vanessa Pringle\n    </div>\n    <h2>Course Content</h2>\n    <ol style='font-size:1.13em; color:#1a237e; margin-bottom:2em;'>\n        <li><a href='{{ url_for('courses.view_lesson', lesson_id=lesson.id, section=1) }}'>Coding with AI</a></li>\n        <li><a href='{{ url_for('courses.view_lesson', lesson_id=lesson.id, section=2) }}'>Assessment Specific and AI</a></li>\n    </ol>\n    <div>\n        <a href='{{ url_for('assignments.view_assignments', lesson_id=lesson.id) }}'>Assignments</a>\n        &nbsp;|&nbsp;\n        <a href='{{ url_for('quizzes.view_quizzes', lesson_id=lesson.id) }}'>Quizzes</a>\n    </div>\n</div>\n{% endblock %}"
+    }
+  ]
+}

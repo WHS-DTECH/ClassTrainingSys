@@ -1,0 +1,10 @@
+{
+  "title": "Introduction to Debugging",
+  "description": "Code debugging is the process of identifying, isolating, and fixing errors or bugs in your code.",
+  "sections": [
+    {
+      "title": "Section Contents",
+      "content": "{% extends 'base.html' %}\n{% block title %}Module 2: Debugging{% endblock %}\n{% block content %}\n<div style='background: #ffeb3b; color: #b71c1c; font-weight: bold; padding: 1em; border: 2px solid #b71c1c; margin-bottom: 1.5em;'>DEBUG MARKER: m2_contents.html is being rendered</div>\n<div class='lesson-view'>\n    <h1>Module 2: Debugging</h1>\n    <div style='font-size:1.15em; margin-bottom:1.2em; color:#222; max-width:700px;'>\n        Learn what debugging is, why it is a critical skill for programmers, and how to approach finding and fixing errors in your code. This module covers the debugging mindset, common techniques, and the importance of persistence and problem-solving.\n    </div>\n    <div style='font-size:1.08em; margin-bottom:2em; color:#444;'>\n        <b>Instructor:</b> Vanessa Pringle (HOLA Technology)\n    </div>\n    <h2>Course Content</h2>\n        <ol style='font-size:1.13em; color:#1a237e; margin-bottom:2em;'>\n                {% for lesson in lessons %}\n                    {% if lesson.order != 99 %}\n                        <li><a href='{{ url_for('courses.view_lesson', lesson_id=lesson.id) }}'>{{ lesson.title }}</a></li>\n                    {% endif %}\n                {% endfor %}\n        </ol>\n</div>\n{% endblock %}"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "title": "Assessment Checking Overview",
+  "description": "Types of Documentation & Comments: Inline, Header, README, Test Logs.",
+  "sections": [
+    {
+      "title": "Section Contents",
+      "content": "{% extends 'base.html' %}\n{% block title %}Module 3: Checking for Assessment Purposes{% endblock %}\n{% block content %}\n<div style='background: #ffeb3b; color: #b71c1c; font-weight: bold; padding: 1em; border: 2px solid #b71c1c; margin-bottom: 1.5em;'>DEBUG MARKER: m3_contents.html is being rendered</div>\n<div class='lesson-view'>\n  <h1>Module 3: Checking for Assessment Purposes</h1>\n  <div style='font-size:1.15em; margin-bottom:1.2em; color:#222; max-width:700px;'>\n    This module covers techniques and strategies for checking student work for assessment purposes, including automated and manual review processes.\n  </div>\n  <h2>Course Content</h2>\n  <ol style='font-size:1.13em; color:#1a237e; margin-bottom:2em;'>\n    {% for lesson in lessons %}\n      <li><a href='{{ url_for('courses.view_lesson', lesson_id=lesson.id) }}'>{{ lesson.title }}</a></li>\n    {% endfor %}\n  </ol>\n  <p>Return to <a href='{{ url_for('main.index') }}'>Home</a></p>\n</div>\n{% endblock %}"
+    }
+  ]
+}
