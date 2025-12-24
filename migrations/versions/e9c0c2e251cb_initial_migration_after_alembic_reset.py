@@ -22,12 +22,18 @@ def upgrade():
     # op.drop_table('section_feedback')
     # op.drop_table('section_progress')
     with op.batch_alter_table('comment_feedback', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('section_id', sa.Integer(), nullable=False))
+        # 1. Add as nullable
+        batch_op.add_column(sa.Column('section_id', sa.Integer(), nullable=True))
+    # 2. Backfill: set to a valid section id, or NULL if you want to delete these rows later
+    # Example: set all to 1 (replace with a real section id if needed)
+    op.execute('UPDATE comment_feedback SET section_id = 1 WHERE section_id IS NULL')
+    with op.batch_alter_table('comment_feedback', schema=None) as batch_op:
+        # 3. Set NOT NULL
+        batch_op.alter_column('section_id', nullable=False)
         batch_op.alter_column('code_hash',
                existing_type=sa.VARCHAR(length=64),
                nullable=False,
                existing_server_default=sa.text("'unknown'::character varying"))
-        # batch_op.drop_constraint(batch_op.f('comment_feedback_lesson_id_fkey'), type_='foreignkey')
         batch_op.create_foreign_key(None, 'sections', ['section_id'], ['id'])
         batch_op.drop_column('lesson_id')
 
