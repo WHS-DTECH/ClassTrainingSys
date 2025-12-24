@@ -36,14 +36,17 @@ def create_app():
     login_manager.login_message = 'Please log in to access this page.'
     
     # Register blueprints
-    from app.routes import auth, main, courses, assignments, quizzes, admin
-    
+    from app.routes import auth, main, courses, assignments, quizzes, notifications
+    from app.routes.admin_routes import bp as admin_bp
+    from app.routes.admin.db_export import admin_db_export
     app.register_blueprint(auth.bp)
     app.register_blueprint(main.bp)
     app.register_blueprint(courses.bp)
     app.register_blueprint(assignments.bp)
     app.register_blueprint(quizzes.bp)
-    app.register_blueprint(admin.bp)
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(notifications.bp)
+    app.register_blueprint(admin_db_export, url_prefix='/admin')
     
     # Google OAuth blueprint
     google_bp = make_google_blueprint(

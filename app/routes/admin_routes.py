@@ -7,7 +7,10 @@ from app import db
 from app.models import User, Course, Enrollment, Lesson, Assignment, Submission
 from functools import wraps
 
+
 bp = Blueprint('admin', __name__, url_prefix='/admin')
+from app.routes.admin.db_export import admin_db_export
+bp.register_blueprint(admin_db_export)
 
 
 def teacher_required(f):
