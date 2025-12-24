@@ -14,6 +14,8 @@ class Lesson(db.Model):
     order = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    template_path = db.Column(db.String(255))
+    content = db.Column(db.Text)
     sections = db.relationship('Section', backref='lesson', lazy=True, cascade='all, delete-orphan', order_by='Section.order')
     def __repr__(self):
         return f'<Lesson {self.title}>'

@@ -29,12 +29,13 @@ def update_lessons_template_and_content():
             if not lesson:
                 print(f"Lesson ID {lesson_info['id']} not found, skipping.")
                 continue
+            print(f"Before: Lesson_ID={lesson_info['id']} template_path={lesson.template_path} content={'set' if lesson.content else 'NULL'}")
             # Update template_path
             lesson.template_path = lesson_info['template_path']
             # Update content
             if os.path.exists(lesson_info['html_path']):
                 lesson.content = read_html(lesson_info['html_path'])
-                print(f"Updated Lesson_ID={lesson_info['id']} with template_path={lesson_info['template_path']} and content from {lesson_info['html_path']}")
+                print(f"After:  Lesson_ID={lesson_info['id']} template_path={lesson.template_path} content={'set' if lesson.content else 'NULL'} (updated from {lesson_info['html_path']})")
             else:
                 print(f"File not found: {lesson_info['html_path']}")
         db.session.commit()
