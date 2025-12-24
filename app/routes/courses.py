@@ -271,10 +271,7 @@ def view_lesson(lesson_id):
     extracted_debug_feedback_pairs = None
     if extracted_debug_blocks and feedback_debug_blocks:
         extracted_debug_feedback_pairs = list(zip(extracted_debug_blocks, feedback_debug_blocks))
-    if lesson.template_path:
-        return render_template(lesson.template_path, lesson=lesson, course=course, extracted_comments=extracted_comments, extracted_debug_blocks=extracted_debug_blocks, feedback_debug_blocks=feedback_debug_blocks, extracted_debug_feedback_pairs=extracted_debug_feedback_pairs, debug_summary=debug_summary, lesson_order=lesson_order, total_lessons=total_lessons, previous_lesson=previous_lesson, next_lesson=next_lesson)
-    else:
-        return render_template('courses/lesson.html', lesson=lesson, course=course, extracted_comments=extracted_comments, extracted_debug_blocks=extracted_debug_blocks, feedback_debug_blocks=feedback_debug_blocks, extracted_debug_feedback_pairs=extracted_debug_feedback_pairs, debug_summary=debug_summary, lesson_order=lesson_order, total_lessons=total_lessons, previous_lesson=previous_lesson, next_lesson=next_lesson)
+    return render_template('courses/lesson.html', lesson=lesson, course=course, extracted_comments=extracted_comments, extracted_debug_blocks=extracted_debug_blocks, feedback_debug_blocks=feedback_debug_blocks, extracted_debug_feedback_pairs=extracted_debug_feedback_pairs, debug_summary=debug_summary, lesson_order=lesson_order, total_lessons=total_lessons, previous_lesson=previous_lesson, next_lesson=next_lesson)
 
 @bp.route('/lessons/<int:lesson_id>/complete', methods=['POST'])
 @login_required
