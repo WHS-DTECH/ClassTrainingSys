@@ -11,7 +11,7 @@ from app.models import Course, Lesson, Enrollment, LessonProgress
 from app.forms import CourseForm, LessonForm
 from datetime import datetime
 
-@bp.route('/sections/<int:section_id>')
+@bp.route('/lessons/sections/<int:section_id>')
 @login_required
 def view_section(section_id):
     from app.models import Section

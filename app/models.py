@@ -122,7 +122,7 @@ class Section(db.Model):
     video_url = db.Column(db.String(500))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    progress = db.relationship('LessonProgress', backref='section', lazy=True, cascade='all, delete-orphan')
+    # progress = db.relationship('LessonProgress', backref='section', lazy=True, cascade='all, delete-orphan')
     def __repr__(self):
         return f'<Section {self.title}>'
 
@@ -246,26 +246,7 @@ class QuizAttempt(db.Model):
     def __repr__(self):
         return f'<QuizAttempt Quiz:{self.quiz_id} Student:{self.student_id}>'
 
-class LessonFeedback(db.Model):
-    __tablename__ = 'lesson_feedback'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    section_id = db.Column(db.Integer, db.ForeignKey('sections.id'), nullable=False)  # Already correct
-    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    rating = db.Column(db.Integer, nullable=False)  # 1-5 stars
-    clarity = db.Column(db.Integer)  # 1-5: How clear was the section?
-    difficulty = db.Column(db.Integer)  # 1-5: How difficult was the section?
-    engagement = db.Column(db.Integer)  # 1-5: How engaging was the section?
-    comment = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    section = db.relationship('Section', backref='feedback', lazy=True)
-    student = db.relationship('User', backref='lesson_feedback', lazy=True)
-    
-    def __repr__(self):
-        return f'<LessonFeedback Section:{self.section_id} Student:{self.student_id} Rating:{self.rating}>'
+## LessonFeedback model temporarily removed to allow deletion of sections without lesson_feedback table
 
 
 class AssignmentRubric(db.Model):
