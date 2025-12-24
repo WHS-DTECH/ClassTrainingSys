@@ -110,7 +110,7 @@ const LoadingManager = {
     },
     
     // Wrap async operation with loading state
-    async withLoading: function(promise, buttonSelector = null, overlayMessage = null) {
+    withLoading: async function(promise, buttonSelector = null, overlayMessage = null) {
         try {
             if (buttonSelector) {
                 this.showButtonLoading(buttonSelector);
