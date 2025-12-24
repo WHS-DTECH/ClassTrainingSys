@@ -22,6 +22,10 @@ def upgrade():
             sa.Column('title', sa.VARCHAR(length=200), nullable=False),
             sa.Column('description', sa.TEXT(), nullable=True),
             sa.Column('teacher_id', sa.INTEGER(), nullable=True),
+            sa.Column('created_at', sa.TIMESTAMP(), nullable=True),
+            sa.Column('updated_at', sa.TIMESTAMP(), nullable=True),
+            sa.Column('is_active', sa.BOOLEAN(), nullable=True),
+            sa.Column('order', sa.INTEGER(), nullable=True),
             sa.PrimaryKeyConstraint('id', name=op.f('courses_pkey'))
         )
 
