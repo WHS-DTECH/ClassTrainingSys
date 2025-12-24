@@ -254,22 +254,15 @@
     
 
     <div class="lesson-content">
-        {% if lesson.title == 'Assessment Checking Overview' or 'module3_checking_assessment.html' in lesson.content %}
-            {# Load the padded two-column Flexibox template for Module 3 #}
-            {% include "includes/module3_checking_assessment.html" %}
-            <hr style="margin:2em 0;">
-            {% include "includes/practice_debug_block.html" %}
-        {% else %}
-            {{ lesson.content|safe }}
-            {% if 'PYTHON_CONVENTIONS' in lesson.content %}
-                {% include "includes/conventions_python.html" %}
-            {% elif 'JS_CONVENTIONS' in lesson.content %}
-                {% include "includes/conventions_js.html" %}
-            {% elif 'HTML_CSS_CONVENTIONS' in lesson.content %}
-                {% include "includes/conventions_html_css.html" %}
-            {% elif 'SUMMARY_CONVENTIONS' in lesson.content %}
-                {% include "includes/conventions_summary.html" %}
-            {% endif %}
+        {{ lesson.content|safe }}
+        {% if 'PYTHON_CONVENTIONS' in lesson.content %}
+            {% include "includes/conventions_python.html" %}
+        {% elif 'JS_CONVENTIONS' in lesson.content %}
+            {% include "includes/conventions_js.html" %}
+        {% elif 'HTML_CSS_CONVENTIONS' in lesson.content %}
+            {% include "includes/conventions_html_css.html" %}
+        {% elif 'SUMMARY_CONVENTIONS' in lesson.content %}
+            {% include "includes/conventions_summary.html" %}
         {% endif %}
     </div>
     
