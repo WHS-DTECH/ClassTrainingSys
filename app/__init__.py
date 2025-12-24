@@ -9,10 +9,10 @@ import os
 db = SQLAlchemy()
 login_manager = LoginManager()
 migrate = Migrate()
-# Configure SocketIO with polling mode for compatibility with standard gunicorn
+# Configure SocketIO with eventlet for production
 socketio = SocketIO(
     cors_allowed_origins="*",
-    async_mode='threading',  # Use threading instead of gevent
+    async_mode='eventlet',  # Use eventlet for production
     ping_timeout=60,
     ping_interval=25,
     engineio_logger=False
