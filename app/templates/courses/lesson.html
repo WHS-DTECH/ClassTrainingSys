@@ -255,6 +255,18 @@
 
     <div class="lesson-content">
         {{ lesson.content|safe }}
+        {% if sections %}
+            <div class="section-links">
+                <h2>Sections</h2>
+                <ul>
+                {% for section in sections %}
+                    <li>
+                        <a href="{{ url_for('courses.view_section', section_id=section.id) }}">{{ section.title }}</a>
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
         {% if 'PYTHON_CONVENTIONS' in lesson.content %}
             {% include "includes/conventions_python.html" %}
         {% elif 'JS_CONVENTIONS' in lesson.content %}
