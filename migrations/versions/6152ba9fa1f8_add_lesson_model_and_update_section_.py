@@ -31,8 +31,8 @@ def upgrade():
         batch_op.alter_column('title',
             existing_type=sa.VARCHAR(length=200),
             nullable=False)
-        batch_op.drop_column('is_active')
-        batch_op.drop_column('teacher_id')
+        # batch_op.drop_column('is_active')  # Column does not exist
+        # batch_op.drop_column('teacher_id')  # Column does not exist
     # 1b. Add primary key constraint if not present (defensive)
     op.create_primary_key('pk_lessons', 'lessons', ['id'])
     # 1c. Add foreign key after PK
