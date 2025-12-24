@@ -21,17 +21,6 @@ def create_app(skip_socketio=False):
     db.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
-    # Only initialize socketio if not skipped
-    if not skip_socketio:
-        from flask_socketio import SocketIO
-        socketio = SocketIO(
-            cors_allowed_origins="*",
-            async_mode='eventlet',  # Use eventlet for production
-            ping_timeout=60,
-            ping_interval=25,
-            engineio_logger=False
-        )
-        socketio.init_app(app)
     
     login_manager.login_view = 'auth.login'
     login_manager.login_message = 'Please log in to access this page.'
