@@ -7,12 +7,21 @@
   <div style="font-size:1.15em; margin-bottom:1.2em; color:#222; max-width:700px;">
     This module covers techniques and strategies for checking student work for assessment purposes, including automated and manual review processes.
   </div>
+  <div style="font-size:1.08em; margin-bottom:2em; color:#444;">
+    <b>Instructor:</b> Vanessa Pringle (HOLA Technology)
+  </div>
   <h2>Course Content</h2>
   <ol style="font-size:1.13em; color:#1a237e; margin-bottom:2em;">
-    {% for lesson in lessons %}
-      <li><a href="{{ url_for('courses.view_lesson', lesson_id=lesson.id) }}">{{ lesson.title }}</a></li>
+    {% for section in lesson.sections %}
+      <li>
+        <a href="{{ url_for('courses.view_section', section_id=section.id) }}">{{ section.title }}</a>
+      </li>
     {% endfor %}
   </ol>
-  <p>Return to <a href="{{ url_for('main.index') }}">Home</a></p>
+  <div>
+    <a href="{{ url_for('assignments.view_assignments', lesson_id=lesson.id) }}">Assignments</a>
+    &nbsp;|&nbsp;
+    <a href="{{ url_for('quizzes.view_quizzes', lesson_id=lesson.id) }}">Quizzes</a>
+  </div>
 </div>
 {% endblock %}

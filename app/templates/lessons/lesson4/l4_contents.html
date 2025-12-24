@@ -3,14 +3,16 @@
 {% block content %}
 <div class="lesson-view">
     <h1>Lesson 4: Realtime Commenting and Debugging With AI</h1>
-    <div style="font-size:1.15em; margin-bottom:1.2em; color:#222; max-width:700px;">
-        This lesson discusses how a real-world project is developed with AI.
-        <br>Instructor: Vanessa Pringle
+    <div style="font-size:1.08em; margin-bottom:2em; color:#444;">
+        <b>Instructor:</b> Vanessa Pringle (HOLA Technology)
     </div>
     <h2>Course Content</h2>
     <ol style="font-size:1.13em; color:#1a237e; margin-bottom:2em;">
-        <li><a href="{{ url_for('courses.view_lesson', lesson_id=lesson.id, section=1) }}">Coding with AI</a></li>
-        <li><a href="{{ url_for('courses.view_lesson', lesson_id=lesson.id, section=2) }}">Assessment Specific and AI</a></li>
+        {% for section in lesson.sections %}
+            <li>
+                <a href="{{ url_for('courses.view_section', section_id=section.id) }}">{{ section.title }}</a>
+            </li>
+        {% endfor %}
     </ol>
     <div>
         <a href="{{ url_for('assignments.view_assignments', lesson_id=lesson.id) }}">Assignments</a>
