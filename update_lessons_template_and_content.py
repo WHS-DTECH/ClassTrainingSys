@@ -5,11 +5,15 @@ from app.models import Lesson
 
 # Map lesson_id to template path and content HTML file
 LESSON_DATA = [
-    # Example for lessons 5–8 (update as needed for your actual lesson IDs and files)
-    dict(id=5, template_path="lessons/lesson1/l1section_intro.html", html_path="app/templates/lessons/lesson1/l1section_intro.html"),
-    dict(id=6, template_path="lessons/lesson2/l2section_intro.html", html_path="app/templates/lessons/lesson2/l2section_intro.html"),
-    dict(id=7, template_path="lessons/lesson3/l3section_intro.html", html_path="app/templates/lessons/lesson3/l3section_intro.html"),
-    dict(id=8, template_path="lessons/lesson4/l4section1.html", html_path="app/templates/lessons/lesson4/l4section1.html"),
+    # Lessons 1–8, update as needed for your actual lesson IDs and files
+    dict(id=1, template_path="lessons/lesson1/l1_contents.html", html_path="app/templates/lessons/lesson1/l1_contents.html"),
+    dict(id=2, template_path="lessons/lesson2/l2_contents.html", html_path="app/templates/lessons/lesson2/l2_contents.html"),
+    dict(id=3, template_path="lessons/lesson3/l3_contents.html", html_path="app/templates/lessons/lesson3/l3_contents.html"),
+    dict(id=4, template_path="lessons/lesson4/l4_contents.html", html_path="app/templates/lessons/lesson4/l4_contents.html"),
+    dict(id=5, template_path="lessons/lesson1/l1_contents.html", html_path="app/templates/lessons/lesson1/l1_contents.html"),
+    dict(id=6, template_path="lessons/lesson2/l2_contents.html", html_path="app/templates/lessons/lesson2/l2_contents.html"),
+    dict(id=7, template_path="lessons/lesson3/l3_contents.html", html_path="app/templates/lessons/lesson3/l3_contents.html"),
+    dict(id=8, template_path="lessons/lesson4/l4_contents.html", html_path="app/templates/lessons/lesson4/l4_contents.html"),
 ]
 
 def read_html(path):
