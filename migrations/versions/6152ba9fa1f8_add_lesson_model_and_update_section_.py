@@ -48,7 +48,7 @@ def upgrade():
 
     # 4. Add lesson_id as nullable to sections
     with op.batch_alter_table('sections', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('lesson_id', sa.Integer(), nullable=True))
+        # batch_op.add_column(sa.Column('lesson_id', sa.Integer(), nullable=True))  # Skipped: column already exists
         # batch_op.drop_constraint(batch_op.f('fk_sections_course'), type_='foreignkey')  # Constraint does not exist
         batch_op.create_foreign_key(None, 'lessons', ['lesson_id'], ['id'])
         # batch_op.drop_column('course_id')  # Column does not exist
