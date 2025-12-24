@@ -22,7 +22,7 @@ def upgrade():
     op.drop_table('section_progress')
     # 1. Add course_id as nullable and ensure id is primary key
     with op.batch_alter_table('lessons', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('course_id', sa.Integer(), nullable=True))
+        # batch_op.add_column(sa.Column('course_id', sa.Integer(), nullable=True))  # Already exists
         batch_op.alter_column('id',
             existing_type=sa.INTEGER(),
             nullable=False,
