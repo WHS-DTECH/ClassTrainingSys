@@ -9,34 +9,43 @@ from datetime import datetime, timedelta
 
 def add_commenting_module():
     app = create_app()
-    
     with app.app_context():
         # Get the teacher account
         teacher = User.query.filter_by(username='teacher').first()
         if not teacher:
             print("Error: Teacher account not found. Please run init_db.py first.")
             return
-        
-        # Create or update Module 1: Commenting
+
+        # Create or update Module 1: Commenting as a Lesson2 (module-level)
         print("Creating Module 1: Commenting...")
-        module1 = Course.query.filter_by(title='Module 1: Commenting', teacher_id=teacher.id).first()
+        module1 = Lesson2.query.filter_by(title='Module 1: Commenting', course_id=None).first()
         if not module1:
-            module1 = Course(
+            # Find or create the Programming Documentation course
+            course = Course.query.filter_by(title='Programming Documentation').first()
+            if not course:
+                course = Course(
+                    title='Programming Documentation',
+                    description='All programming modules and lessons.',
+                    teacher_id=teacher.id
+                )
+                db.session.add(course)
+                db.session.commit()
+            module1 = Lesson2(
                 title='Module 1: Commenting',
                 description='Learn best practices for writing effective comments in your code. This module covers general commenting principles and specific conventions for Python and JavaScript.',
-                teacher_id=teacher.id
+                course_id=course.id
             )
             db.session.add(module1)
             db.session.commit()
         else:
-            # Delete all existing lessons for this module (robust)
-            lessons_to_delete = Lesson.query.filter_by(course_id=module1.id).all()
-            for lesson in lessons_to_delete:
-                db.session.delete(lesson)
+            # Delete all existing sections for this module (robust)
+            sections_to_delete = Lesson.query.filter_by(course_id=module1.id).all()
+            for section in sections_to_delete:
+                db.session.delete(section)
             db.session.commit()
 
-        # Lesson 1: Introduction to Code Comments
-        lesson1 = Lesson(
+        # Section 1: Introduction to Code Comments
+        section1 = Lesson(
             course_id=module1.id,
             title='Introduction to Code Comments',
             content='''
@@ -416,6 +425,13 @@ document.addEventListener('DOMContentLoaded', function() {
             order=1
         )
         db.session.add(lesson1)
+                db.session.add(section1)
+
+                # Section 2: Python Comments - Best Practices
+                section2 = Lesson(
+                    course_id=module1.id,
+                    title='Section 1: Python Comments - Best Practices',
+                    content='''
         
         # Lesson 2: Python Comments - Best Practices
         lesson2 = Lesson(
@@ -809,13 +825,17 @@ document.addEventListener('DOMContentLoaded', function() {
             order=2
         )
         db.session.add(lesson2)
+            db.session.add(section2)
+            # ...repeat for additional sections as needed...
         
         # Lesson 3: JavaScript Comments - Best Practices
-        lesson3 = Lesson(
-            course_id=module1.id,
-            title='Section 2: JavaScript Comments - Best Practices',
-            content='''
-<h2>JavaScript Commenting Conventions</h2>
+        # Section 2: Python Comments - Best Practices (if needed, add here)
+        # section2 = Lesson(
+        #     course_id=module1.id,
+        #     title='Section 1: Python Comments - Best Practices',
+        #     content='''
+        # )
+        # db.session.add(section2)
 <p>JavaScript supports two types of comments and has conventions popularized by JSDoc and various style guides.</p>
 
 <h3>1. Single-Line Comments</h3>
@@ -1218,11 +1238,13 @@ document.addEventListener('DOMContentLoaded', function() {
         db.session.add(lesson3)
 
         # Lesson 4: HTML and CSS Comments - Best Practices
-        lesson4 = Lesson(
-            course_id=module1.id,
-            title='Section 3: HTML and CSS Comments - Best Practices',
-            content='''
-<h2>HTML and CSS Commenting Conventions</h2>
+        # Section 2: Python Comments - Best Practices (add as needed)
+        # section2 = Lesson(
+        #     course_id=module1.id,
+        #     title='Section 1: Python Comments - Best Practices',
+        #     content='''
+        # )
+        # db.session.add(section2)
 <p>HTML and CSS have their own ways to add comments, which are important for explaining structure, intent, and temporary code changes in web development.</p>
 
 <h3>1. HTML Comments</h3>

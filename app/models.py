@@ -1,9 +1,22 @@
-# ...existing code...
 
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login_manager
+
+# Lesson model (moved after db import)
+class Lesson(db.Model):
+    __tablename__ = 'lessons'
+    id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    order = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    sections = db.relationship('Section', backref='lesson', lazy=True, cascade='all, delete-orphan', order_by='Section.order')
+    def __repr__(self):
+        return f'<Lesson {self.title}>'
 
 # CommentCheck model must be defined after db is imported
 class CommentCheck(db.Model):
@@ -85,7 +98,7 @@ class Course(db.Model):
     order = db.Column(db.Integer, default=0)  # For custom ordering
     
     # Relationships
-    lessons = db.relationship('Lesson', backref='course', lazy=True, cascade='all, delete-orphan', order_by='Lesson.order', foreign_keys='Lesson.course_id')
+    lessons = db.relationship('Lesson', backref='course', lazy=True, cascade='all, delete-orphan', order_by='Lesson.order')
     enrollments = db.relationship('Enrollment', backref='course', lazy=True, cascade='all, delete-orphan')
     assignments = db.relationship('Assignment', backref='course', lazy=True, cascade='all, delete-orphan')
     quizzes = db.relationship('Quiz', backref='course', lazy=True, cascade='all, delete-orphan')
@@ -93,66 +106,30 @@ class Course(db.Model):
     def __repr__(self):
         return f'<Course {self.title}>'
 
-class Lesson(db.Model):
-    """3rd level (formerly 2nd): Content sections within lessons
-    
-    NOTE: This model is temporarily named 'Lesson' for backward compatibility.
-    After Phase 2, this will be renamed to 'Section' in the code.
-    Database table name is now 'sections' after Phase 1.2 migration.
-    
-    Structure after Phase 1.2:
-    - courses.id -> lessons2.course_id
-    - lessons2.id -> sections.lesson_id (will be added in Phase 1.3)
-    - sections represent individual content sections/pages with exercises
-    """
-    __tablename__ = 'sections'  # Changed from 'lessons' in Phase 1.2
-    
+
+# Section model (formerly Lesson)
+
+class Section(db.Model):
+    __tablename__ = 'sections'
     id = db.Column(db.Integer, primary_key=True)
-    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
+    lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id'), nullable=False)
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text)
     order = db.Column(db.Integer, default=0)
-    template_path = db.Column(db.String(255))  # Path to the section's HTML template
+    template_path = db.Column(db.String(255))
     video_url = db.Column(db.String(500))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    progress = db.relationship('LessonProgress', backref='lesson', lazy=True, cascade='all, delete-orphan')
-    
+    progress = db.relationship('LessonProgress', backref='section', lazy=True, cascade='all, delete-orphan')
     def __repr__(self):
-        return f'<Lesson {self.title}>'
-
-class Lesson2(db.Model):
-    """2nd level: Lessons within a Course (e.g., 'Commenting', 'Debugging')
-    
-    This is the new 2nd level in the 3-level hierarchy:
-    Course (level 1) > Lesson2 (level 2) > Lesson (level 3, will be renamed to Section)
-    
-    This model will eventually replace the structure where lessons are direct children of courses.
-    """
-    __tablename__ = 'lessons2'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
-    title = db.Column(db.String(200), nullable=False)
-    description = db.Column(db.Text)
-    order = db.Column(db.Integer, default=0)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships - will eventually link to Lesson (renamed to Section)
-    # course = db.relationship('Course', backref='lessons2')
-    
-    def __repr__(self):
-        return f'<Lesson2 {self.title}>'
+        return f'<Section {self.title}>'
 
 # New model for robust feedback persistence
 class CommentFeedback(db.Model):
     __tablename__ = 'comment_feedback'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id'), nullable=False)
+    section_id = db.Column(db.Integer, db.ForeignKey('sections.id'), nullable=False)
     filename = db.Column(db.String(255), nullable=False)
     line_num = db.Column(db.Integer, nullable=False)
     comment = db.Column(db.Text, nullable=False)
@@ -177,14 +154,14 @@ class LessonProgress(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id'), nullable=False)
+    section_id = db.Column(db.Integer, db.ForeignKey('sections.id'), nullable=False)  # Already correct
     completed = db.Column(db.Boolean, default=False)
     completed_at = db.Column(db.DateTime)
     
     student = db.relationship('User', backref='lesson_progress')
     
     def __repr__(self):
-        return f'<LessonProgress Student:{self.student_id} Lesson:{self.lesson_id}>'
+        return f'<LessonProgress Student:{self.student_id} Section:{self.section_id}>'
 
 class Assignment(db.Model):
     __tablename__ = 'assignments'
@@ -271,22 +248,22 @@ class LessonFeedback(db.Model):
     __tablename__ = 'lesson_feedback'
     
     id = db.Column(db.Integer, primary_key=True)
-    lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id'), nullable=False)
+    section_id = db.Column(db.Integer, db.ForeignKey('sections.id'), nullable=False)  # Already correct
     student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     rating = db.Column(db.Integer, nullable=False)  # 1-5 stars
-    clarity = db.Column(db.Integer)  # 1-5: How clear was the lesson?
-    difficulty = db.Column(db.Integer)  # 1-5: How difficult was the lesson?
-    engagement = db.Column(db.Integer)  # 1-5: How engaging was the lesson?
+    clarity = db.Column(db.Integer)  # 1-5: How clear was the section?
+    difficulty = db.Column(db.Integer)  # 1-5: How difficult was the section?
+    engagement = db.Column(db.Integer)  # 1-5: How engaging was the section?
     comment = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
-    lesson = db.relationship('Lesson', backref='feedback', lazy=True)
+    section = db.relationship('Section', backref='feedback', lazy=True)
     student = db.relationship('User', backref='lesson_feedback', lazy=True)
     
     def __repr__(self):
-        return f'<LessonFeedback Lesson:{self.lesson_id} Student:{self.student_id} Rating:{self.rating}>'
+        return f'<LessonFeedback Section:{self.section_id} Student:{self.student_id} Rating:{self.rating}>'
 
 
 class AssignmentRubric(db.Model):

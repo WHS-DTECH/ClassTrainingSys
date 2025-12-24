@@ -36,7 +36,7 @@ def create_app():
     login_manager.login_message = 'Please log in to access this page.'
     
     # Register blueprints
-    from app.routes import auth, main, courses, assignments, quizzes, admin, notifications
+    from app.routes import auth, main, courses, assignments, quizzes, admin
     
     app.register_blueprint(auth.bp)
     app.register_blueprint(main.bp)
@@ -44,7 +44,6 @@ def create_app():
     app.register_blueprint(assignments.bp)
     app.register_blueprint(quizzes.bp)
     app.register_blueprint(admin.bp)
-    app.register_blueprint(notifications.bp)
     
     # Google OAuth blueprint
     google_bp = make_google_blueprint(
@@ -105,7 +104,7 @@ def create_app():
         admin_password = os.environ.get("ADMIN_PASSWORD")
         if admin_password is None:
             admin_password = "defaultpassword"  # Or raise an error if you want to force setting it
-        user = User.query.filter_by(email=admin_email).first()
+        user = User.query.filter((User.email == admin_email) | (User.username == admin_username)).first()
         if not user:
             print("[ADMIN BOOTSTRAP] Creating admin user...")
             user = User(
@@ -116,13 +115,14 @@ def create_app():
                 role="teacher"
             )
             db.session.add(user)
+            db.session.commit()
+            print(f"[ADMIN BOOTSTRAP] Admin user {admin_email} created.")
         else:
             print("[ADMIN BOOTSTRAP] Admin user exists. Resetting password and role...")
-        # Always set password and role for admin user
-        user.set_password(str(admin_password))
-        user.role = "teacher"
-        db.session.commit()
-        print(f"[ADMIN BOOTSTRAP] Admin user {admin_email} ensured with password (hidden) and role teacher.")
+            user.set_password(str(admin_password))
+            user.role = "teacher"
+            db.session.commit()
+            print(f"[ADMIN BOOTSTRAP] Admin user {admin_email} ensured with password (hidden) and role teacher.")
         # --- End permanent admin bootstrap ---
     
     # Ensure code_hash column exists in comment_feedback table
