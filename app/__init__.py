@@ -97,8 +97,14 @@ def create_app():
         except Exception as e:
             return False
     
-    with app.app_context():
-        # --- Permanent admin bootstrap ---
+    # Admin bootstrap moved to CLI command
+    # Flask CLI command to create or update the admin user
+    from flask.cli import with_appcontext
+    import click
+
+    @click.command("create-admin")
+    @with_appcontext
+    def create_admin():
         from app.models import User
         admin_email = os.environ.get("ADMIN_EMAIL")
         admin_username = "vanessapringle"
@@ -125,7 +131,9 @@ def create_app():
             user.role = "teacher"
             db.session.commit()
             print(f"[ADMIN BOOTSTRAP] Admin user {admin_email} ensured with password (hidden) and role teacher.")
-        # --- End permanent admin bootstrap ---
+
+    def register_cli_commands(app):
+        app.cli.add_command(create_admin)
     
     # Ensure code_hash column exists in comment_feedback table
     with app.app_context():
@@ -162,6 +170,7 @@ def create_app():
         admin_email = os.environ.get("ADMIN_EMAIL", "teacher@example.com")
         return {'admin_email': admin_email}
     
+    register_cli_commands(app)
     return app
 
 # Expose app instance for Gunicorn (so 'gunicorn app:app' works)
