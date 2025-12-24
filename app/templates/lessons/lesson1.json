@@ -1,0 +1,9 @@
+{
+  "lesson_id": 1,
+  "title": "Introduction to Programming",
+  "description": "Learn the basics of programming, including variables, data types, and simple logic.",
+  "sections": [
+    {"title": "What is Programming?", "content": "Programming is the process of creating instructions for computers."},
+    {"title": "Variables and Data Types", "content": "Variables store data. Data types include integers, strings, and booleans."}
+  ]
+}

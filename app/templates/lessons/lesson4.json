@@ -1,0 +1,9 @@
+{
+  "lesson_id": 4,
+  "title": "Debugging and Error Handling",
+  "description": "Discover how to find and fix errors in your code, and handle exceptions gracefully.",
+  "sections": [
+    {"title": "Common Errors", "content": "Syntax errors, runtime errors, and logical errors are common in programming."},
+    {"title": "Exception Handling", "content": "Use try/except blocks to handle errors without crashing your program."}
+  ]
+}

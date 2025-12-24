@@ -1,0 +1,9 @@
+{
+  "lesson_id": 2,
+  "title": "Control Structures",
+  "description": "Explore if statements, loops, and how to control the flow of your program.",
+  "sections": [
+    {"title": "If Statements", "content": "If statements allow you to make decisions in your code."},
+    {"title": "Loops", "content": "Loops let you repeat actions multiple times."}
+  ]
+}

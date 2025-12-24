@@ -1,0 +1,9 @@
+{
+  "lesson_id": 3,
+  "title": "Functions and Methods",
+  "description": "Learn how to organize code into reusable blocks called functions and methods.",
+  "sections": [
+    {"title": "Defining Functions", "content": "Functions are reusable blocks of code that perform a specific task."},
+    {"title": "Calling Functions", "content": "You can call functions to execute their code."}
+  ]
+}
