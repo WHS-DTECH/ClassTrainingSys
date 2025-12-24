@@ -97,37 +97,35 @@ def create_app():
         except Exception as e:
             return False
     
-    # --- PATCHED: db.create_all() and admin bootstrap block commented out to prevent table creation before Alembic migrations ---
-    # with app.app_context():
-    #     db.create_all()
-    #     # --- Permanent admin bootstrap ---
-    #     from app.models import User
-    #     admin_email = os.environ.get("ADMIN_EMAIL")
-    #     admin_username = "vanessapringle"
-    #     admin_password = os.environ.get("ADMIN_PASSWORD")
-    #     if admin_password is None:
-    #         admin_password = "defaultpassword"  # Or raise an error if you want to force setting it
-    #     user = User.query.filter((User.email == admin_email) | (User.username == admin_username)).first()
-    #     if not user:
-    #         print("[ADMIN BOOTSTRAP] Creating admin user...")
-    #         user = User(
-    #             username=admin_username,
-    #             email=admin_email,
-    #             first_name="Vanessa",
-    #             last_name="Pringle",
-    #             role="teacher"
-    #         )
-    #         user.set_password(str(admin_password))
-    #         db.session.add(user)
-    #         db.session.commit()
-    #         print(f"[ADMIN BOOTSTRAP] Admin user {admin_email} created.")
-    #     else:
-    #         print("[ADMIN BOOTSTRAP] Admin user exists. Resetting password and role...")
-    #         user.set_password(str(admin_password))
-    #         user.role = "teacher"
-    #         db.session.commit()
-    #         print(f"[ADMIN BOOTSTRAP] Admin user {admin_email} ensured with password (hidden) and role teacher.")
-    #     # --- End permanent admin bootstrap ---
+    with app.app_context():
+        # --- Permanent admin bootstrap ---
+        from app.models import User
+        admin_email = os.environ.get("ADMIN_EMAIL")
+        admin_username = "vanessapringle"
+        admin_password = os.environ.get("ADMIN_PASSWORD")
+        if admin_password is None:
+            admin_password = "defaultpassword"  # Or raise an error if you want to force setting it
+        user = User.query.filter((User.email == admin_email) | (User.username == admin_username)).first()
+        if not user:
+            print("[ADMIN BOOTSTRAP] Creating admin user...")
+            user = User(
+                username=admin_username,
+                email=admin_email,
+                first_name="Vanessa",
+                last_name="Pringle",
+                role="teacher"
+            )
+            user.set_password(str(admin_password))
+            db.session.add(user)
+            db.session.commit()
+            print(f"[ADMIN BOOTSTRAP] Admin user {admin_email} created.")
+        else:
+            print("[ADMIN BOOTSTRAP] Admin user exists. Resetting password and role...")
+            user.set_password(str(admin_password))
+            user.role = "teacher"
+            db.session.commit()
+            print(f"[ADMIN BOOTSTRAP] Admin user {admin_email} ensured with password (hidden) and role teacher.")
+        # --- End permanent admin bootstrap ---
     
     # Ensure code_hash column exists in comment_feedback table
     with app.app_context():
