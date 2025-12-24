@@ -66,20 +66,25 @@ def create_app():
     
     @oauth_authorized.connect_via(google_bp)
     def google_logged_in(blueprint, token):
+        import logging
+        from flask import flash
+        from app.models import User
         try:
-            from app.models import User
-            
             # Get user info from Google
             resp = blueprint.session.get("/oauth2/v2/userinfo")
             if not resp.ok:
+                logging.error(f"Google OAuth userinfo fetch failed: {resp.text}")
+                flash("Google login failed: could not fetch user info.", "danger")
                 return False
-            
+
             user_info = resp.json()
             user_email = user_info.get("email")
-            
+
             if not user_email:
+                logging.error("Google OAuth did not return an email address.")
+                flash("Google login failed: no email address returned.", "danger")
                 return False
-            
+
             # Find or create user
             user = User.query.filter_by(email=user_email).first()
             if not user:
@@ -91,10 +96,13 @@ def create_app():
                 )
                 db.session.add(user)
                 db.session.commit()
-            
+
             login_user(user)
+            flash("Successfully logged in with Google!", "success")
             return True
         except Exception as e:
+            logging.exception("Exception during Google OAuth login:")
+            flash(f"Google login error: {str(e)}", "danger")
             return False
     
     # Admin bootstrap moved to CLI command
