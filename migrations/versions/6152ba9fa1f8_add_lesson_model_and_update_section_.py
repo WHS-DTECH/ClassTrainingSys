@@ -34,7 +34,7 @@ def upgrade():
         # batch_op.drop_column('is_active')  # Column does not exist
         # batch_op.drop_column('teacher_id')  # Column does not exist
     # 1b. Add primary key constraint if not present (defensive)
-    op.create_primary_key('pk_lessons', 'lessons', ['id'])
+    # op.create_primary_key('pk_lessons', 'lessons', ['id'])  # Already exists
     # 1c. Add foreign key after PK
     with op.batch_alter_table('lessons', schema=None) as batch_op:
         batch_op.create_foreign_key(None, 'courses', ['course_id'], ['id'])
