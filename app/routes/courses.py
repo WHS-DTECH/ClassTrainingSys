@@ -1,3 +1,157 @@
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session
+from flask_login import login_required, current_user
+from app import db
+from app.models import Course, Lesson, Enrollment, LessonProgress
+from app.forms import CourseForm, LessonForm
+from datetime import datetime
+bp = Blueprint('courses', __name__, url_prefix='/courses')
+from flask_login import login_required, current_user
+from app import db
+from app.models import Course, Lesson, Enrollment, LessonProgress
+from app.forms import CourseForm, LessonForm
+from datetime import datetime
+
+@bp.route('/sections/<int:section_id>')
+@login_required
+def view_section(section_id):
+    from app.models import Section
+    section = Section.query.get_or_404(section_id)
+    lesson = section.lesson
+    course = lesson.course
+    template = section.template_path if section.template_path else 'sections/section.html'
+    return render_template(
+        template,
+        section=section,
+        lesson=lesson,
+        course=course
+    )
+
+@bp.route('/<int:course_id>')
+@login_required
+def view_course(course_id):
+    course = Course.query.get_or_404(course_id)
+    # Check access
+    if not current_user.is_teacher():
+        enrollment = Enrollment.query.filter_by(
+            student_id=current_user.id, 
+            course_id=course_id
+        ).first()
+        if not enrollment:
+            flash('You are not enrolled in this course.', 'danger')
+            return redirect(url_for('courses.list_courses'))
+    
+    lessons = Lesson.query.filter_by(course_id=course_id).order_by(Lesson.order).all()
+    return render_template('courses/view.html', course=course, lessons=lessons)
+
+@bp.route('/create', methods=['GET', 'POST'])
+@login_required
+def create_course():
+    if not current_user.is_teacher():
+        flash('Only teachers can create courses.', 'danger')
+        return redirect(url_for('courses.list_courses'))
+    
+    form = CourseForm()
+    if form.validate_on_submit():
+        course = Course(
+            title=form.title.data,
+            description=form.description.data,
+            teacher_id=current_user.id
+        )
+        db.session.add(course)
+        db.session.commit()
+        flash('Course created successfully!', 'success')
+        return redirect(url_for('courses.view_course', course_id=course.id))
+    
+    return render_template('courses/create.html', form=form)
+
+@bp.route('/<int:course_id>/enroll', methods=['POST'])
+@login_required
+def enroll(course_id):
+    if current_user.is_teacher():
+        flash('Teachers cannot enroll in courses.', 'danger')
+        return redirect(url_for('courses.list_courses'))
+    
+    existing = Enrollment.query.filter_by(
+        student_id=current_user.id,
+        course_id=course_id
+    ).first()
+    
+    if existing:
+        flash('You are already enrolled in this course.', 'info')
+    else:
+        enrollment = Enrollment(student_id=current_user.id, course_id=course_id)
+        db.session.add(enrollment)
+        db.session.commit()
+        flash('Successfully enrolled in the course!', 'success')
+    
+    return redirect(url_for('courses.view_course', course_id=course_id))
+
+@bp.route('/<int:course_id>/lessons/create', methods=['GET', 'POST'])
+@login_required
+def create_lesson(course_id):
+    course = Course.query.get_or_404(course_id)
+    
+    if course.teacher_id != current_user.id:
+        flash('You do not have permission to add lessons to this course.', 'danger')
+        return redirect(url_for('courses.view_course', course_id=course_id))
+    
+    form = LessonForm()
+    if form.validate_on_submit():
+        # Get max order for new lesson
+        max_order = db.session.query(func.max(Lesson.order)).filter_by(course_id=course_id).scalar() or 0
+        
+        lesson = Lesson(
+            course_id=course_id,
+            title=form.title.data,
+            content=form.content.data,
+            video_url=form.video_url.data,
+            order=max_order + 1
+        )
+        db.session.add(lesson)
+        db.session.commit()
+        flash('Lesson created successfully!', 'success')
+        return redirect(url_for('courses.view_course', course_id=course_id))
+    
+    return render_template('courses/create_lesson.html', form=form, course=course)
+
+@bp.route('/lessons/<int:lesson_id>') 
+@login_required
+def view_lesson(lesson_id):
+    lesson = Lesson.query.get_or_404(lesson_id)
+    course = lesson.course
+    return render_template('courses/lesson.html', lesson=lesson, course=course)
+
+@bp.route('/lessons/<int:lesson_id>/complete', methods=['POST'])
+@login_required
+def complete_lesson(lesson_id):
+    lesson = Lesson.query.get_or_404(lesson_id)
+    
+    progress = LessonProgress.query.filter_by(
+        student_id=current_user.id,
+        lesson_id=lesson_id
+    ).first()
+    
+    if not progress:
+        progress = LessonProgress(
+            student_id=current_user.id,
+            lesson_id=lesson_id,
+            completed=True,
+            completed_at=datetime.utcnow()
+        )
+        db.session.add(progress)
+    else:
+        progress.completed = True
+        progress.completed_at = datetime.utcnow()
+    
+    db.session.commit()
+    flash('Lesson marked as complete!', 'success')
+    return redirect(url_for('courses.view_course', course_id=lesson.course_id))
+
+@bp.route('/<int:lesson_id>/feedback', methods=['GET', 'POST'])
+@login_required
+def submit_lesson_feedback(lesson_id):
+    lesson = Lesson.query.get_or_404(lesson_id)
+    return render_template('courses/feedback.html', lesson=lesson)
 @bp.route('/sections/<int:section_id>')
 @login_required
 def view_section(section_id):
@@ -17,9 +171,14 @@ from flask_login import login_required, current_user
 from app import db
 from app.models import Course, Lesson, Enrollment, LessonProgress
 from app.forms import CourseForm, LessonForm
-from datetime import datetime
-
 bp = Blueprint('courses', __name__, url_prefix='/courses')
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session
+from flask_login import login_required, current_user
+from app import db
+from app.models import Course, Lesson, Enrollment, LessonProgress
+from app.forms import CourseForm, LessonForm
+from datetime import datetime
+from datetime import datetime
 
 @bp.route('/')
 @login_required
