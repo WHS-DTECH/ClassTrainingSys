@@ -1,3 +1,17 @@
+@bp.route('/sections/<int:section_id>')
+@login_required
+def view_section(section_id):
+    from app.models import Section
+    section = Section.query.get_or_404(section_id)
+    lesson = section.lesson
+    course = lesson.course
+    template = section.template_path if section.template_path else 'sections/section.html'
+    return render_template(
+        template,
+        section=section,
+        lesson=lesson,
+        course=course
+    )
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from flask_login import login_required, current_user
 from app import db
