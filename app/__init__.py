@@ -117,6 +117,7 @@ def create_app():
                 last_name="Pringle",
                 role="teacher"
             )
+            user.set_password(str(admin_password))
             db.session.add(user)
             db.session.commit()
             print(f"[ADMIN BOOTSTRAP] Admin user {admin_email} created.")
