@@ -32,14 +32,7 @@ def list_courses():
     
     if current_user.is_teacher():
         courses = Course.query.filter_by(teacher_id=current_user.id)
-    from flask import Blueprint, render_template, redirect, url_for, flash, request, session
-    from flask_login import login_required, current_user
-    from app import db
-    from app.models import Course, Lesson, Enrollment, LessonProgress
-    from app.forms import CourseForm, LessonForm
-    from datetime import datetime
-
-    bp = Blueprint('courses', __name__, url_prefix='/courses')
+    else:
         # Students can see all available courses
         courses = Course.query.filter_by(is_active=True)
     
