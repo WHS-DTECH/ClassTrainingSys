@@ -744,7 +744,7 @@ def practice_code_comments():
                 from app import db
                 from app.models import CommentFeedback, Section
                 # Use the first Section with a template_path for the comment checker (or make this configurable)
-                template_path = "modules/module3/m3lesson1.html"
+                template_path = "lessons/lesson3/l3section1.html"
                 section = Section.query.filter_by(template_path=template_path).first()
                 if not section:
                     return "Section for comment checker not found.", 404
@@ -794,7 +794,7 @@ def practice_code_comments():
             if code:
                 from app import db
                 from app.models import CommentFeedback, Section
-                template_path = "modules/module3/m3lesson1.html"
+                template_path = "lessons/lesson3/l3section1.html"
                 section = Section.query.filter_by(template_path=template_path).first()
                 if not section:
                     return "Section for comment checker not found.", 404
@@ -876,7 +876,7 @@ def practice_code_comments():
         feedback_entries = []
         if current_user.is_authenticated and (uploaded_filename or filename):
             from app.models import CommentFeedback, Section
-            template_path = "modules/module3/m3lesson1.html"
+            template_path = "lessons/lesson3/l3section1.html"
             section = Section.query.filter_by(template_path=template_path).first()
             if section:
                 section_id = section.id
@@ -904,7 +904,7 @@ def practice_code_comments():
     # Always fetch feedback for the current file for display
     if current_user.is_authenticated and (uploaded_filename or filename):
         from app.models import CommentFeedback, Section
-        template_path = "modules/module3/m3lesson1.html"
+        template_path = "lessons/lesson3/l3section1.html"
         section = Section.query.filter_by(template_path=template_path).first()
         if section:
             section_id = section.id
