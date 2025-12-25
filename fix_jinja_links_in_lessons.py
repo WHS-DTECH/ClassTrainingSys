@@ -17,8 +17,8 @@ def fix_jinja_links():
                 (r"\{\{ url_for\('courses.view_lesson', lesson_id=37\) \}\}", "/courses/lessons/8"),
             ],
             8: [
-                (r"\{\{ url_for\('courses.view_lesson', lesson_id=lesson.id, section=1\) \}\}", "/courses/sections/16"),
-                (r"\{\{ url_for\('courses.view_lesson', lesson_id=lesson.id, section=2\) \}\}", "/courses/sections/17"),
+                (r"\{\{ url_for\('courses.view_lesson', lesson_id=lesson.id, section=1\) \}\}", "/lessons/sections/16"),
+                (r"\{\{ url_for\('courses.view_lesson', lesson_id=lesson.id, section=2\) \}\}", "/lessons/sections/17"),
             ],
         }
         lessons = Lesson.query.filter(Lesson.id.in_([5, 6, 7, 8])).all()

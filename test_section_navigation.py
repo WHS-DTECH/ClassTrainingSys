@@ -14,7 +14,7 @@ def test_section_navigation():
         print("Section Navigation Test Results:")
         print("-"*70)
         for section in sections:
-            route = f"/courses/sections/{section.id}"
+            route = f"/lessons/sections/{section.id}"
             template = section.template_path if section.template_path else "sections/section.html"
             print(f"Section ID: {section.id} | Title: {section.title}\nRoute: {route}\nTemplate: {template}\n{'-'*60}")
         print("Manual browser or test client verification recommended for full template rendering.")
