@@ -14,12 +14,6 @@
         <li><a href="/lessons/sections/10">Section 2</a></li>
     </ul>
 </nav>
-    <ol style="font-size:1.13em; color:#1a237e; margin-bottom:2em;">
-        {% for section in lesson.sections %}
-            <li>
-                <a href="{{ url_for('lessons.view_section', section_id=section.id) }}">{{ section.title }}</a>
-            </li>
-        {% endfor %}
-    </ol>
+    <!-- Only hardcoded section navigation is shown; dynamic Jinja loop removed. -->
 </div>
 {% endblock %}
