@@ -742,12 +742,13 @@ def practice_code_comments():
             # Extract all comments (lines starting with # or inline after code)
             if can_extract and code:
                 from app import db
-                from app.models import CommentFeedback, Lesson
+                from app.models import CommentFeedback, Section
+                # Use the first Section with a template_path for the comment checker (or make this configurable)
                 template_path = "modules/module3/m3lesson1.html"
-                lesson = Lesson.query.filter_by(template_path=template_path).first()
-                if not lesson:
-                    return "Lesson for comment checker not found.", 404
-                lesson_id = lesson.id
+                section = Section.query.filter_by(template_path=template_path).first()
+                if not section:
+                    return "Section for comment checker not found.", 404
+                section_id = section.id
                 save_filename = uploaded_filename or filename or "unknown"
                 extracted_comments_for_session.clear()
                 # Compute code hash for deduplication
@@ -771,11 +772,11 @@ def practice_code_comments():
                             extracted_feedback_for_session.append((idx, feedback))
                             # Save to DB
                             if current_user.is_authenticated:
-                                exists = CommentFeedback.query.filter_by(user_id=current_user.id, lesson_id=lesson_id, filename=save_filename, line_num=idx).first()
+                                exists = CommentFeedback.query.filter_by(user_id=current_user.id, section_id=section_id, filename=save_filename, line_num=idx).first()
                                 if not exists:
                                     db.session.add(CommentFeedback(
                                         user_id=current_user.id,
-                                        lesson_id=lesson_id,
+                                        section_id=section_id,
                                         filename=save_filename,
                                         line_num=idx,
                                         comment=comment,
@@ -784,7 +785,7 @@ def practice_code_comments():
                                     ))
                 db.session.commit()
                 # Always fetch feedback for this file from DB for display
-                feedback_entries = CommentFeedback.query.filter_by(user_id=current_user.id, lesson_id=lesson_id, filename=save_filename).order_by(CommentFeedback.line_num).all()
+                feedback_entries = CommentFeedback.query.filter_by(user_id=current_user.id, section_id=section_id, filename=save_filename).order_by(CommentFeedback.line_num).all()
                 # Instead of redirecting, just show results on this page
         # Handle paste/submit as before
         else:
@@ -792,12 +793,12 @@ def practice_code_comments():
             # Extract all comments (lines starting with # or inline after code)
             if code:
                 from app import db
-                from app.models import CommentFeedback, Lesson
+                from app.models import CommentFeedback, Section
                 template_path = "modules/module3/m3lesson1.html"
-                lesson = Lesson.query.filter_by(template_path=template_path).first()
-                if not lesson:
-                    return "Lesson for comment checker not found.", 404
-                lesson_id = lesson.id
+                section = Section.query.filter_by(template_path=template_path).first()
+                if not section:
+                    return "Section for comment checker not found.", 404
+                section_id = section.id
                 save_filename = filename or "unknown"
                 # Compute code hash for deduplication
                 code_hash = hashlib.sha256(code.encode('utf-8')).hexdigest()
@@ -818,11 +819,11 @@ def practice_code_comments():
                             comment_lines.append((idx, comment))
                             # Save to DB
                             if current_user.is_authenticated:
-                                exists = CommentFeedback.query.filter_by(user_id=current_user.id, lesson_id=lesson_id, filename=save_filename, line_num=idx).first()
+                                exists = CommentFeedback.query.filter_by(user_id=current_user.id, section_id=section_id, filename=save_filename, line_num=idx).first()
                                 if not exists:
                                     db.session.add(CommentFeedback(
                                         user_id=current_user.id,
-                                        lesson_id=lesson_id,
+                                        section_id=section_id,
                                         filename=save_filename,
                                         line_num=idx,
                                         comment=comment,
@@ -831,7 +832,7 @@ def practice_code_comments():
                                     ))
                 db.session.commit()
                 # Always fetch feedback for this file from DB for display
-                feedback_entries = CommentFeedback.query.filter_by(user_id=current_user.id, lesson_id=lesson_id, filename=save_filename).order_by(CommentFeedback.line_num).all()
+                feedback_entries = CommentFeedback.query.filter_by(user_id=current_user.id, section_id=section_id, filename=save_filename).order_by(CommentFeedback.line_num).all()
             # Restriction: Only allow one check per user per filename (on submit/paste)
             if current_user.is_authenticated and filename:
                 is_teacher = hasattr(current_user, 'is_teacher') and current_user.is_teacher()
@@ -874,13 +875,13 @@ def practice_code_comments():
         comment_lines = []
         feedback_entries = []
         if current_user.is_authenticated and (uploaded_filename or filename):
-            from app.models import CommentFeedback, Lesson
+            from app.models import CommentFeedback, Section
             template_path = "modules/module3/m3lesson1.html"
-            lesson = Lesson.query.filter_by(template_path=template_path).first()
-            if lesson:
-                lesson_id = lesson.id
+            section = Section.query.filter_by(template_path=template_path).first()
+            if section:
+                section_id = section.id
                 file_to_check = uploaded_filename or filename or "unknown"
-                feedback_entries = CommentFeedback.query.filter_by(user_id=current_user.id, lesson_id=lesson_id, filename=file_to_check).order_by(CommentFeedback.line_num).all()
+                feedback_entries = CommentFeedback.query.filter_by(user_id=current_user.id, section_id=section_id, filename=file_to_check).order_by(CommentFeedback.line_num).all()
                 for entry in feedback_entries:
                     comment_lines.append((entry.line_num, entry.comment))
         can_extract = False
@@ -902,13 +903,13 @@ def practice_code_comments():
                 })
     # Always fetch feedback for the current file for display
     if current_user.is_authenticated and (uploaded_filename or filename):
-        from app.models import CommentFeedback, Lesson
+        from app.models import CommentFeedback, Section
         template_path = "modules/module3/m3lesson1.html"
-        lesson = Lesson.query.filter_by(template_path=template_path).first()
-        if lesson:
-            lesson_id = lesson.id
+        section = Section.query.filter_by(template_path=template_path).first()
+        if section:
+            section_id = section.id
             file_to_check = uploaded_filename or filename or "unknown"
-            feedback_entries = CommentFeedback.query.filter_by(user_id=current_user.id, lesson_id=lesson_id, filename=file_to_check).order_by(CommentFeedback.line_num).all()
+            feedback_entries = CommentFeedback.query.filter_by(user_id=current_user.id, section_id=section_id, filename=file_to_check).order_by(CommentFeedback.line_num).all()
     # Build a feedback dict for template: line_num -> feedback
     feedback_dict = {entry.line_num: entry.feedback for entry in feedback_entries} if feedback_entries else {}
     return render_template('main/practice_code_comments.html', code=code, comment_lines=comment_lines, already_checked=already_checked, uploaded_filename=uploaded_filename, upload_status=upload_status, can_extract=can_extract, username=username, checked_files_grid=checked_files_grid, is_teacher=is_teacher, feedback_dict=feedback_dict)
