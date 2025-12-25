@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ section.title }}{% endblock %}
+{% block content %}
+<div class="lesson-view">
+    <div class="breadcrumb">
+        <a href="{{ url_for('courses.view_course', course_id=course.id) }}">{{ course.title }}</a> / {{ lesson.title }} / {{ section.title }}
+    </div>
+    <h1>{{ section.title }}</h1>
+    <div style="max-width: 900px; margin: 0 auto 2.5em auto;">
+        {{ section.content|safe }}
+    </div>
+</div>
+{% endblock %}
