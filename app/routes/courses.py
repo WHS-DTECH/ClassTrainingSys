@@ -14,17 +14,34 @@ from datetime import datetime
 @bp.route('/lessons/sections/<int:section_id>')
 @login_required
 def view_section(section_id):
+    import logging
     from app.models import Section
-    section = Section.query.get_or_404(section_id)
+    logging.warning(f"[DEBUG] view_section called with section_id={section_id}")
+    section = Section.query.get(section_id)
+    if not section:
+        logging.error(f"[DEBUG] Section {section_id} not found.")
+        from flask import abort
+        abort(404)
+    logging.info(f"[DEBUG] Section found: id={section.id}, title={section.title}, template_path={section.template_path}")
     lesson = section.lesson
-    course = lesson.course
+    if not lesson:
+        logging.error(f"[DEBUG] Lesson for section {section_id} not found.")
+    course = lesson.course if lesson else None
+    if not course:
+        logging.error(f"[DEBUG] Course for section {section_id} not found.")
     template = section.template_path if section.template_path else 'sections/section.html'
-    return render_template(
-        template,
-        section=section,
-        lesson=lesson,
-        course=course
-    )
+    logging.info(f"[DEBUG] Rendering template: {template}")
+    try:
+        return render_template(
+            template,
+            section=section,
+            lesson=lesson,
+            course=course
+        )
+    except Exception as e:
+        logging.exception(f"[DEBUG] Exception rendering template for section {section_id}: {e}")
+        from flask import abort
+        abort(500)
 
 @bp.route('/<int:course_id>')
 @login_required
