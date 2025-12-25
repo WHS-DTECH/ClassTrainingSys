@@ -568,12 +568,12 @@ def download_lesson1_feedback():
     from datetime import datetime
     from reportlab.lib.pagesizes import A4
     # Dynamically get lesson_id by template_path
-    from app.models import Lesson
-    template_path = "modules/module3/m3lesson1.html"
-    lesson = Lesson.query.filter_by(template_path=template_path).first()
-    if not lesson:
-        return "Lesson for comment checker not found.", 404
-    lesson_id = lesson.id
+    from app.models import Section
+    template_path = "lessons/lesson3/l3section1.html"
+    section = Section.query.filter_by(template_path=template_path).first()
+    if not section:
+        return "Section for comment checker not found.", 404
+    section_id = section.id
     
     # Get filename from form
     filename = request.form.get('uploaded_filename', 'Comment_Feedback')
@@ -596,7 +596,7 @@ def download_lesson1_feedback():
     if not extracted_comments:
         feedback_entries = CommentFeedback.query.filter_by(
             user_id=current_user.id, 
-            lesson_id=lesson_id,
+            section_id=section_id,
             filename=filename
         ).order_by(CommentFeedback.line_num).all()
         if feedback_entries:
