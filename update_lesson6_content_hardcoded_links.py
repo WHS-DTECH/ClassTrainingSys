@@ -13,10 +13,10 @@ with app.app_context():
 <p><b>Instructor:</b> Vanessa Pringle (HOLA Technology)</p>
 <h2>Course Content</h2>
 <ol>
-  <li><a href="/lessons/sections/9">Section 1: Python Debugging – Best Practices</a></li>
-  <li><a href="/lessons/sections/10">Section 2: JavaScript Debugging – Best Practices</a></li>
-  <li><a href="/lessons/sections/11">Section 3: HTML and CSS Debugging – Best Practices</a></li>
-  <li><a href="/lessons/sections/12">Section 4: Debugging in Practice</a></li>
+  <li><a href="/lessons/sections/9">Introducing Debugging</a></li>
+  <li><a href="/lessons/sections/10">Section 1: Python Debugging – Best Practices</a></li>
+  <li><a href="/lessons/sections/11">Section 2: JavaScript Debugging – Best Practices</a></li>
+  <li><a href="/lessons/sections/12">Section 3: HTML and CSS Debugging – Best Practices</a></li>
 </ol>'''
         db.session.commit()
         print('Lesson 6 content updated with hardcoded section links.')
