@@ -1,3 +1,56 @@
+/* Typography Improvements */
+h1, .h1 {
+    font-size: 2.6em;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #5c0e2a;
+    margin-bottom: 0.7em;
+    font-family: 'Lexend', 'Segoe UI', 'Roboto', Arial, sans-serif;
+}
+h2, .h2 {
+    font-size: 2em;
+    font-weight: 600;
+    color: #7a1d3e;
+    margin-bottom: 0.6em;
+    font-family: 'Lexend', 'Segoe UI', 'Roboto', Arial, sans-serif;
+}
+h3, .h3 {
+    font-size: 1.4em;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.5em;
+    font-family: 'Lexend', 'Segoe UI', 'Roboto', Arial, sans-serif;
+}
+h4, .h4 {
+    font-size: 1.15em;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 0.4em;
+    font-family: 'Lexend', 'Segoe UI', 'Roboto', Arial, sans-serif;
+}
+
+/* Section Divider */
+.section-divider {
+    border: none;
+    border-top: 3px solid #5c0e2a;
+    margin: 2.5em 0 2em 0;
+}
+
+/* Improve paragraph readability */
+p, .p {
+    font-size: 1.08em;
+    line-height: 1.7;
+    color: #333;
+    margin-bottom: 1.2em;
+}
+
+/* List improvements */
+ul, ol {
+    font-size: 1.08em;
+    margin-bottom: 1.2em;
+    color: #333;
+    padding-left: 2em;
+}
 /* General UI Improvements: Padding and Whitespace */
 .dashboard, .split-dashboard {
     padding: 2.5em 2em 2em 2em;
@@ -225,9 +278,57 @@
     border-top-right-radius: 0.5em;
     margin-bottom: 0.2em;
     box-shadow: none;
+/* Dashboard Cards Styling */
+.dashboard-cards {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+     gap: 2.5em;
+     margin-bottom: 2.5em;
+}
+.dashboard-card {
+     background: #5c0e2a;
+     color: #fff;
+     border-radius: 1.2em;
+     box-shadow: 0 4px 16px rgba(92,14,42,0.10);
+     padding: 2em 2.5em;
+     min-width: 180px;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+     font-size: 1.18em;
+     transition: box-shadow 0.2s, transform 0.2s;
+}
+.dashboard-card.card-green {
+     background: #7a1d3e;
+}
+.dashboard-card:hover {
+     box-shadow: 0 8px 24px rgba(92,14,42,0.18);
+     transform: translateY(-4px) scale(1.03);
+}
+.dashboard-card .card-icon {
+     font-size: 2.7em;
+     margin-bottom: 0.7em;
+     color: #fff;
+}
+.dashboard-card .card-value {
+     font-size: 2.3em;
+     font-weight: bold;
+     margin-bottom: 0.3em;
+}
+.dashboard-card .card-label {
+     font-size: 1.12em;
+     opacity: 0.88;
+}
 }
 /* Comment Feedback Right Boxes Styles */
 .comment-feedback-right {
+     margin-bottom: 3em;
+     padding: 2em 2em 1.5em 2em;
+     background: #fff;
+     border-radius: 1em;
+     box-shadow: 0 2px 8px rgba(92,14,42,0.07);
+     border: 1.5px solid #e0e0e0;
     display: flex;
     flex-direction: column;
     gap: 1.5em;
@@ -236,16 +337,34 @@
 }
 /* Removed duplicate .feedback-box rule above. Use only the one below. */
 .feedback-heading {
-    color: #c0392b;
     font-size: 1.08em;
     font-weight: bold;
     margin-bottom: 0.4em;
 }
 /* Feedback box sizing for better text fit */
 .feedback-box {
-    background: #f4f4f4;
     border-radius: 0.7em;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+/* Course List Improvements */
+.course-list, .course-grid {
+     margin-top: 2em;
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+     gap: 2em;
+}
+.course-card {
+     padding: 2em 2em 1.5em 2em;
+     margin-bottom: 0;
+     background: #fff;
+     border-radius: 1em;
+     box-shadow: 0 4px 16px rgba(92,14,42,0.10);
+     border: 1.5px solid #e0e0e0;
+     transition: box-shadow 0.2s, transform 0.2s;
+}
+.course-card:hover {
+     box-shadow: 0 8px 24px rgba(92,14,42,0.18);
+     transform: translateY(-4px) scale(1.02);
+}
     margin-bottom: 0;
     display: flex;
     flex-direction: column;

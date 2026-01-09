@@ -135,8 +135,15 @@
                                 {% set idx = loop.index0 %}
                                 <li>
                                     <strong>Line {{ line_num }}:</strong> <code>{{ comment }}</code>
-                                    <div style="color:#007bff; margin-left:1em; font-size:0.98em;">
-                                        Feedback: {{ feedback_dict[line_num] if feedback_dict and line_num in feedback_dict else '(No feedback available)' }}
+                                    <div style="color:#007bff; margin-left:1em; font-size:0.98em; display:flex; align-items:center; gap:0.5em;">
+                                        {% set feedback = feedback_dict[line_num] if feedback_dict and line_num in feedback_dict else None %}
+                                        {% if feedback %}
+                                            <i class="fas fa-check-circle" style="color:#28a745;"></i>
+                                            <span>Feedback: {{ feedback }}</span>
+                                        {% else %}
+                                            <i class="fas fa-info-circle" style="color:#007bff;"></i>
+                                            <span>Feedback: (No feedback available)</span>
+                                        {% endif %}
                                     </div>
                                 </li>
             {% endfor %}
