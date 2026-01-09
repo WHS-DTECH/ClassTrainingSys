@@ -7,6 +7,8 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
     {% endif %}
     <title>{% block title %}Class Training System{% endblock %}</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/school_logo.png') }}">
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&display=swap" rel="stylesheet">
@@ -814,7 +816,8 @@
     <nav class="navbar">
         <div class="navbar-container">
             <a href="{{ url_for('main.dashboard') if current_user.is_authenticated else url_for('main.index') }}" class="navbar-brand">
-                <i class="fas fa-graduation-cap"></i> Class Training
+                <img src="{{ url_for('static', filename='img/school_logo.png') }}" alt="School Logo" style="height:32px;width:auto;vertical-align:middle;">
+                <span style="margin-left:0.5em;"><i class="fas fa-graduation-cap"></i> Class Training</span>
             </a>
 
             <!-- Center Menu -->
