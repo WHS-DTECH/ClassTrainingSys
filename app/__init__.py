@@ -10,7 +10,7 @@ login_manager = LoginManager()
 migrate = Migrate()
 
 def create_app(skip_socketio=False):
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='../static', static_url_path='/static')
     
     # Configuration
     from config import config
