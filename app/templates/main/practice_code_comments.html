@@ -105,7 +105,29 @@
                 <button type="submit" class="btn btn-primary">Submit</button>
                 <button type="button" class="btn btn-secondary ml-2" id="clearBtn">Clear</button>
             </div>
-            <textarea name="code" id="code" class="form-control" rows="12" required style="width:100%; min-width:100%; max-width:100%; box-sizing:border-box;">{{ code or '' }}</textarea>
+            <div id="editor" style="height:320px; border:1px solid #ccc; border-radius:0.4em;"></div>
+            <textarea name="code" id="code" style="display:none;">{{ code or '' }}</textarea>
+            <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
+            <script>
+            var initialCode = {{ code|tojson|safe }} || '# Write your Python code here\n';
+            require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' }});
+            require(['vs/editor/editor.main'], function() {
+                window.editor = monaco.editor.create(document.getElementById('editor'), {
+                    value: initialCode,
+                    language: 'python',
+                    theme: 'vs-light',
+                    automaticLayout: true
+                });
+            });
+            document.getElementById('codeForm').addEventListener('submit', function(e) {
+                document.getElementById('code').value = window.editor.getValue();
+            });
+            document.getElementById('clearBtn').addEventListener('click', function() {
+                window.editor.setValue('');
+                var results = document.getElementById('resultsSection');
+                if (results) results.style.display = 'none';
+            });
+            </script>
         </div>
     </form>
     {% endif %}

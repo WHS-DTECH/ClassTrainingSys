@@ -1,6 +1,6 @@
 # TODO - Website Design Review
 
-## Visual & UI Improvements
+## DONE! ## Visual & UI Improvements
 - Add a modern, consistent color scheme and branding (school logo, favicon, etc.)
 - Use more whitespace and card layouts for lessons, assignments, and dashboards
 - Improve typography: web fonts, larger headings, clear section dividers
@@ -20,7 +20,7 @@
 - Notifications for new assignments, grades, or teacher feedback
 - Downloadable certificates or badges for completed modules
 
-## Practice & Feedback Tools
+## DOING! ## Practice & Feedback Tools
 - Inline code editor for practice/checker tools (syntax highlighting)
 - Show sample solutions or hints after feedback
 - Allow students to view submission history and feedback
