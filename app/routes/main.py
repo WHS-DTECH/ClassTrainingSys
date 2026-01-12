@@ -1,3 +1,17 @@
+# Practice Submission History (Student)
+@bp.route('/practice/history')
+@login_required
+def practice_history():
+    from app.models import CommentCheck, DebugCheck, CommentFeedback
+    # Get all comment and debug checks for this user
+    comment_checks = CommentCheck.query.filter_by(user_id=current_user.id).order_by(CommentCheck.checked_at.desc()).all()
+    debug_checks = DebugCheck.query.filter_by(user_id=current_user.id).order_by(DebugCheck.checked_at.desc()).all()
+    # For each comment check, get feedbacks by filename
+    comment_feedbacks = {}
+    for check in comment_checks:
+        feedbacks = CommentFeedback.query.filter_by(user_id=current_user.id, filename=check.filename).order_by(CommentFeedback.line_num).all()
+        comment_feedbacks[check.filename] = feedbacks
+    return render_template('practice/history.html', comment_checks=comment_checks, debug_checks=debug_checks, comment_feedbacks=comment_feedbacks)
 from flask import Blueprint, render_template, request, session, redirect, url_for
 from flask import send_file, flash, jsonify
 from flask_login import login_required, current_user
@@ -331,9 +345,9 @@ def extract_debug_blocks(code):
 # Debug Checker Route (Practice)
 @bp.route('/practice/debug_checker', methods=['GET', 'POST'])
 def practice_debug_checker():
-        # Sample solution/hint for debug checker
-        sample_solution = """# DEBUG: TEST - Check if input is valid\n# DEBUG: ISSUE - Input can be empty\n# DEBUG: FIX - Add input validation\ndef process(data):\n    if not data:\n        return None\n    # ...\n"""
-        sample_hint = "Each DEBUG block should include TEST, ISSUE, and FIX."
+    # Sample solution/hint for debug checker
+    sample_solution = """# DEBUG: TEST - Check if input is valid\n# DEBUG: ISSUE - Input can be empty\n# DEBUG: FIX - Add input validation\ndef process(data):\n    if not data:\n        return None\n    # ...\n"""
+    sample_hint = "Each DEBUG block should include TEST, ISSUE, and FIX."
     code = None
     debug_blocks = []
     already_checked = False

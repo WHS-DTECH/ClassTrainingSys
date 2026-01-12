@@ -326,14 +326,19 @@
 <div class="dashboard">
     <!-- Header -->
     <div class="dashboard-header">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
             <div>
                 <h1><i class="fas fa-chart-bar"></i> Welcome back, {{ preview_user.first_name if preview_user else 'Student' }}!</h1>
                 <p>Track your progress and stay on top of your assignments</p>
             </div>
-            <button class="contact-teacher-header-btn" onclick="showContactTeacherModal()">
-                <i class="fas fa-envelope"></i> Contact Teacher
-            </button>
+            <div style="display: flex; gap: 0.7em; flex-wrap: wrap;">
+                <button class="contact-teacher-header-btn" onclick="showContactTeacherModal()">
+                    <i class="fas fa-envelope"></i> Contact Teacher
+                </button>
+                <a href="{{ url_for('main.practice_history') }}" class="contact-teacher-header-btn" style="background:#e3f2fd;color:#007bff;border:2px solid #b3d1e6;">
+                    <i class="fas fa-history"></i> Practice Submission History
+                </a>
+            </div>
         </div>
     </div>
 
