@@ -331,6 +331,9 @@ def extract_debug_blocks(code):
 # Debug Checker Route (Practice)
 @bp.route('/practice/debug_checker', methods=['GET', 'POST'])
 def practice_debug_checker():
+        # Sample solution/hint for debug checker
+        sample_solution = """# DEBUG: TEST - Check if input is valid\n# DEBUG: ISSUE - Input can be empty\n# DEBUG: FIX - Add input validation\ndef process(data):\n    if not data:\n        return None\n    # ...\n"""
+        sample_hint = "Each DEBUG block should include TEST, ISSUE, and FIX."
     code = None
     debug_blocks = []
     already_checked = False
@@ -469,7 +472,7 @@ def practice_debug_checker():
                 'debug': '✔️' if fname in debug_files else ''
             })
 
-    return render_template('main/practice_debug_checker.html', code=code, debug_blocks=debug_blocks, already_checked=already_checked, uploaded_filename=uploaded_filename, upload_status=upload_status, can_extract=can_extract, username=username, checked_files_grid=checked_files_grid, debug_message=debug_message)
+    return render_template('main/practice_debug_checker.html', code=code, debug_blocks=debug_blocks, already_checked=already_checked, uploaded_filename=uploaded_filename, upload_status=upload_status, can_extract=can_extract, username=username, checked_files_grid=checked_files_grid, debug_message=debug_message, sample_solution=sample_solution, sample_hint=sample_hint)
 
 # PDF download for extracted debug blocks and feedback
 @bp.route('/download_debug_blocks_pdf', methods=['POST'])
@@ -646,6 +649,9 @@ def download_lesson1_feedback():
     return send_file(buffer, as_attachment=True, download_name=f"{filename}_feedback_{today}.pdf", mimetype="application/pdf")
 @bp.route('/practice/code-comments', methods=['GET', 'POST'])
 def practice_code_comments():
+        # Sample solution/hint for code comments
+        sample_solution = """# This is a sample comment\ndef add(a, b):\n    # Add two numbers and return the result\n    return a + b\n"""
+        sample_hint = "Remember: Good comments explain why code exists, not just what it does."
     from flask import flash
     from app.models import CommentCheck, DebugCheck
     code = None
@@ -912,7 +918,7 @@ def practice_code_comments():
             feedback_entries = CommentFeedback.query.filter_by(user_id=current_user.id, section_id=section_id, filename=file_to_check).order_by(CommentFeedback.line_num).all()
     # Build a feedback dict for template: line_num -> feedback
     feedback_dict = {entry.line_num: entry.feedback for entry in feedback_entries} if feedback_entries else {}
-    return render_template('main/practice_code_comments.html', code=code, comment_lines=comment_lines, already_checked=already_checked, uploaded_filename=uploaded_filename, upload_status=upload_status, can_extract=can_extract, username=username, checked_files_grid=checked_files_grid, is_teacher=is_teacher, feedback_dict=feedback_dict)
+    return render_template('main/practice_code_comments.html', code=code, comment_lines=comment_lines, already_checked=already_checked, uploaded_filename=uploaded_filename, upload_status=upload_status, can_extract=can_extract, username=username, checked_files_grid=checked_files_grid, is_teacher=is_teacher, feedback_dict=feedback_dict, sample_solution=sample_solution, sample_hint=sample_hint)
 
 @bp.route('/')
 def index():
@@ -924,34 +930,28 @@ def index():
 @login_required
 def dashboard():
     if current_user.is_teacher():
-        # Teacher dashboard
-        courses = Course.query.filter_by(teacher_id=current_user.id).all()
-        total_students = db.session.query(func.count(Enrollment.id.distinct())).\
-            join(Course).filter(Course.teacher_id == current_user.id).scalar()
-
-        # Always preview as the user with username 'student'
-        preview_user = User.query.filter_by(username='student').first()
-        enrollments = []
-        pending_assignments = []
-        if preview_user:
-            enrollments = Enrollment.query.filter_by(student_id=preview_user.id).all()
-            # Get pending assignments for preview user
-            for enrollment in enrollments:
-                assignments = Assignment.query.filter_by(course_id=enrollment.course_id).all()
-                for assignment in assignments:
-                    submission = Submission.query.filter_by(
-                        assignment_id=assignment.id,
-                        student_id=preview_user.id
-                    ).first()
-                    if not submission:
-                        pending_assignments.append(assignment)
-
-        return render_template('dashboard/teacher.html',
-            courses=courses,
+        # Use the admin/teacher_dashboard.html layout for teacher dashboard
+        teacher_courses = Course.query.filter_by(teacher_id=current_user.id).all()
+        # Collect all students enrolled in teacher's courses
+        student_ids = set()
+        for course in teacher_courses:
+            for enrollment in course.enrollments:
+                student_ids.add(enrollment.student_id)
+        students = User.query.filter(User.id.in_(student_ids)).all() if student_ids else []
+        # Get recent submissions from teacher's courses
+        recent_submissions = db.session.query(Submission).join(
+            Submission.assignment
+        ).filter(
+            Submission.assignment.has(Assignment.course_id.in_([c.id for c in teacher_courses]))
+        ).order_by(Submission.submitted_at.desc()).limit(10).all()
+        total_students = len(students)
+        total_enrollments = sum(len(course.enrollments) for course in teacher_courses)
+        return render_template('admin/teacher_dashboard.html',
+            teacher_courses=teacher_courses,
+            students=students,
+            recent_submissions=recent_submissions,
             total_students=total_students,
-            preview_enrollments=enrollments,
-            preview_pending_assignments=pending_assignments[:5],
-            preview_user=preview_user
+            total_enrollments=total_enrollments
         )
     else:
         # Student dashboard

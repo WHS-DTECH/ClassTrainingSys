@@ -183,6 +183,12 @@
         {% else %}
             <p><em>No comments found in your code.</em></p>
         {% endif %}
+        <hr>
+        <div style="margin-top:2em;">
+            <h3>Sample Solution</h3>
+            <pre style="background:#f4f8fb; border:1px solid #b3d1e6; padding:1em; border-radius:0.5em;">{{ sample_solution }}</pre>
+            <div style="color:#007bff; margin-top:0.5em; font-size:1.05em;"><b>Hint:</b> {{ sample_hint }}</div>
+        </div>
     </div>
 <script>
 var clearBtn = document.getElementById('clearBtn');

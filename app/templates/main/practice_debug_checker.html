@@ -82,6 +82,12 @@
         {% if upload_status %}
             <div style="margin-bottom:1em; color: {% if can_extract %}green{% else %}red{% endif %}; font-weight:bold;">{{ upload_status }}</div>
         {% endif %}
+        <hr>
+        <div style="margin-top:2em;">
+          <h3>Sample Solution</h3>
+          <pre style="background:#f4f8fb; border:1px solid #b3d1e6; padding:1em; border-radius:0.5em;">{{ sample_solution }}</pre>
+          <div style="color:#007bff; margin-top:0.5em; font-size:1.05em;"><b>Hint:</b> {{ sample_hint }}</div>
+        </div>
         {% if can_extract and uploaded_filename and not already_checked %}
             <form method="post" id="extractDebugForm">
               <input type="hidden" name="uploaded_filename" value="{{ uploaded_filename }}">
