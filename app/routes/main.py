@@ -1,4 +1,4 @@
-bp = Blueprint('main', __name__)
+
 
 from flask import Blueprint, render_template, request, session, redirect, url_for
 from flask import send_file, flash, jsonify
