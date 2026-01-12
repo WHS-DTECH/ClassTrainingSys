@@ -663,9 +663,9 @@ def download_lesson1_feedback():
     return send_file(buffer, as_attachment=True, download_name=f"{filename}_feedback_{today}.pdf", mimetype="application/pdf")
 @bp.route('/practice/code-comments', methods=['GET', 'POST'])
 def practice_code_comments():
-        # Sample solution/hint for code comments
-        sample_solution = """# This is a sample comment\ndef add(a, b):\n    # Add two numbers and return the result\n    return a + b\n"""
-        sample_hint = "Remember: Good comments explain why code exists, not just what it does."
+    # Sample solution/hint for code comments
+    sample_solution = """# This is a sample comment\ndef add(a, b):\n    # Add two numbers and return the result\n    return a + b\n"""
+    sample_hint = "Remember: Good comments explain why code exists, not just what it does."
     from flask import flash
     from app.models import CommentCheck, DebugCheck
     code = None
