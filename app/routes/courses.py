@@ -11,7 +11,7 @@ bp = Blueprint('courses', __name__, url_prefix='/courses')
 
 # ...existing code...
 
-@bp.route('/lessons/<int:lesson_id>/edit', methods=['GET', 'POST'])
+@bp.route('/lessons/<int:lesson_id>/edit', methods=['GET', 'POST'], endpoint='edit_lesson')
 @login_required
 def edit_lesson(lesson_id):
     lesson = Lesson.query.get_or_404(lesson_id)
