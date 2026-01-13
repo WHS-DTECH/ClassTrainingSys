@@ -22,7 +22,13 @@
             {% endif %}
         </p>
         <div class="course-meta">
-            <span>Instructor: {{ course.teacher.first_name }} {{ course.teacher.last_name }}</span>
+            <span>Instructor: 
+                {% if course.teacher.first_name or course.teacher.last_name %}
+                    {{ course.teacher.first_name or '' }} {{ course.teacher.last_name or '' }}
+                {% else %}
+                    {{ course.teacher.username }}
+                {% endif %}
+            </span>
             {% if not current_user.is_teacher() %}
                 <span>Status: Enrolled</span>
             {% endif %}

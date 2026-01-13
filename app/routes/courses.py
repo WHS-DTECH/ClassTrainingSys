@@ -1,3 +1,21 @@
+from sqlalchemy import func
+@bp.route('/lessons/<int:lesson_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_lesson(lesson_id):
+    lesson = Lesson.query.get_or_404(lesson_id)
+    course = lesson.course
+    if course.teacher_id != current_user.id:
+        flash('You do not have permission to edit this lesson.', 'danger')
+        return redirect(url_for('courses.view_lesson', lesson_id=lesson_id))
+    form = LessonForm(obj=lesson)
+    if form.validate_on_submit():
+        lesson.title = form.title.data
+        lesson.content = form.content.data
+        lesson.video_url = form.video_url.data
+        db.session.commit()
+        flash('Lesson updated successfully!', 'success')
+        return redirect(url_for('courses.view_lesson', lesson_id=lesson.id))
+    return render_template('courses/edit_lesson.html', form=form, course=course, lesson=lesson)
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from flask_login import login_required, current_user
 from app import db
