@@ -1,4 +1,16 @@
+
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session
+from flask_login import login_required, current_user
+from app import db
+from app.models import Course, Lesson, Enrollment, LessonProgress
+from app.forms import CourseForm, LessonForm
+from datetime import datetime
 from sqlalchemy import func
+
+bp = Blueprint('courses', __name__, url_prefix='/courses')
+
+# ...existing code...
+
 @bp.route('/lessons/<int:lesson_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_lesson(lesson_id):
@@ -16,18 +28,6 @@ def edit_lesson(lesson_id):
         flash('Lesson updated successfully!', 'success')
         return redirect(url_for('courses.view_lesson', lesson_id=lesson.id))
     return render_template('courses/edit_lesson.html', form=form, course=course, lesson=lesson)
-from flask import Blueprint, render_template, redirect, url_for, flash, request, session
-from flask_login import login_required, current_user
-from app import db
-from app.models import Course, Lesson, Enrollment, LessonProgress
-from app.forms import CourseForm, LessonForm
-from datetime import datetime
-bp = Blueprint('courses', __name__, url_prefix='/courses')
-from flask_login import login_required, current_user
-from app import db
-from app.models import Course, Lesson, Enrollment, LessonProgress
-from app.forms import CourseForm, LessonForm
-from datetime import datetime
 
 @bp.route('/lessons/sections/<int:section_id>')
 @login_required
