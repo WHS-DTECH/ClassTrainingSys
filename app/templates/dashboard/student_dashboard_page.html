@@ -339,8 +339,12 @@
     <div class="dashboard-header" style="color:#fff !important;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
             <div>
-                <h1 style="color:#fff !important;"><i class="fas fa-chart-bar"></i> Welcome back, {{ preview_user.first_name if preview_user else 'Student' }}!</h1>
-                <p style="color:#fff !important;">Track your progress and stay on top of your assignments</p>
+                <h1 style="color:#fff !important; opacity:1; text-shadow: 0 2px 12px #3a0012, 0 1px 0 #000; font-weight:900; letter-spacing:1px;">
+                    <i class="fas fa-chart-bar"></i> Welcome back, {{ preview_user.first_name if preview_user else 'Student' }}!
+                </h1>
+                <p style="color:#fff !important; opacity:1; text-shadow: 0 2px 12px #3a0012, 0 1px 0 #000; font-size:1.25em; font-weight:600;">
+                    Track your progress and stay on top of your assignments
+                </p>
             </div>
             <div style="display: flex; gap: 0.7em; flex-wrap: wrap;">
                 <button class="contact-teacher-header-btn" onclick="showContactTeacherModal()">
