@@ -19,7 +19,7 @@
         
         <div class="form-group">
             {{ form.content.label }}
-            {{ form.content(class="form-control", rows=10) }}
+            {{ form.content(class="form-control", id="lesson-content-editor", rows=10) }}
             {% if form.content.errors %}
                 <div class="error">{{ form.content.errors[0] }}</div>
             {% endif %}
@@ -39,4 +39,27 @@
         </div>
     </form>
 </div>
+
+<!-- CKEditor CDN -->
+<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (document.getElementById('lesson-content-editor')) {
+            CKEDITOR.replace('lesson-content-editor', {
+                removePlugins: 'elementspath',
+                resize_enabled: false,
+                height: 300,
+                toolbar: [
+                    { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat' ] },
+                    { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Blockquote' ] },
+                    { name: 'links', items: [ 'Link', 'Unlink' ] },
+                    { name: 'insert', items: [ 'Image', 'Table', 'HorizontalRule' ] },
+                    { name: 'styles', items: [ 'Format' ] },
+                    { name: 'clipboard', items: [ 'Undo', 'Redo' ] },
+                    { name: 'editing', items: [ 'Scayt' ] }
+                ]
+            });
+        }
+    });
+</script>
 {% endblock %}
