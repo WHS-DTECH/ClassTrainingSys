@@ -2,11 +2,19 @@
 
 {% block title %}Lesson Title Here{% endblock %}
 
+{% block breadcrumbs %}
+<div class="breadcrumb-nav">
+    <a href="{{ url_for('main.dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
+    <span>/</span>
+    <a href="{{ url_for('courses.list_courses') }}">Courses</a>
+    <span>/</span>
+    <a href="{{ url_for('courses.view_course', course_id=course.id) }}">{{ course.title }}</a>
+    <span>/</span>
+    <span>Lesson Title Here</span>
+</div>
+{% endblock %}
 {% block content %}
 <div class="lesson-view">
-    <div class="breadcrumb">
-        <a href="{{ url_for('courses.view_course', course_id=course.id) }}">{{ course.title }}</a> / Lesson Title Here
-    </div>
     <h1>Lesson Title Here</h1>
     {# Include your module's main content here. Replace or extend as needed. #}
     {% include "includes/module3_checking_assessment.html" %}
@@ -35,5 +43,8 @@
         {% include "includes/practice_debug_block.html" %}
     </div>
     <hr style="margin:2em 0;">
+    <a href="{{ url_for('courses.view_course', course_id=course.id) }}" class="lesson-nav-button secondary" style="margin-top:2em;display:inline-block;">
+        <i class="fas fa-book"></i> Back to Course
+    </a>
 </div>
 {% endblock %}

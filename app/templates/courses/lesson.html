@@ -2,6 +2,17 @@
 
 {% block title %}{{ lesson.title }}{% endblock %}
 
+{% block breadcrumbs %}
+<div class="breadcrumb-nav">
+    <a href="{{ url_for('main.dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
+    <span>/</span>
+    <a href="{{ url_for('courses.list_courses') }}">Courses</a>
+    <span>/</span>
+    <a href="{{ url_for('courses.view_course', course_id=course.id) }}">{{ course.title }}</a>
+    <span>/</span>
+    <span>{{ lesson.title }}</span>
+</div>
+{% endblock %}
 {% block content %}
 <style>
     .breadcrumb-nav {
@@ -9,24 +20,20 @@
         margin-bottom: 1.5rem;
         font-size: 0.95em;
     }
-
     .breadcrumb-nav a {
         color: #5c0e2a;
         text-decoration: none;
         font-weight: 600;
         transition: color 0.2s;
     }
-
     .breadcrumb-nav a:hover {
         color: #7a1d3e;
         text-decoration: underline;
     }
-
     .breadcrumb-nav span {
         color: #999;
         margin: 0 0.5rem;
     }
-
     .lesson-progress {
         background: #f0f0f0;
         padding: 0.75rem 1.25rem;

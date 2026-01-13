@@ -916,6 +916,7 @@
     <!-- Main Content -->
     <div class="main-content">
         {% block fullwidth_content %}{% endblock %}
+        {% block breadcrumbs %}{% endblock %}
         <div>
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -926,7 +927,6 @@
                     </div>
                 {% endif %}
             {% endwith %}
-            
             <!-- Flash Messages to Toast Converter -->
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
@@ -937,7 +937,6 @@
                         const category = Array.from(alert.classList)
                             .find(cls => cls.startsWith('alert-'))
                             ?.replace('alert-', '') || 'info';
-                        
                         // Map Flask categories to toast types
                         const toastType = {
                             'error': 'error',
@@ -946,16 +945,13 @@
                             'success': 'success',
                             'info': 'info'
                         }[category] || 'info';
-                        
                         // Show toast
                         Toast.show(message, toastType);
-                        
                         // Hide flash message
                         alert.style.display = 'none';
                     });
                 });
             </script>
-            
             {% block content %}{% endblock %}
         </div>
     </div>
