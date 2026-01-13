@@ -1,3 +1,25 @@
+/* Fix: Ensure teacher dashboard text is readable on dark background */
+.split-dashboard .teacher-col .dashboard {
+	background: #fff !important;
+	color: #5c0e2a !important;
+}
+.split-dashboard .teacher-col .dashboard h1,
+.split-dashboard .teacher-col .dashboard h2,
+.split-dashboard .teacher-col .dashboard h3,
+.split-dashboard .teacher-col .dashboard p,
+.split-dashboard .teacher-col .dashboard .dashboard-card,
+.split-dashboard .teacher-col .dashboard .dashboard-card .card-label,
+.split-dashboard .teacher-col .dashboard .dashboard-card .card-value {
+	color: #5c0e2a !important;
+}
+.split-dashboard .teacher-col .dashboard .dashboard-card {
+	background: #f8e6ef !important;
+	color: #5c0e2a !important;
+}
+.split-dashboard .teacher-col .dashboard .dashboard-card.card-green {
+	background: #e6d8f8 !important;
+	color: #5c0e2a !important;
+}
 
 /* Responsive Design Improvements */
 @media (max-width: 1100px) {
