@@ -148,7 +148,6 @@
             {% if lessons %}
                 <div class="lessons-list">
                     {% for lesson in lessons %}
-                        {% if lesson.order <= 4 %}
                         <div class="lesson-item {% if not current_user.is_teacher() and progress.get(lesson.id) %}completed{% endif %}">
                             <div class="lesson-info">
                                 <h3>
@@ -164,7 +163,6 @@
                                 <span class="video-icon">🎥 Video Available</span>
                             {% endif %}
                         </div>
-                        {% endif %}
                     {% endfor %}
                 </div>
             {% else %}
