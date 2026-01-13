@@ -149,12 +149,6 @@ def create_lesson(course_id):
     
     return render_template('courses/create_lesson.html', form=form, course=course)
 
-@bp.route('/lessons/<int:lesson_id>') 
-@login_required
-def view_lesson(lesson_id):
-    lesson = Lesson.query.get_or_404(lesson_id)
-    course = lesson.course
-    return render_template('courses/lesson.html', lesson=lesson, course=course)
 
 @bp.route('/lessons/<int:lesson_id>/complete', methods=['POST'])
 @login_required
