@@ -5,6 +5,7 @@ from app.models import Course, Lesson, Enrollment, LessonProgress
 from app.forms import CourseForm, LessonForm
 from datetime import datetime
 from sqlalchemy import func
+from sqlalchemy.orm import load_only
 
 bp = Blueprint('courses', __name__, url_prefix='/courses')
 
@@ -101,7 +102,12 @@ def view_course(course_id):
             flash('You are not enrolled in this course.', 'danger')
             return redirect(url_for('courses.list_courses'))
     
-    lessons = Lesson.query.filter_by(course_id=course_id).order_by(Lesson.order).all()
+    lessons_query = Lesson.query.filter_by(course_id=course_id).order_by(Lesson.order)
+    if course.title != 'Module 2: Debugging':
+        lessons_query = lessons_query.options(
+            load_only(Lesson.id, Lesson.course_id, Lesson.title, Lesson.order, Lesson.video_url)
+        )
+    lessons = lessons_query.all()
 
     # Find the lesson id for 'Introduction to Code Debugging' (case-insensitive)
     debug_intro_lesson_id = None
@@ -190,7 +196,9 @@ def view_lesson(lesson_id):
             return redirect(url_for('courses.list_courses'))
 
     # Calculate lesson navigation info
-    all_lessons = Lesson.query.filter_by(course_id=course.id).order_by(Lesson.order).all()
+    all_lessons = Lesson.query.filter_by(course_id=course.id).order_by(Lesson.order).options(
+        load_only(Lesson.id, Lesson.course_id, Lesson.title, Lesson.order)
+    ).all()
     total_lessons = len(all_lessons)
     lesson_order = None
     previous_lesson = None

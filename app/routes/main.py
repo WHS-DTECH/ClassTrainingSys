@@ -8,6 +8,7 @@ import io
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from sqlalchemy import func
+from sqlalchemy.orm import load_only
 from datetime import datetime
 import hashlib
 from app import db
@@ -23,13 +24,15 @@ bp = Blueprint('main', __name__)
 @login_required
 def practice_history():
     from app.models import CommentCheck, DebugCheck, CommentFeedback
+    max_checks = 100
+    max_feedback_per_file = 200
     # Get all comment and debug checks for this user
-    comment_checks = CommentCheck.query.filter_by(user_id=current_user.id).order_by(CommentCheck.checked_at.desc()).all()
-    debug_checks = DebugCheck.query.filter_by(user_id=current_user.id).order_by(DebugCheck.checked_at.desc()).all()
+    comment_checks = CommentCheck.query.filter_by(user_id=current_user.id).order_by(CommentCheck.checked_at.desc()).limit(max_checks).all()
+    debug_checks = DebugCheck.query.filter_by(user_id=current_user.id).order_by(DebugCheck.checked_at.desc()).limit(max_checks).all()
     # For each comment check, get feedbacks by filename
     comment_feedbacks = {}
     for check in comment_checks:
-        feedbacks = CommentFeedback.query.filter_by(user_id=current_user.id, filename=check.filename).order_by(CommentFeedback.line_num).all()
+        feedbacks = CommentFeedback.query.filter_by(user_id=current_user.id, filename=check.filename).order_by(CommentFeedback.line_num).limit(max_feedback_per_file).all()
         comment_feedbacks[check.filename] = feedbacks
     return render_template('practice/history.html', comment_checks=comment_checks, debug_checks=debug_checks, comment_feedbacks=comment_feedbacks)
 
@@ -1113,6 +1116,7 @@ def search():
     search_history = session.get('search_history', [])
     
     if query and len(query) >= 2:
+        max_results_per_type = 50
         # Build search conditions
         search_condition = or_(
             Course.title.ilike(f'%{query}%'),
@@ -1141,7 +1145,7 @@ def search():
             else:  # relevance
                 courses_query = courses_query.order_by(Course.title.asc())
             
-            results['courses'] = courses_query.all()
+            results['courses'] = courses_query.limit(max_results_per_type).all()
         
         # Search lessons
         if search_type in ['all', 'lessons']:
@@ -1163,8 +1167,11 @@ def search():
                 lessons_query = lessons_query.order_by(Lesson.created_at.desc())
             else:  # relevance
                 lessons_query = lessons_query.order_by(Lesson.title.asc())
+            lessons_query = lessons_query.options(
+                load_only(Lesson.id, Lesson.course_id, Lesson.title, Lesson.description, Lesson.created_at)
+            )
             
-            results['lessons'] = lessons_query.all()
+            results['lessons'] = lessons_query.limit(max_results_per_type).all()
         
         # Search assignments
         if search_type in ['all', 'assignments']:
@@ -1183,7 +1190,7 @@ def search():
             else:  # relevance
                 assignments_query = assignments_query.order_by(Assignment.title.asc())
             
-            results['assignments'] = assignments_query.all()
+            results['assignments'] = assignments_query.limit(max_results_per_type).all()
         
         results['total'] = len(results['courses']) + len(results['lessons']) + len(results['assignments'])
     

@@ -1,7 +1,7 @@
 import csv
 import json
 from werkzeug.utils import secure_filename
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from app import db
 from app.models import User, Course, Enrollment, Lesson, Assignment, Submission
@@ -177,13 +177,16 @@ def bulk_upload():
     except Exception as e:
         upload_message = f'Error: {str(e)}'
     # Show message on admin dashboard
-    users = User.query.all()
+    page = request.args.get('page', 1, type=int)
+    per_page = current_app.config.get('ITEMS_PER_PAGE', 20)
+    users_pagination = User.query.order_by(User.id.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    users = users_pagination.items
     courses = Course.query.filter_by(teacher_id=current_user.id).all()
     user_enrollments = {}
     for user in users:
         enrolled_courses = [enrollment.course for enrollment in user.enrollments]
         user_enrollments[user.id] = enrolled_courses
-    return render_template('admin/index.html', users=users, courses=courses, user_enrollments=user_enrollments, upload_message=upload_message)
+    return render_template('admin/index.html', users=users, courses=courses, user_enrollments=user_enrollments, upload_message=upload_message, users_pagination=users_pagination)
 
 
 @bp.route('/', methods=['GET', 'POST'])
@@ -221,7 +224,10 @@ def index():
     )
     
     # Fallback for legacy interface
-    users = User.query.all()
+    page = request.args.get('page', 1, type=int)
+    per_page = current_app.config.get('ITEMS_PER_PAGE', 20)
+    users_pagination = User.query.order_by(User.id.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    users = users_pagination.items
     courses = Course.query.all()
     user_enrollments = {}
     for user in users:
@@ -265,15 +271,19 @@ def index():
         recent_submissions=recent_submissions,
         total_students=total_students,
         total_enrollments=total_enrollments,
-        total_submissions=total_submissions
+        total_submissions=total_submissions,
+        users_pagination=users_pagination
     )
 
 @bp.route('/students')
 @login_required
 @teacher_required
 def students():
-    students = User.query.filter_by(role='student').all()
-    return render_template('admin/students.html', students=students)
+    page = request.args.get('page', 1, type=int)
+    per_page = current_app.config.get('ITEMS_PER_PAGE', 20)
+    students_pagination = User.query.filter_by(role='student').order_by(User.id.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    students = students_pagination.items
+    return render_template('admin/students.html', students=students, students_pagination=students_pagination)
 
 @bp.route('/student/<int:student_id>')
 @login_required

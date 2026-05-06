@@ -1,14 +1,17 @@
 import os
 from flask import Blueprint, Response, abort
 from flask import current_app as app
+from flask_login import current_user, login_required
 from subprocess import Popen, PIPE
 
 admin_db_export = Blueprint('admin_db_export', __name__)
 
 @admin_db_export.route('/export-db')
+@login_required
 def export_db():
-    # Only allow in debug mode for safety
-    if not app.debug:
+    # Require explicit enablement and teacher access.
+    export_enabled = os.environ.get('ENABLE_DB_EXPORT', '0') == '1'
+    if not current_user.is_teacher() or not app.debug or not export_enabled:
         abort(403)
     db_url = app.config['SQLALCHEMY_DATABASE_URI']
     if not db_url.startswith('postgresql'):

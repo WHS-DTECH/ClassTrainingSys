@@ -8,7 +8,7 @@
         <div style="display: flex; gap: 1.5em; margin-top: 1.5em;">
             <div style="padding: 1em 1.5em; background: #e3f2fd; border-radius: 0.5em; border-left: 4px solid #007bff;">
                 <div style="font-size: 0.9em; color: #666; font-weight: 500;">Total Users</div>
-                <div style="font-size: 2em; font-weight: bold; color: #007bff;">{{ users|length }}</div>
+                <div style="font-size: 2em; font-weight: bold; color: #007bff;">{{ users_pagination.total if users_pagination is defined else users|length }}</div>
             </div>
             <div style="padding: 1em 1.5em; background: #f3e5f5; border-radius: 0.5em; border-left: 4px solid #9c27b0;">
                 <div style="font-size: 0.9em; color: #666; font-weight: 500;">Total Courses</div>
@@ -87,7 +87,7 @@
                                     {% set user_courses = user_enrollments[user.id] if user.id in user_enrollments else [] %}
                                     {% for course in courses %}
                                         {% set enrolled = course in user_courses %}
-                                        <form method="POST" action="{{ url_for('admin.index') }}" style="display: inline-block; margin-right: 0.5em; margin-bottom: 0.5em;">
+                                        <form method="POST" action="{{ url_for('admin.index', page=request.args.get('page', 1)) }}" style="display: inline-block; margin-right: 0.5em; margin-bottom: 0.5em;">
                                             <input type="hidden" name="user_id" value="{{ user.id }}">
                                             <input type="hidden" name="course_id" value="{{ course.id }}">
                                             {% if enrolled %}
@@ -103,6 +103,21 @@
                     </tbody>
                 </table>
             </div>
+            {% if users_pagination is defined and users_pagination.pages > 1 %}
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5em; padding-top: 1em; border-top: 1px solid #eee;">
+                <div style="color: #666; font-size: 0.95em;">
+                    Showing page {{ users_pagination.page }} of {{ users_pagination.pages }}
+                </div>
+                <div style="display: flex; gap: 0.5em;">
+                    {% if users_pagination.has_prev %}
+                    <a href="{{ url_for('admin.index', page=users_pagination.prev_num) }}" style="padding: 0.5em 0.9em; border: 1px solid #ccc; border-radius: 0.4em; text-decoration: none; color: #333;">Previous</a>
+                    {% endif %}
+                    {% if users_pagination.has_next %}
+                    <a href="{{ url_for('admin.index', page=users_pagination.next_num) }}" style="padding: 0.5em 0.9em; border: 1px solid #ccc; border-radius: 0.4em; text-decoration: none; color: #333;">Next</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
         {% else %}
             <div style="padding: 2em; text-align: center; color: #999; background: #f9f9f9; border-radius: 0.5em;">
                 No users or courses found in the system.
