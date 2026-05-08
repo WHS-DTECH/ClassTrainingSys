@@ -944,7 +944,68 @@ def practice_code_comments():
 def index():
     if current_user.is_authenticated:
         return redirect(url_for('main.dashboard'))
-    return render_template('index.html')
+    return redirect(url_for('main.home'))
+
+@bp.route('/home')
+def home():
+    return render_template('home.html')
+
+@bp.route('/api/home-data')
+def api_home_data():
+    """Public JSON endpoint for the JavaScript-driven homepage."""
+    # All active courses
+    courses = Course.query.filter_by(is_active=True).order_by(Course.order, Course.created_at.desc()).all()
+
+    # Featured courses: most recently updated (up to 6)
+    featured = courses[:6]
+
+    def course_dict(c):
+        lesson_count = len(c.lessons)
+        # Derive a simple category tag from the title
+        title_lower = c.title.lower()
+        if 'python' in title_lower:
+            tag = 'Python'
+        elif 'debug' in title_lower:
+            tag = 'Debugging'
+        elif 'comment' in title_lower or 'document' in title_lower:
+            tag = 'Documentation'
+        elif 'web' in title_lower or 'html' in title_lower:
+            tag = 'Web'
+        elif 'algorithm' in title_lower or 'logic' in title_lower:
+            tag = 'Algorithms'
+        else:
+            tag = 'Programming'
+        return {
+            'id': c.id,
+            'title': c.title,
+            'description': c.description or '',
+            'lesson_count': lesson_count,
+            'tag': tag,
+            'created_at': c.created_at.strftime('%d %b %Y') if c.created_at else '',
+        }
+
+    # All lessons with their course names for the library grid
+    all_lessons = Lesson.query.join(Course).filter(Course.is_active == True).order_by(Lesson.order, Lesson.id).all()
+
+    def lesson_dict(l):
+        section_count = len(l.sections) if hasattr(l, 'sections') else 0
+        return {
+            'id': l.id,
+            'title': l.title,
+            'description': l.description or '',
+            'course_id': l.course_id,
+            'course_title': l.course.title if l.course else '',
+            'section_count': section_count,
+            'video': bool(l.video_url),
+        }
+
+    return jsonify({
+        'featured_courses': [course_dict(c) for c in featured],
+        'all_courses': [course_dict(c) for c in courses],
+        'lessons': [lesson_dict(l) for l in all_lessons],
+        'total_courses': len(courses),
+        'total_lessons': len(all_lessons),
+    })
 
 @bp.route('/dashboard')
 @login_required

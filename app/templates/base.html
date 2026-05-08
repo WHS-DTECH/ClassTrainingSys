@@ -6,7 +6,7 @@
     {% if csrf_token %}
         <meta name="csrf-token" content="{{ csrf_token() }}">
     {% endif %}
-    <title>{% block title %}Class Training System{% endblock %}</title>
+    <title>{% block title %}Computer Lab Hub{% endblock %}</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/whs_logo.png') }}">
     
@@ -815,10 +815,10 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="{{ url_for('main.dashboard') if current_user.is_authenticated else url_for('main.index') }}" class="navbar-brand">
+            <a href="{{ url_for('main.dashboard') if current_user.is_authenticated else url_for('main.home') }}" class="navbar-brand">
                  <img src="/static/img/whslogocircular.png" alt="School Logo" class="navbar-logo" style="height:32px;width:auto;vertical-align:middle;">
                  <img src="/static/img/school_logo.png" alt="School Logo" class="navbar-logo" style="height:32px;width:auto;vertical-align:middle;margin-left:0.5em;">
-                 <span style="margin-left:0.5em;"><i class="fas fa-graduation-cap"></i> Class Training</span>
+                 <span style="margin-left:0.5em;"><i class="fas fa-desktop"></i> Computer Lab Hub</span>
             </a>
 
             <!-- Center Menu -->
@@ -831,6 +831,8 @@
                     {% endif %}
                     {% if current_user.is_teacher() %}
                         <li><a href="{{ url_for('admin.index') }}"><i class="fas fa-shield-alt"></i> Admin</a></li>
+                        <li><a href="{{ url_for('admin.user_roles') }}"><i class="fas fa-users-cog"></i> User Roles</a></li>
+                        <li><a href="{{ url_for('admin.role_permissions') }}"><i class="fas fa-lock"></i> Permissions</a></li>
                     {% endif %}
                 {% endif %}
             </ul>
@@ -903,6 +905,8 @@
                 <a href="{{ url_for('courses.list_courses') }}"><i class="fas fa-book"></i> Courses</a>
                 {% if current_user.is_teacher() %}
                     <a href="{{ url_for('admin.index') }}"><i class="fas fa-shield-alt"></i> Admin</a>
+                    <a href="{{ url_for('admin.user_roles') }}"><i class="fas fa-users-cog"></i> User Roles</a>
+                    <a href="{{ url_for('admin.role_permissions') }}"><i class="fas fa-lock"></i> Permissions</a>
                 {% endif %}
                 <a href="{{ url_for('main.profile') }}"><i class="fas fa-user"></i> My Profile</a>
                 <a href="{{ url_for('main.settings') }}"><i class="fas fa-cog"></i> Settings</a>
@@ -959,7 +963,7 @@
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2025 Class Training System. Built for programming education.</p>
+        <p>&copy; 2025 Computer Lab Hub. Built for programming education.</p>
         {% if current_user.is_authenticated %}
         <button class="footer-contact-btn" id="contactTeacherBtn">
             <i class="fas fa-envelope"></i> Contact Teacher

@@ -1,7 +1,8 @@
 import csv
 import json
+import os
 from werkzeug.utils import secure_filename
-from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app, jsonify
 from flask_login import login_required, current_user
 from app import db
 from app.models import User, Course, Enrollment, Lesson, Assignment, Submission
@@ -307,3 +308,98 @@ def reset_student_checker(student_id):
     db.session.commit()
     flash(f'All checker files for {student.username} have been reset.', 'success')
     return redirect(url_for('admin.student_detail', student_id=student_id))
+
+
+# ── User Role Management ─────────────────────────────────────────────────────
+
+@bp.route('/user_roles')
+@login_required
+@teacher_required
+def user_roles():
+    return render_template('admin/user_roles.html')
+
+
+@bp.route('/api/users-with-roles')
+@login_required
+@teacher_required
+def api_users_with_roles():
+    users = User.query.order_by(User.username).all()
+    return jsonify([{
+        'id': u.id,
+        'username': u.username,
+        'email': u.email or '',
+        'role': u.role,
+        'first_name': u.first_name or '',
+        'last_name': u.last_name or '',
+    } for u in users])
+
+
+@bp.route('/api/set-user-role', methods=['POST'])
+@login_required
+@teacher_required
+def api_set_user_role():
+    data = request.get_json(silent=True) or {}
+    user_id = data.get('user_id')
+    new_role = data.get('role', '').strip().lower()
+    if new_role not in ('student', 'teacher'):
+        return jsonify({'error': 'Role must be student or teacher'}), 400
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    # Prevent removing the last teacher
+    if user.role == 'teacher' and new_role == 'student':
+        remaining = User.query.filter_by(role='teacher').count()
+        if remaining <= 1:
+            return jsonify({'error': 'Cannot remove the last teacher account'}), 400
+    user.role = new_role
+    db.session.commit()
+    return jsonify({'success': True, 'username': user.username, 'role': new_role})
+
+
+# ── Role Permissions Management ──────────────────────────────────────────────
+
+_PERMS_FILE = None
+
+def _perms_path():
+    global _PERMS_FILE
+    if _PERMS_FILE is None:
+        _PERMS_FILE = os.path.join(current_app.root_path, '..', 'role_permissions.json')
+    return _PERMS_FILE
+
+_DEFAULT_PERMS = {
+    'teacher': {'dashboard': True,  'courses': True,  'progress': False, 'assignments': True, 'admin': True},
+    'student': {'dashboard': True,  'courses': True,  'progress': True,  'assignments': True, 'admin': False},
+}
+
+@bp.route('/role_permissions')
+@login_required
+@teacher_required
+def role_permissions():
+    return render_template('admin/role_permissions.html')
+
+
+@bp.route('/api/role-permissions', methods=['GET', 'POST'])
+@login_required
+@teacher_required
+def api_role_permissions():
+    path = _perms_path()
+    if request.method == 'POST':
+        data = request.get_json(silent=True)
+        if not data or not isinstance(data, dict):
+            return jsonify({'error': 'Invalid payload'}), 400
+        # Only allow known roles and pages to prevent injection
+        allowed_roles = {'teacher', 'student'}
+        allowed_pages = {'dashboard', 'courses', 'progress', 'assignments', 'admin'}
+        sanitised = {
+            role: {page: bool(val) for page, val in pages.items() if page in allowed_pages}
+            for role, pages in data.items() if role in allowed_roles
+        }
+        with open(path, 'w') as f:
+            json.dump(sanitised, f, indent=2)
+        return jsonify({'success': True})
+    else:
+        if os.path.exists(path):
+            with open(path) as f:
+                return jsonify(json.load(f))
+        return jsonify(_DEFAULT_PERMS)
+
