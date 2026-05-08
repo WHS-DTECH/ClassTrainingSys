@@ -504,8 +504,6 @@
         <option value="">All Subjects</option>
         <option value="Programming">Programming</option>
         <option value="Design">Design</option>
-        <option value="Textiles">Textiles</option>
-        <option value="Woodwork">Woodwork</option>
       </select>
       <select id="filterStatus" class="filter-select">
         <option value="">Any Status</option>
@@ -611,28 +609,6 @@
       href: '{{ url_for("courses.list_courses") }}',
       lessonCount: null, // filled dynamically from API
       tag: 'Programming',
-    },
-    {
-      id: 'sewing',
-      title: 'Sewing Room',
-      subject: 'Textiles',
-      description: 'Practical sewing and textiles activities — from hand stitching to machine sewing and garment construction.',
-      icon: '🧵',
-      color1: '#7c2d12', color2: '#ea580c',
-      status: 'active',
-      href: 'https://tech-sewing.onrender.com',
-      tag: 'Textiles',
-    },
-    {
-      id: 'woodwork',
-      title: 'Woodwork Hub',
-      subject: 'Woodwork',
-      description: 'Wood technology projects, tool safety, joinery techniques, and workshop planning tasks.',
-      icon: '🪵',
-      color1: '#78350f', color2: '#d97706',
-      status: 'coming',
-      href: '#',
-      tag: 'Woodwork',
     },
     {
       id: 'design',
