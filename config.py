@@ -19,12 +19,27 @@ class Config:
     
     # Determine if we're on Render (production) or local
     IS_RENDER = os.environ.get('RENDER') == 'true'
+
+    # OAuth and session hardening
+    GOOGLE_OAUTH_ALLOWED_DOMAINS = [
+        domain.strip().lower()
+        for domain in os.environ.get('GOOGLE_OAUTH_ALLOWED_DOMAINS', '').split(',')
+        if domain.strip()
+    ]
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', '1' if IS_RENDER else '0') == '1'
+    REMEMBER_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_SAMESITE = 'Lax'
+    REMEMBER_COOKIE_SECURE = SESSION_COOKIE_SECURE
     
-    if IS_RENDER:
-        # On Render: Use NullPool to avoid connection pooling issues
-        # Each request gets a fresh connection, avoiding stale connection timeouts
+    if SQLALCHEMY_DATABASE_URI.startswith('sqlite'):
+        # SQLite does not support PostgreSQL-specific connect args.
+        SQLALCHEMY_ENGINE_OPTIONS = {}
+    elif IS_RENDER:
+        # On Render: Use NullPool to avoid connection pooling issues.
         SQLALCHEMY_ENGINE_OPTIONS = {
-            'poolclass': NullPool,  # Disable connection pooling
+            'poolclass': NullPool,
             'connect_args': {
                 'connect_timeout': 10,
                 'keepalives': 1,
@@ -34,7 +49,7 @@ class Config:
             }
         }
     else:
-        # Local development: Use standard connection pooling
+        # Local development with PostgreSQL: standard pooling.
         SQLALCHEMY_ENGINE_OPTIONS = {
             'pool_size': 5,
             'pool_recycle': 1800,
