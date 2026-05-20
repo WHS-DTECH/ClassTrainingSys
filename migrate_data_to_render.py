@@ -8,15 +8,17 @@ import sys
 from sqlalchemy import create_engine, text, inspect, MetaData, Table
 from sqlalchemy.orm import sessionmaker
 
-# Old database (Neon)
-OLD_DATABASE_URL = "postgresql://neondb_owner:npg_oeS4i0cCTtzO@ep-cool-credit-afk10tgv-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-
-# New database (Render Postgres)
-NEW_DATABASE_URL = "postgresql://dtech_classwork_db2_user:hnG6S2OxAuQRQ4f8gV4Ikg7ObjiFoLod@dpg-d86fkimq1p3s73bv1se0-a.oregon-postgres.render.com/dtech_classwork_db2?sslmode=require"
+OLD_DATABASE_URL = os.environ.get("OLD_DATABASE_URL") or os.environ.get("SOURCE_DATABASE_URL")
+NEW_DATABASE_URL = os.environ.get("NEW_DATABASE_URL") or os.environ.get("TARGET_DATABASE_URL")
 
 def migrate_data():
     """Migrate all data from old DB to new DB."""
     try:
+        if not OLD_DATABASE_URL or not NEW_DATABASE_URL:
+            raise RuntimeError(
+                "Set OLD_DATABASE_URL (or SOURCE_DATABASE_URL) and NEW_DATABASE_URL (or TARGET_DATABASE_URL) before running this script."
+            )
+
         print("[1] Connecting to old database (Neon)...")
         old_engine = create_engine(OLD_DATABASE_URL, echo=False)
         old_conn = old_engine.connect()
