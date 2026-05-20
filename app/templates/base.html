@@ -1146,7 +1146,7 @@
                         contactMessage.textContent = '⚠ Your Google authorization expired. Redirecting to re-authorize...';
                         setTimeout(() => {
                             // Redirect to Google OAuth login
-                            window.location.href = '{{ url_for("google.login") }}';
+                            window.location.href = '{{ url_for(google_oauth_login_endpoint) }}';
                         }, 2000);
                     } else {
                         contactMessage.className = 'contact-form-message error';

@@ -71,6 +71,11 @@ def create_app(skip_socketio=False):
     app.register_blueprint(google_bp, url_prefix="/login")
     if google_gmail_bp is not None:
         app.register_blueprint(google_gmail_bp, url_prefix="/login-gmail")
+
+    @app.context_processor
+    def inject_google_oauth_endpoint():
+        endpoint = "google_gmail.login" if "google_gmail.login" in app.view_functions else "google.login"
+        return {"google_oauth_login_endpoint": endpoint}
     
     # Handle the authorized event from Flask-Dance
     from flask_dance.consumer import oauth_authorized
