@@ -320,24 +320,25 @@ def download_lesson2_debug_feedback():
 # Extract debug blocks utility (move to top-level, not nested)
 def extract_debug_blocks(code):
     """
-    Extracts debug blocks in a flexible way, handling both # DEBUG: and # DEBUG TEST: starters,
-    and sub-lines with or without DEBUG, in any order, case-insensitive.
+    Extracts debug blocks in a flexible way, handling #Debug starters and subsequent
+    comment lines like #Test, #Issue, #Fix (with or without spaces/colons, any case).
     """
     import re
     debug_blocks = []
     lines = code.splitlines()
     i = 0
-    debug_line_regex = re.compile(r'#\s*DEBUG(\b|\s|:)', re.IGNORECASE)
+    debug_start_regex = re.compile(r'^\s*#\s*DEBUG(\b|\s|:)', re.IGNORECASE)
+    comment_line_regex = re.compile(r'^\s*#')
     while i < len(lines):
-        line = lines[i].strip()
+        line = lines[i]
         # Start of a debug block: any line starting with # DEBUG (with or without subtype/colon/word)
-        if debug_line_regex.match(line):
+        if debug_start_regex.match(line):
             block = [f"{i+1}: {lines[i].strip()}"]
             j = i + 1
-            # Collect subsequent lines that also start with # DEBUG (with or without subtype/colon/word)
+            # Collect subsequent comment lines (e.g., #Test/#Issue/#Fix) until code resumes.
             while j < len(lines):
-                subline = lines[j].strip()
-                if debug_line_regex.match(subline):
+                subline = lines[j]
+                if comment_line_regex.match(subline):
                     block.append(f"{j+1}: {lines[j].strip()}")
                     j += 1
                 else:

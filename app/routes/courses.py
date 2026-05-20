@@ -233,6 +233,7 @@ def view_lesson(lesson_id):
     # For Lesson 2: Debug Checker, fetch debug blocks from session (or DB if implemented)
     feedback_debug_blocks = None
     if lesson.id == 47 and current_user.is_authenticated:
+        import re
         extracted_debug_blocks = None
         feedback_debug_blocks = None
         # Try to get from session (if set by debug checker)
@@ -242,15 +243,15 @@ def view_lesson(lesson_id):
             feedback_debug_blocks = []
             for block in extracted_debug_blocks:
                 feedback = []
-                if '# Test:' in block or '# DEBUG TEST:' in block:
+                if re.search(r'^\s*\d+:\s*#\s*(?:DEBUG\s*)?TEST\b', block, re.IGNORECASE | re.MULTILINE):
                     feedback.append('✅ Test description found.')
                 else:
                     feedback.append('❌ Add a clear test description (what you tried).')
-                if '# Issue:' in block or '# DEBUG ISSUE:' in block:
+                if re.search(r'^\s*\d+:\s*#\s*(?:DEBUG\s*)?ISSUE\b', block, re.IGNORECASE | re.MULTILINE):
                     feedback.append('✅ Issue description found.')
                 else:
                     feedback.append('❌ Add a clear issue description (what went wrong).')
-                if '# Fix:' in block or '# DEBUG FIX:' in block:
+                if re.search(r'^\s*\d+:\s*#\s*(?:DEBUG\s*)?FIX\b', block, re.IGNORECASE | re.MULTILINE):
                     feedback.append('✅ Fix description found.')
                 else:
                     feedback.append('❌ Add a clear fix description (how you fixed it).')
