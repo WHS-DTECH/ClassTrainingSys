@@ -161,20 +161,7 @@
               <li style="margin-bottom:1em;">
                 <pre style="margin-bottom:0.3em;">{{ block }}</pre>
                 <div style="color:#007bff; margin-left:1em; font-size:0.98em;">
-                  {% set block_lower = block.lower() %}
-                  {% if '# debug:' in block_lower and ('test' not in block_lower and 'issue' not in block_lower and 'fix' not in block_lower) %}
-                    Feedback: Add a test, issue, and fix description to your DEBUG block.
-                  {% else %}
-                    {% set missing = [] %}
-                    {% if 'test' not in block_lower %}{% set _ = missing.append('TEST') %}{% endif %}
-                    {% if 'issue' not in block_lower %}{% set _ = missing.append('ISSUE') %}{% endif %}
-                    {% if 'fix' not in block_lower %}{% set _ = missing.append('FIX') %}{% endif %}
-                    {% if not missing %}
-                      Feedback: Great! Your DEBUG block is complete.
-                    {% else %}
-                      Feedback: Add a {{ missing|join(', ') }} to your DEBUG block for full marks.
-                    {% endif %}
-                  {% endif %}
+                  Feedback: {{ debug_feedbacks[loop.index0] if debug_feedbacks and debug_feedbacks|length > loop.index0 else 'Add a TEST, ISSUE, FIX to your DEBUG block for full marks.' }}
                 </div>
               </li>
             {% endfor %}

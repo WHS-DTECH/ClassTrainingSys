@@ -289,22 +289,7 @@ def download_lesson2_debug_feedback():
             p.drawString(50, y, line)
             y -= 16
         # Automatic feedback logic
-        feedback = []
-        block_lower = block.lower()
-        if '# debug:' in block_lower and ('test' not in block_lower and 'issue' not in block_lower and 'fix' not in block_lower):
-            feedback.append('Add a test, issue, and fix description to your DEBUG block.')
-        else:
-            missing = []
-            if 'test' not in block_lower:
-                missing.append('TEST')
-            if 'issue' not in block_lower:
-                missing.append('ISSUE')
-            if 'fix' not in block_lower:
-                missing.append('FIX')
-            if not missing:
-                feedback.append('Great! Your DEBUG block is complete.')
-            else:
-                feedback.append(f"Add a {', '.join(missing)} to your DEBUG block for full marks.")
+        feedback = [_debug_feedback_text(block)]
         p.setFillColorRGB(0.2,0.2,0.7)
         for fb in feedback:
             fb_lines = simpleSplit(f"Feedback: {fb}", "Helvetica", 12, max_width - 20)
@@ -349,6 +334,30 @@ def extract_debug_blocks(code):
             i += 1
     return debug_blocks
 
+
+def _missing_debug_tags(block):
+    """Return missing DEBUG tags from a block using standalone tag matching only."""
+    import re
+
+    tag_patterns = {
+        'TEST': re.compile(r'^\s*(?:\d+:\s*)?#\s*(?:DEBUG\s*)?TEST\b', re.IGNORECASE | re.MULTILINE),
+        'ISSUE': re.compile(r'^\s*(?:\d+:\s*)?#\s*(?:DEBUG\s*)?ISSUE\b', re.IGNORECASE | re.MULTILINE),
+        'FIX': re.compile(r'^\s*(?:\d+:\s*)?#\s*(?:DEBUG\s*)?FIX\b', re.IGNORECASE | re.MULTILINE),
+    }
+
+    missing = []
+    for tag, pattern in tag_patterns.items():
+        if not pattern.search(block):
+            missing.append(tag)
+    return missing
+
+
+def _debug_feedback_text(block):
+    missing = _missing_debug_tags(block)
+    if not missing:
+        return 'Great! Your DEBUG block is complete.'
+    return f"Add a {', '.join(missing)} to your DEBUG block for full marks."
+
 # Debug Checker Route (Practice)
 @bp.route('/practice/debug_checker', methods=['GET', 'POST'])
 def practice_debug_checker():
@@ -357,6 +366,7 @@ def practice_debug_checker():
     sample_hint = "Each DEBUG block should include TEST, ISSUE, and FIX."
     code = None
     debug_blocks = []
+    debug_feedbacks = []
     already_checked = False
     filename = request.args.get('filename')
     uploaded_filename = None
@@ -469,6 +479,9 @@ def practice_debug_checker():
     if request.method != 'POST' and 'extracted_debug_blocks' in session:
         debug_blocks = session['extracted_debug_blocks']
 
+    if debug_blocks:
+        debug_feedbacks = [_debug_feedback_text(block) for block in debug_blocks]
+
     # Add a message if no debug blocks are found after extraction (file or paste)
     debug_message = None
     # Only show the message if the user just tried to extract (not on upload or GET)
@@ -493,7 +506,7 @@ def practice_debug_checker():
                 'debug': '✔️' if fname in debug_files else ''
             })
 
-    return render_template('main/practice_debug_checker.html', code=code, debug_blocks=debug_blocks, already_checked=already_checked, uploaded_filename=uploaded_filename, upload_status=upload_status, can_extract=can_extract, username=username, checked_files_grid=checked_files_grid, debug_message=debug_message, sample_solution=sample_solution, sample_hint=sample_hint)
+    return render_template('main/practice_debug_checker.html', code=code, debug_blocks=debug_blocks, debug_feedbacks=debug_feedbacks, already_checked=already_checked, uploaded_filename=uploaded_filename, upload_status=upload_status, can_extract=can_extract, username=username, checked_files_grid=checked_files_grid, debug_message=debug_message, sample_solution=sample_solution, sample_hint=sample_hint)
 
 # PDF download for extracted debug blocks and feedback
 @bp.route('/download_debug_blocks_pdf', methods=['POST'])
@@ -557,21 +570,7 @@ def download_debug_blocks_pdf():
                 p.drawString(50, y, line)
                 y -= 12
             # Feedback logic (same as template)
-            block_lower = block.lower()
-            if '# debug:' in block_lower and ('test' not in block_lower and 'issue' not in block_lower and 'fix' not in block_lower):
-                feedback = 'Add a test, issue, and fix description to your DEBUG block.'
-            else:
-                missing = []
-                if 'test' not in block_lower:
-                    missing.append('TEST')
-                if 'issue' not in block_lower:
-                    missing.append('ISSUE')
-                if 'fix' not in block_lower:
-                    missing.append('FIX')
-                if not missing:
-                    feedback = 'Great! Your DEBUG block is complete.'
-                else:
-                    feedback = f"Add a {', '.join(missing)} to your DEBUG block for full marks."
+            feedback = _debug_feedback_text(block)
             p.setFont("Helvetica-Oblique", 9)
             p.setFillColorRGB(0.2,0.2,0.7)
             feedback_lines = simpleSplit(f"Feedback: {feedback}", "Helvetica-Oblique", 9, width - 120)
