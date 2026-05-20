@@ -101,9 +101,46 @@ def migrate_data():
                 print(f"   ✗ {table_name}: ERROR - {str(e)}")
                 new_conn.rollback()
                 continue
+
+        # Reset sequences so future inserts don't collide with imported IDs.
+        print("\n[6] Resetting ID sequences...")
+        for table_name in ordered_table_names:
+            try:
+                if table_name == "alembic_version":
+                    continue
+
+                sequence_name = new_conn.execute(
+                    text("SELECT pg_get_serial_sequence(:table_name, 'id')"),
+                    {"table_name": table_name},
+                ).scalar()
+
+                if not sequence_name:
+                    continue
+
+                max_id = new_conn.execute(
+                    text(f"SELECT COALESCE(MAX(id), 0) FROM {table_name}")
+                ).scalar()
+
+                if max_id and int(max_id) > 0:
+                    new_conn.execute(
+                        text("SELECT setval(:sequence_name, :next_value, true)"),
+                        {"sequence_name": sequence_name, "next_value": int(max_id)},
+                    )
+                else:
+                    new_conn.execute(
+                        text("SELECT setval(:sequence_name, 1, false)"),
+                        {"sequence_name": sequence_name},
+                    )
+            except Exception as e:
+                print(f"   ✗ {table_name}: sequence reset error - {str(e)}")
+                new_conn.rollback()
+                continue
+
+        new_conn.commit()
+        print("✓ ID sequences reset")
         
         # Verify row counts
-        print("\n[6] Verifying data transfer...")
+        print("\n[7] Verifying data transfer...")
         all_match = True
         for table_name in table_names:
             try:
